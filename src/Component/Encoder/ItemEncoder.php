@@ -18,6 +18,8 @@ class ItemEncoder
     public function addRegistry(RegistryInterface $registry)
     {
         $this->registryCollection[$registry->getAlias()] = $registry;
+
+        return $this;
     }
 
     public function encode(array $item, array $context = []): array

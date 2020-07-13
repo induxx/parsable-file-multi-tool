@@ -1,7 +1,7 @@
 encoding:
   cell:
     code:
-      string:
+      string: ~
     label:
       list: ~
   row:
@@ -17,7 +17,7 @@ format:
 validations:
   property:
     code:
-      unique:
+      unique: ~
     label:
       elem_exist:
         file: enabled_locales

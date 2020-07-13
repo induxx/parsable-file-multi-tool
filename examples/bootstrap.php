@@ -1,31 +1,28 @@
 <?php
 
-use Misery\Component\Common\Registry\FormatRegistryInterface;
-use Misery\Component\Common\Registry\Registry;
-use Misery\Component\Format\StringToFloatFormat;
-use Misery\Component\Format\StringToIntFormat;
-use Misery\Component\Format\StringToSerializeFormat;
-use Misery\Component\Modifier\StripSlashesModifier;
-
 require __DIR__.'/../vendor/autoload.php';
 
-$modifierRegistry = new Registry();
+// formatters are reversable // Modifiers are NOT reversable
+
+$modifierRegistry = new \Misery\Component\Common\Registry\Registry('modifier');
 $modifierRegistry
-    ->register(new StripSlashesModifier())
-    ->register(new Misery\Component\Modifier\ArrayUnflattenModifier())
-    ->register(new Misery\Component\Modifier\NullifyEmptyStringModifier())
+    ->register(Misery\Component\Modifier\StripSlashesModifier::NAME, new Misery\Component\Modifier\StripSlashesModifier())
+    ->register(Misery\Component\Modifier\ArrayUnflattenModifier::NAME, new Misery\Component\Modifier\ArrayUnflattenModifier())
+    ->register(Misery\Component\Modifier\NullifyEmptyStringModifier::NAME, new Misery\Component\Modifier\NullifyEmptyStringModifier())
 ;
-$formatRegistry = new FormatRegistryInterface();
+
+$formatRegistry = new \Misery\Component\Common\Registry\Registry('format');
 $formatRegistry
-    ->register(new StringToSerializeFormat())
-    ->register(new StringToFloatFormat())
-    ->register(new StringToIntFormat())
-    ->register(new Misery\Component\Format\StringToBooleanFormat())
-    ->register(new Misery\Component\Format\StringToDatetimeFormat())
-    ->register(new Misery\Component\Format\StringToListFormat())
+    ->register(Misery\Component\Format\StringToSerializeFormat::NAME, new Misery\Component\Format\StringToSerializeFormat())
+    ->register(Misery\Component\Format\StringToFloatFormat::NAME, new Misery\Component\Format\StringToFloatFormat())
+    ->register(Misery\Component\Format\StringToIntFormat::NAME, new Misery\Component\Format\StringToIntFormat())
+    ->register(Misery\Component\Format\StringToBooleanFormat::NAME, new Misery\Component\Format\StringToBooleanFormat())
+    ->register(Misery\Component\Format\StringToDatetimeFormat::NAME, new Misery\Component\Format\StringToDatetimeFormat())
+    ->register(Misery\Component\Format\StringToListFormat::NAME, new Misery\Component\Format\StringToListFormat())
 ;
-$processor = new Misery\Component\Common\Processor\CsvDataProcessor();
-$processor
+
+$encoder = new \Misery\Component\Encoder\ItemEncoder();
+$encoder
     ->addRegistry($formatRegistry)
     ->addRegistry($modifierRegistry)
 ;

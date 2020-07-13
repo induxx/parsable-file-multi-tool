@@ -2,10 +2,11 @@ source:
   categories:
     encode:
       code:
-        string:
+        string: ~
       parent:
-        string:
+        string: ~
     parse:
+      type: csv
       unflatten:
         separator: '-'
       nullify: ~
@@ -13,10 +14,3 @@ source:
       format:
         delimiter: ';'
         enclosure: '"'
-    validations:
-      property:
-        code:
-          unique:
-        parent:
-          reference_exist:
-            source: categories

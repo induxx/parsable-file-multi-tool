@@ -1,0 +1,28 @@
+source:
+  - attributes
+  - products
+  - families
+
+conversion:
+  data:
+    source: products
+    rename:
+      from: colour
+      to: color
+    change:
+      replace_color:
+        code: color
+        source: attributes
+        method: getLabels()
+    remove_data_by_keys:
+      - color
+  output:
+    writer:
+      type: csv
+      filename: 'products.csv'
+      format:
+        delimiter: ';'
+        enclosure: '"'
+      encode_row:
+        flatten:
+          separator: '-'
