@@ -10,16 +10,20 @@ class Source
     private $type;
     private $input;
     private $readers;
-    /**
-     * @var string
-     */
     private $alias;
+    /** @var SourceCollection */
+    private $collection;
 
     private function __construct(SourceType $type, string $input, string $alias)
     {
         $this->type = $type;
         $this->input = $input;
         $this->alias = $alias;
+    }
+
+    public function setCollection(SourceCollection $collection)
+    {
+        $this->collection = $collection;
     }
 
     public static function promise(SourceType $type, string $input, string $alias)
@@ -36,11 +40,17 @@ class Source
     {
         if (false === isset($this->readers[$this->input])) {
             if ($this->type->is('file')) {
-                $this->readers[$this->input] = new ItemReader(CsvParser::create($this->input));
+                $this->readers[$this->input] = [
+                    'reader' => new ItemReader(CsvParser::create($this->input)),
+                    'context' => $this->collection->createContextFromBluePrint($this->getAlias(). '.yaml'),
+                ];
             }
         }
 
-        return $this->readers[$this->input]->read();
+        return $this->collection->encode(
+            $this->readers[$this->input]['reader']->read(),
+            $this->readers[$this->input]['context']
+        );
     }
 
     public function write()

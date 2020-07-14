@@ -28,11 +28,14 @@ $references = [
 //    'enabled_locales.csv',
 ];
 
+// encoders should receive the blueprints
+
+// source collection should receive the encoder
+
 // collect all sources
-$sources = new \Misery\Component\Source\SourceCollection();
+$sources = new \Misery\Component\Source\SourceCollection('akeneo/csv', $encoder, $akeneoBluePrintDir);
 foreach ($references as $reference) {
     if (is_file($file = $icecatDir . DIRECTORY_SEPARATOR . $reference. '.csv')) {
-
         $sources->add(\Misery\Component\Source\Source::promise(
             \Misery\Component\Source\SourceType::file(),
             $file,
