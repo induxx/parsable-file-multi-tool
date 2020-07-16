@@ -2,8 +2,10 @@
 
 namespace Misery\Component\Source;
 
+use Misery\Component\Common\Cursor\FunctionalCursor;
 use Misery\Component\Parser\CsvParser;
 use Misery\Component\Reader\ItemReader;
+use Misery\Component\Reader\ItemReaderInterface;
 
 class Source
 {
@@ -36,25 +38,16 @@ class Source
         return $this->alias;
     }
 
-    public function read()
+    public function getReader(): ItemReaderInterface
     {
         if (false === isset($this->readers[$this->input])) {
             if ($this->type->is('file')) {
-                $this->readers[$this->input] = [
-                    'reader' => new ItemReader(CsvParser::create($this->input)),
-                    'context' => $this->collection->createContextFromBluePrint($this->getAlias(). '.yaml'),
-                ];
+                $this->readers[$this->input] = new ItemReader(new FunctionalCursor(CsvParser::create($this->input), function($item) {
+                    return $this->collection->encode($item, $this->collection->createContextFromBluePrint($this->getAlias(). '.yaml'));
+                }));
             }
         }
 
-        return $this->collection->encode(
-            $this->readers[$this->input]['reader']->read(),
-            $this->readers[$this->input]['context']
-        );
-    }
-
-    public function write()
-    {
-        // TODO we know the file, the type so should be able to read / write from Source
+        return $this->readers[$this->input];
     }
 }

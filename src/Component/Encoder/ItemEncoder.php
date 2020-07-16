@@ -8,7 +8,6 @@ use Misery\Component\Common\Modifier\CellModifier;
 use Misery\Component\Common\Modifier\RowModifier;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Registry\RegistryInterface;
-use Misery\Component\Reader\ReaderInterface;
 use Misery\Component\Validator\ValidatorInterface;
 
 class ItemEncoder
@@ -27,7 +26,7 @@ class ItemEncoder
         // preparation
         $context = $this->parseContext($context);
 
-        $this->processValidations($item, $context);
+        //$this->processValidations($item, $context);
 
         $item = $this->processEncoding($item, $context);
 
@@ -36,11 +35,9 @@ class ItemEncoder
 
     private function processEncoding(array $item, array $context): array
     {
-        foreach ($context['encode'] as $header => $namedMatches) {
-            foreach ($namedMatches as $property => $matches) {
-                foreach ($matches as $match) {
-                    $this->processMatch($item, $property, $match, $context['name']);
-                }
+        foreach ($context['encode'] as $property => $matches) {
+            foreach ($matches as $match) {
+                $this->processMatch($item, $property, $match, $context['name']);
             }
         }
 
@@ -62,10 +59,10 @@ class ItemEncoder
         $rules = [];
         $rules['name'] = $context['name'] ?? null;
 
-        foreach ($context['columns'] ?? [] as $columnName => $formatters) {
+        foreach ($context['encode'] ?? [] as $property => $formatters) {
             foreach ($formatters as $formatName => $formatOptions) {
                 if ($class = $this->getFormatClass($formatName)) {
-                    $rules['format'][$columnName][$formatName] = [
+                    $rules['encode'][$property][$formatName] = [
                         'class' => $class,
                         'options' => $formatOptions,
                     ];
@@ -84,9 +81,9 @@ class ItemEncoder
             }
         }
 
-        foreach ($context['rows'] ?? [] as $modifierName => $modifierOptions) {
+        foreach ($context['parse'] ?? [] as $modifierName => $modifierOptions) {
             if ($class = $this->getModifierClass($modifierName)) {
-                $rules['format'][$modifierName][] = [
+                $rules['encode'][$modifierName][] = [
                     'class' => $class,
                     'options' => $modifierOptions,
                 ];
@@ -105,7 +102,7 @@ class ItemEncoder
         }
 
 //        if ($class instanceof ItemReaderAwareInterface) {
-//            //  $class->setReader($this->readers['current']);
+//            $class->setReader($this->readers['current']);
 //            return;
 //        }
 
@@ -121,6 +118,7 @@ class ItemEncoder
                 break;
             case $class instanceof ArrayFormat:
                 $item = $class->format($item);
+                break;
             case $class instanceof ValidatorInterface:
                 $class->validate($item[$property], array_filter([
                     'property' => $property,
