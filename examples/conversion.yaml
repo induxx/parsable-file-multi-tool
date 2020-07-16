@@ -1,25 +1,33 @@
-source:
-  - attributes
+sources:
+  - attribute_options
   - products
   - families
 
 conversion:
   data:
     source: products
-    rename:
-      from: colour
-      to: color
-    change:
-      replace_color:
-        code: color
-        source: attributes
-        method: getLabels()
-    remove_data_by_keys:
-      - color
+  actions:
+    replace_supplier:
+      action: replace
+      key: supplier
+      source: attribute_options
+      method: getLabels
+      locale: en_US
+    rename_color:
+      action: rename
+      from: sku
+      to: identifier
+#    copy_color:
+#      action: remove
+#      from: colour
+#      to: color
+#    remove_colours:
+#      action: remove
+#      keys: [color, colour]
   output:
     writer:
       type: csv
-      filename: 'products.csv'
+      filename: 'new_products.csv'
       format:
         delimiter: ';'
         enclosure: '"'

@@ -21,6 +21,16 @@ $formatRegistry
     ->register(Misery\Component\Format\StringToListFormat::NAME, new Misery\Component\Format\StringToListFormat())
 ;
 
+$actionRegistry = new \Misery\Component\Common\Registry\Registry('action');
+$actionRegistry
+    ->register(Misery\Component\Actions\RenameAction::NAME, new Misery\Component\Actions\RenameAction())
+    ->register(Misery\Component\Actions\RemoveAction::NAME, new Misery\Component\Actions\RemoveAction())
+    ->register(Misery\Component\Actions\CopyAction::NAME, new Misery\Component\Actions\CopyAction())
+    ->register(Misery\Component\Actions\ReplaceAction::NAME, new Misery\Component\Actions\ReplaceAction())
+;
+
+$actions = new \Misery\Component\Actions\ItemActionProcessor($actionRegistry);
+
 $encoder = new \Misery\Component\Encoder\ItemEncoder();
 $encoder
     ->addRegistry($formatRegistry)

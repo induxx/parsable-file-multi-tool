@@ -112,9 +112,9 @@ u;U;U;U;size;8
 43;43;43;43;eu_shoes_size;7
 44;44;44;44;eu_shoes_size;8
 akeneo;;Akeneo;;brand;1
-abibas;abibas;abibas;abibas;supplier;1
-zaro;zaro;zaro;zaro;supplier;1
-mongo;mongo;mongo;mongo;supplier;1
+abibas;Abibas;Abibas;Abibas;supplier;1
+zaro;Zaro;Zaro;Zaro;supplier;1
+mongo;Mongo;Mongo;Mongo;supplier;1
 leather;leather;leather;cuir;material;1
 cotton;cotton;cotton;coton;material;1
 polyester;polyester;polyester;polyester;material;1
