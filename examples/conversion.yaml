@@ -7,23 +7,27 @@ conversion:
   data:
     source: products
   actions:
-    replace_supplier:
+    relabel_supplier:
       action: replace
       key: supplier
       source: attribute_options
       method: getLabels
       locale: en_US
-    rename_color:
+    rename_supplier:
+      action: rename
+      from: supplier
+      to: test01
+    copy_weight:
+      action: copy
+      from: weight
+      to: gewight
+    remove_unwanted:
+      action: remove
+      keys: [categories, enabled, family, parent, groups]
+    rename_sku:
       action: rename
       from: sku
       to: identifier
-#    copy_color:
-#      action: remove
-#      from: colour
-#      to: color
-#    remove_colours:
-#      action: remove
-#      keys: [color, colour]
   output:
     writer:
       type: csv

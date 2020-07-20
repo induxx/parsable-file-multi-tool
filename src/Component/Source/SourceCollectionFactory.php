@@ -2,18 +2,23 @@
 
 namespace Misery\Component\Source;
 
-use Misery\Component\Encoder\ItemEncoder;
+use Misery\Component\Decoder\ItemDecoderFactory;
+use Misery\Component\Encoder\ItemEncoderFactory;
+use Symfony\Component\Yaml\Yaml;
 
 class SourceCollectionFactory
 {
-    public static function create(ItemEncoder $encoder, array $references, string $akeneoBluePrintDir): SourceCollection
+    public static function create(ItemEncoderFactory $encoderFactory, ItemDecoderFactory $decoderFactory, array $references, string $bluePrintDir): SourceCollection
     {
-        $sources = new \Misery\Component\Source\SourceCollection('akeneo/csv', $encoder, $akeneoBluePrintDir);
+        $sources = new SourceCollection('akeneo/csv');
 
         foreach ($references as $reference => $file) {
             if (is_file($file)) {
-                $sources->add(\Misery\Component\Source\Source::promise(
-                    \Misery\Component\Source\SourceType::file(),
+                $configuration = self::createConfigurationFromBluePrint($bluePrintDir, 'akeneo/csv', $reference);
+                $sources->add(new Source(
+                    SourceType::file(),
+                    $encoderFactory->createItemEncoder($configuration),
+                    $decoderFactory->createItemDecoder($configuration),
                     $file,
                     $reference
                 ));
@@ -21,5 +26,20 @@ class SourceCollectionFactory
         }
 
         return $sources;
+    }
+
+    private static function createConfigurationFromBluePrint(string $bluePrintDir, string $sourceType, string $reference): array
+    {
+        $configurationFile = implode(DIRECTORY_SEPARATOR, [
+            $bluePrintDir,
+            $sourceType,
+            $reference .'.yaml'
+        ]);
+
+        if (is_file($configurationFile)) {
+            return Yaml::parseFile($configurationFile);
+        }
+
+        return [];
     }
 }

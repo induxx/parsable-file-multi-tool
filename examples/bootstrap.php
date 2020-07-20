@@ -19,6 +19,7 @@ $formatRegistry
     ->register(Misery\Component\Format\StringToBooleanFormat::NAME, new Misery\Component\Format\StringToBooleanFormat())
     ->register(Misery\Component\Format\StringToDatetimeFormat::NAME, new Misery\Component\Format\StringToDatetimeFormat())
     ->register(Misery\Component\Format\StringToListFormat::NAME, new Misery\Component\Format\StringToListFormat())
+    ->register(Misery\Component\Format\ArrayFlattenFormat::NAME, new Misery\Component\Format\ArrayFlattenFormat())
 ;
 
 $actionRegistry = new \Misery\Component\Common\Registry\Registry('action');
@@ -29,10 +30,16 @@ $actionRegistry
     ->register(Misery\Component\Actions\ReplaceAction::NAME, new Misery\Component\Actions\ReplaceAction())
 ;
 
-$actions = new \Misery\Component\Actions\ItemActionProcessor($actionRegistry);
+$actions = new \Misery\Component\Actions\ItemActionProcessorFactory($actionRegistry);
 
-$encoder = new \Misery\Component\Encoder\ItemEncoder();
+$encoder = new \Misery\Component\Encoder\ItemEncoderFactory();
 $encoder
+    ->addRegistry($formatRegistry)
+    ->addRegistry($modifierRegistry)
+;
+
+$decoder = new \Misery\Component\Decoder\ItemDecoderFactory();
+$decoder
     ->addRegistry($formatRegistry)
     ->addRegistry($modifierRegistry)
 ;

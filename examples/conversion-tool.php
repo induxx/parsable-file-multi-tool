@@ -2,6 +2,6 @@
 
 require_once __DIR__.'/bootstrap.php';
 
-Misery\Component\Converter\ItemConverter::convertFromConfigurationFile(
-    $encoder, $actions, __DIR__.'/conversion.yaml'
-);
+$converter = new Misery\Component\Converter\ItemConverter($encoder, $decoder, $actions);
+
+$converter->convertFromConfigurationFile(__DIR__.'/conversion.yaml');

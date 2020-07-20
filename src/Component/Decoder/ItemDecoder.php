@@ -1,14 +1,13 @@
 <?php
 
-namespace Misery\Component\Encoder;
+namespace Misery\Component\Decoder;
 
 use Misery\Component\Common\Format\ArrayFormat;
 use Misery\Component\Common\Format\StringFormat;
-use Misery\Component\Common\Modifier\CellModifier;
 use Misery\Component\Common\Modifier\RowModifier;
 use Misery\Component\Common\Options\OptionsInterface;
 
-class ItemEncoder
+class ItemDecoder
 {
     private $configurationRules;
 
@@ -17,7 +16,7 @@ class ItemEncoder
         $this->configurationRules = $configurationRules;
     }
 
-    public function encode(array $item): array
+    public function decode(array $item): array
     {
         foreach ($this->configurationRules['property'] ?? [] as $property => $matches) {
             if (isset($item[$property])) {
@@ -44,23 +43,15 @@ class ItemEncoder
             $class->setOptions($match['options']);
         }
 
-//        if ($class instanceof ItemReaderAwareInterface) {
-//            $class->setReader($this->readers['current']);
-//            return;
-//        }
-
         switch (true) {
-            case $class instanceof ArrayFormat:
-                $item = $class->format($item);
-                break;
-            case $class instanceof CellModifier:
-                $item[$property] = $class->modify($item[$property]);
-                break;
             case $class instanceof StringFormat:
-                $item[$property] = $class->format($item[$property]);
+                $item[$property] = $class->reverseFormat($item[$property]);
+                break;
+            case $class instanceof ArrayFormat:
+                $item = $class->reverseFormat($item);
                 break;
             case $class instanceof RowModifier:
-                $item = $class->modify($item);
+                $item = $class->reverseModify($item);
                 break;
         }
     }

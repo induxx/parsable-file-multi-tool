@@ -2,8 +2,9 @@
 
 namespace Misery\Component\Converter;
 
-use Misery\Component\Actions\ItemActionProcessor;
-use Misery\Component\Encoder\ItemEncoder;
+use Misery\Component\Actions\ItemActionProcessorFactory;
+use Misery\Component\Decoder\ItemDecoderFactory;
+use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Source\CreateSourcePaths;
 use Misery\Component\Source\SourceCollectionFactory;
 use Misery\Component\Writer\CsvWriter;
@@ -11,27 +12,47 @@ use Symfony\Component\Yaml\Yaml;
 
 class ItemConverter
 {
-    public static function convertFromConfigurationFile(ItemEncoder $encoder, ItemActionProcessor $actions, string $configuration): void
+    /**
+     * @var ItemEncoderFactory
+     */
+    private $encoderFactory;
+    /**
+     * @var ItemDecoderFactory
+     */
+    private $decoderFactory;
+    /**
+     * @var ItemActionProcessorFactory
+     */
+    private $actionFactory;
+
+    public function __construct(ItemEncoderFactory $encoderFactory, ItemDecoderFactory $decoderFactory, ItemActionProcessorFactory $actionFactory)
+    {
+        $this->encoderFactory = $encoderFactory;
+        $this->decoderFactory = $decoderFactory;
+        $this->actionFactory = $actionFactory;
+    }
+
+    public function convertFromConfigurationFile(string $configuration): void
     {
         $rootDir = '/app';
+        $bluePrintDir = $rootDir.'/src/BluePrint';
         $configuration = Yaml::parseFile($configuration);
-        $akeneoBluePrintDir = $rootDir.'/src/BluePrint';
 
         // blend client configuration and customer configuration
 
-        $actions->setContext($sources = SourceCollectionFactory::create($encoder, CreateSourcePaths::create(
+        $actionProcessor = $this->actionFactory->createActionProcessor($sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, CreateSourcePaths::create(
             $configuration['sources'],
             $rootDir.'/examples/akeneo/icecat_demo_dev/%s.csv'
-        ), $akeneoBluePrintDir), $configuration['conversion']['actions'] ?? []);
+        ), $bluePrintDir), $configuration['conversion']['actions'] ?? []);
 
-        $data = $sources->get($configuration['conversion']['data']['source'])->getReader();
+        $source = $sources->get($configuration['conversion']['data']['source']);
 
         $writer = CsvWriter::createFromArray($configuration['conversion']['output']['writer']);
         $writer->clear();
 
         // decoder needs to happen before write
-        foreach ($data->getIterator() as $item) {
-            $writer->write($actions->process($item));
+        foreach ($source->getReader()->getIterator() as $item) {
+            $writer->write($source->decode($actionProcessor->process($item)));
         }
     }
 }

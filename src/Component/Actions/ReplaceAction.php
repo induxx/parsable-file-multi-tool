@@ -26,7 +26,7 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
     {
         if (isset($item[$this->options['key']])) {
             if ($this->options['method'] === 'getLabels') {
-                $item[$this->options['key']] = $this->getLabels($item[$this->options['key']]);
+                $item[$this->options['key']] = $this->getLabels($item[$this->options['key']], $this->options['locale']);
             }
         }
 
@@ -34,9 +34,9 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
     }
 
     // todo reference needs to come from source
-    private function getLabels($reference)
+    private function getLabels($reference, $locale)
     {
-        return $this->getItem($reference)['label'][$this->options['locale']] ?? null;
+        return $this->getItem($reference)['label'][$locale] ?? null;
     }
 
     private function getItem($reference)
