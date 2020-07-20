@@ -16,4 +16,9 @@ class ReferenceBuilder
 
         return $concat;
     }
+
+    public static function buildValues(ReaderInterface $reader, string ...$references)
+    {
+        return current(static::build($reader, ...$references));
+    }
 }

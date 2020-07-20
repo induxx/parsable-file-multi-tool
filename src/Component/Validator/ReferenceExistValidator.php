@@ -17,6 +17,7 @@ class ReferenceExistValidator extends AbstractValidator implements ItemReaderAwa
     public const NAME = 'reference_exist';
 
     private $options = [
+        'reference' => null,
         'source' => null,
         'file' => null,
     ];
@@ -27,10 +28,10 @@ class ReferenceExistValidator extends AbstractValidator implements ItemReaderAwa
             return;
         }
 
-        $referencedValues = ReferenceBuilder::build(
+        $referencedValues = ReferenceBuilder::buildValues(
             $this->getReader(),
             $this->options['reference']
-        )[$this->options['reference']];
+        );
 
         if (!\in_array(strtolower($cellValue), $referencedValues, true)) {
             $this->getValidationCollector()->collect(

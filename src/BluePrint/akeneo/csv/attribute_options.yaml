@@ -1,10 +1,10 @@
 enode:
   code:
-    string:
+    string: ~
   attribute:
-    string:
+    string: ~
   sort_order:
-    integer:
+    integer: ~
 
 parse:
   type: csv
