@@ -18,6 +18,7 @@ class ReferenceExistValidator extends AbstractValidator implements ItemReaderAwa
 
     private $options = [
         'source' => null,
+        'file' => null,
     ];
 
     public function validate($cellValue, array $context = []): void
