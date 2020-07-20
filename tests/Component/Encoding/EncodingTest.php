@@ -50,7 +50,7 @@ class EncodingTest extends TestCase
         $encoder->addRegistry($formatRegistry);
 
         $encodedItem = $encoder->encode($this->items[0], [
-            'columns' => [
+            'encode' => [
                 'id' => [
                     'integer' => []
                 ],
@@ -86,7 +86,7 @@ class EncodingTest extends TestCase
         $encoder->addRegistry($modifierRegistry);
 
         $encodedItem = $encoder->encode($this->items[2], [
-            'rows' => [
+            'parse' => [
                 'nullify' => [],
             ]
         ]);

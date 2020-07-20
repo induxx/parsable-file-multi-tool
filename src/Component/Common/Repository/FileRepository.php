@@ -23,11 +23,11 @@ class FileRepository
         $this->references = $references;
     }
 
-    public function find($id): array
+    public function find(string ...$id): array
     {
         $criteria = [];
-        foreach ($this->references as $reference) {
-            $criteria[$reference] = $id;
+        foreach ($this->references as $key => $reference) {
+            $criteria[$reference] = $id[$key] ?? null;
         }
 
         return $this->findOneBy($criteria);
@@ -43,11 +43,11 @@ class FileRepository
         return current($this->findBy($criteria)) ?: [];
     }
 
-    private function indexColumnsReference(string ...$columnNames): void
+    private function indexColumnsReference(string ...$references): void
     {
         $this->cache->set(
-            $uniqueReference = implode($sep = '|', $columnNames),
-            $references = ReferencedValueBuilder::combine($this->reader, ...$columnNames)
+            $uniqueReference = implode($sep = '|', $references),
+            ReferencedValueBuilder::combine($this->reader, ...$references)
         );
     }
 

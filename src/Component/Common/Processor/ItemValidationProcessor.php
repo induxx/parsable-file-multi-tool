@@ -61,6 +61,13 @@ class ItemValidationProcessor
         }
     }
 
+    private function processReader(ReaderInterface $reader, array $context)
+    {
+        foreach ($reader->getIterator() as $data) {
+            $this->process($data, $context);
+        }
+    }
+
     private function processItem(array $data, $context)
     {
         // preparation

@@ -45,7 +45,7 @@ class CompareWithEncodingTest extends TestCase
         $encoder->addRegistry($formatRegistry);
 
         $context = [
-            'columns' => [
+            'encode' => [
                 'codes' => [
                     'list' => [],
                 ],
