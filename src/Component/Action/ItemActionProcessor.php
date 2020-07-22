@@ -1,6 +1,6 @@
 <?php
 
-namespace Misery\Component\Actions;
+namespace Misery\Component\Action;
 
 class ItemActionProcessor
 {

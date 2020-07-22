@@ -1,11 +1,13 @@
 <?php
 
-namespace Misery\Component\Actions;
+namespace Misery\Component\Action;
 
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Reader\ItemReaderAwareInterface;
 use Misery\Component\Reader\ItemReaderAwareTrait;
+
+// TODO we are stuck on 'code' source -> getReference or SourceRepository in favor of reader are other options
 
 class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
 {
@@ -25,8 +27,8 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
     public function apply(array $item): array
     {
         if (isset($item[$this->options['key']])) {
-            if ($this->options['method'] === 'getLabels') {
-                $item[$this->options['key']] = $this->getLabels($item[$this->options['key']], $this->options['locale']);
+            if ($this->options['method'] === 'getLabel') {
+                $item[$this->options['key']] = $this->getLabel($item[$this->options['key']], $this->options['locale']);
             }
         }
 
@@ -34,7 +36,7 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
     }
 
     // todo reference needs to come from source
-    private function getLabels($reference, $locale)
+    private function getLabel($reference, $locale)
     {
         return $this->getItem($reference)['label'][$locale] ?? null;
     }

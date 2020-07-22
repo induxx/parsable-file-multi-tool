@@ -11,7 +11,7 @@ conversion:
       action: replace
       key: supplier
       source: attribute_options
-      method: getLabels
+      method: getLabel
       locale: en_US
     rename_supplier:
       action: rename

@@ -24,13 +24,13 @@ $formatRegistry
 
 $actionRegistry = new \Misery\Component\Common\Registry\Registry('action');
 $actionRegistry
-    ->register(Misery\Component\Actions\RenameAction::NAME, new Misery\Component\Actions\RenameAction())
-    ->register(Misery\Component\Actions\RemoveAction::NAME, new Misery\Component\Actions\RemoveAction())
-    ->register(Misery\Component\Actions\CopyAction::NAME, new Misery\Component\Actions\CopyAction())
-    ->register(Misery\Component\Actions\ReplaceAction::NAME, new Misery\Component\Actions\ReplaceAction())
+    ->register(Misery\Component\Action\RenameAction::NAME, new Misery\Component\Action\RenameAction())
+    ->register(Misery\Component\Action\RemoveAction::NAME, new Misery\Component\Action\RemoveAction())
+    ->register(Misery\Component\Action\CopyAction::NAME, new Misery\Component\Action\CopyAction())
+    ->register(Misery\Component\Action\ReplaceAction::NAME, new Misery\Component\Action\ReplaceAction())
 ;
 
-$actions = new \Misery\Component\Actions\ItemActionProcessorFactory($actionRegistry);
+$actions = new \Misery\Component\Action\ItemActionProcessorFactory($actionRegistry);
 
 $encoder = new \Misery\Component\Encoder\ItemEncoderFactory();
 $encoder

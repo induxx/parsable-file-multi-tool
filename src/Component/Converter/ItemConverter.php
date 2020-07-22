@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Converter;
 
-use Misery\Component\Actions\ItemActionProcessorFactory;
+use Misery\Component\Action\ItemActionProcessorFactory;
 use Misery\Component\Decoder\ItemDecoderFactory;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Source\CreateSourcePaths;
