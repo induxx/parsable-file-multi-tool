@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Action;
 
+use Misery\Component\Akeneo\AkeneoValuePicker;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Reader\ItemReaderAwareInterface;
@@ -28,17 +29,13 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
     {
         if (isset($item[$this->options['key']])) {
             if ($this->options['method'] === 'getLabel') {
-                $item[$this->options['key']] = $this->getLabel($item[$this->options['key']], $this->options['locale']);
+                if ($sourceItem = $this->getItem($item[$this->options['key']])) {
+                    $item[$this->options['key']] = AkeneoValuePicker::pickLabel($sourceItem, $this->options);
+                }
             }
         }
 
         return $item;
-    }
-
-    // todo reference needs to come from source
-    private function getLabel($reference, $locale)
-    {
-        return $this->getItem($reference)['label'][$locale] ?? null;
     }
 
     private function getItem($reference)
