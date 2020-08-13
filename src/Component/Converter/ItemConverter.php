@@ -37,9 +37,13 @@ class ItemConverter
         $rootDir = '/app';
         $bluePrintDir = $rootDir.'/src/BluePrint';
         $configuration = Yaml::parseFile($configuration);
+        
+        $this->convertFromConfigurationArray($configuration);
+    }
 
+    public function convertFromConfigurationArray(array $configuration): void
+    {
         // blend client configuration and customer configuration
-
         $actionProcessor = $this->actionFactory->createActionProcessor($sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, CreateSourcePaths::create(
             $configuration['sources'],
             $rootDir.'/examples/akeneo/icecat_demo_dev/%s.csv'
