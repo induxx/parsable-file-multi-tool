@@ -43,12 +43,15 @@ class ItemConverter
     {
         $rootDir = '/app';
         $bluePrintDir = $rootDir.'/src/BluePrint';
+        $sourcePaths = CreateSourcePaths::create(
+            $configuration['sources'],
+            $configuration['source_path'] . '/%s.csv' ?? $rootDir.'/examples/akeneo/icecat_demo_dev/%s.csv'
+        );
+
+        $sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, $sourcePaths, $bluePrintDir);
 
         // blend client configuration and customer configuration
-        $actionProcessor = $this->actionFactory->createActionProcessor($sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, CreateSourcePaths::create(
-            $configuration['sources'],
-            $rootDir.'/examples/akeneo/icecat_demo_dev/%s.csv'
-        ), $bluePrintDir), $configuration['conversion']['actions'] ?? []);
+        $actionProcessor = $this->actionFactory->createActionProcessor($sources, $configuration['conversion']['actions'] ?? []);
 
         $source = $sources->get($configuration['conversion']['data']['source']);
 
