@@ -1,16 +1,17 @@
 encode:
-  code:
+  role:
     string: ~
+  label: ~
 
 parse:
   type: csv
   unflatten:
     separator: '-'
   nullify: ~
-  reference: code
+  reference: role
   format:
     delimiter: ';'
     enclosure: '"'
 
 validations:
-  include: 'validation/group_types.yaml'
+  include: 'validation/user_role.yaml'

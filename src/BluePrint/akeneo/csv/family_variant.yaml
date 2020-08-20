@@ -23,4 +23,4 @@ parse:
     enclosure: '"'
 
 validations:
-  include: 'validation/family_variants.yaml'
+  include: 'validation/family_variant.yaml'

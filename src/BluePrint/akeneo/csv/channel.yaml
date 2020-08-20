@@ -1,20 +1,18 @@
-enode:
+encode:
   code:
     string: ~
-  attribute:
-    string: ~
-  sort_order:
-    integer: ~
+  currencies:
+    list: ~
 
 parse:
   type: csv
   unflatten:
     separator: '-'
   nullify: ~
-  reference: ['code', 'attribute']
+  reference: code
   format:
     delimiter: ';'
     enclosure: '"'
 
 validations:
-  include: 'validation/attribute_options.yaml'
+  include: 'validation/channel.yaml'

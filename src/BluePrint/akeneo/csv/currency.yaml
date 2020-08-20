@@ -1,17 +1,18 @@
 encode:
-  role:
+  code:
     string: ~
-  label: ~
+  activated:
+    bool: ~
 
 parse:
   type: csv
   unflatten:
     separator: '-'
   nullify: ~
-  reference: role
+  reference: code
   format:
     delimiter: ';'
     enclosure: '"'
 
 validations:
-  include: 'validation/user_roles.yaml'
+  include: 'validation/currency.yaml'

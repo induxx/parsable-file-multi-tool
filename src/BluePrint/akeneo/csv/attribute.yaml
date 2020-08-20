@@ -63,4 +63,4 @@ parse:
     enclosure: '"'
 
 validations:
-  include: 'validation/attributes.yaml'
+  include: 'validation/attribute.yaml'

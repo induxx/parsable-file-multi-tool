@@ -1,15 +1,11 @@
-encode:
-  sku:
-    string: ~
-  categories:
-    list: ~
-  enabled:
-    boolean: ~
-  family:
+columns:
+  code:
+    int: ~
+  family_variant:
     string: ~
   parent:
     string: ~
-  groups:
+  categories:
     list: ~
 
 parse:
@@ -17,10 +13,10 @@ parse:
   unflatten:
     separator: '-'
   nullify: ~
-  reference: sku
+  reference: code
   format:
     delimiter: ';'
     enclosure: '"'
 
 validations:
-  include: 'validation/products.yaml'
+  include: 'validation/product_model.yaml'

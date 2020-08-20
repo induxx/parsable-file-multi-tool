@@ -1,8 +1,8 @@
 encode:
   code:
     string: ~
-  currencies:
-    list: ~
+  name:
+    string: ~
 
 parse:
   type: csv
@@ -15,4 +15,4 @@ parse:
     enclosure: '"'
 
 validations:
-  include: 'validation/channels.yaml'
+  include: 'validation/user_group.yaml'

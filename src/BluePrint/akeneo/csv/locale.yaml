@@ -13,4 +13,4 @@ parse:
     enclosure: '"'
 
 validations:
-  include: 'validation/enabled_locales.yaml'
+  include: 'validation/locale.yaml'

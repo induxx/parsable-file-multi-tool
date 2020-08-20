@@ -1,8 +1,6 @@
 encode:
   code:
     string: ~
-  name:
-    string: ~
 
 parse:
   type: csv
@@ -15,4 +13,4 @@ parse:
     enclosure: '"'
 
 validations:
-  include: 'validation/user_groups.yaml'
+  include: 'validation/group_type.yaml'

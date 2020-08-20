@@ -1,6 +1,8 @@
 encode:
   code:
     string: ~
+  type:
+    string: ~
 
 parse:
   type: csv
@@ -13,4 +15,4 @@ parse:
     enclosure: '"'
 
 validations:
-  include: 'validation/association_types.yaml'
+  include: 'validation/group.yaml'
