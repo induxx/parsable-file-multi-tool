@@ -39,29 +39,33 @@ class ItemConfigurationHandler
             $configuration = Yaml::parseFile($configuration);
         }
 
-        if (null === $sources) {
-            // if no sources are given as a Collectection, we expect that we are dealing with akeneo sources.
-            $rootDir = '/app';
-            $bluePrintDir = $rootDir.'/src/BluePrint';
-            $sourcePaths = CreateSourcePaths::create(
-                $configuration['sources'],
-                $configuration['source_path'] . '/%s.csv'
-            );
+        // TODO validate configuration here
 
-            $sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, $sourcePaths, $bluePrintDir);
-        }
+        try {
+            if (null === $sources) {
+                // if no Sources are given as a Collection, we expect that we are dealing with Akeneo\Pim sources.
+                $sourcePaths = CreateSourcePaths::create(
+                    $configuration['sources'],
+                    $configuration['source_path'] . '/%s.csv'
+                );
 
-        // blend client configuration and customer configuration
-        $actionProcessor = $this->actionFactory->createActionProcessor($sources, $configuration['conversion']['actions'] ?? []);
+                $sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, $sourcePaths, $configuration['blueprint_path']);
+            }
 
-        $source = $sources->get($configuration['conversion']['data']['source']);
+            // blend client configuration and customer configuration
+            $actionProcessor = $this->actionFactory->createActionProcessor($sources, $configuration['conversion']['actions'] ?? []);
 
-        $writer = CsvWriter::createFromArray($configuration['conversion']['output']['writer']);
-        $writer->clear();
+            $source = $sources->get($configuration['conversion']['data']['source']);
 
-        // decoder needs to happen before write
-        foreach ($source->getReader()->getIterator() as $item) {
-            $writer->write($source->decode($actionProcessor->process($item)));
+            $writer = CsvWriter::createFromArray($configuration['conversion']['output']['writer']);
+            $writer->clear();
+
+            // decoder needs to happen before write
+            foreach ($source->getReader()->getIterator() as $item) {
+                $writer->write($source->decode($actionProcessor->process($item)));
+            }
+        } catch (\Exception $e) {
+            throw new \Exception('Invalid Configuration File', 0, $e);
         }
     }
 }
