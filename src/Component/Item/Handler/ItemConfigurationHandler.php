@@ -1,16 +1,17 @@
 <?php
 
-namespace Misery\Component\Converter;
+namespace Misery\Component\Item\Handler;
 
 use Misery\Component\Action\ItemActionProcessorFactory;
 use Misery\Component\Decoder\ItemDecoderFactory;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Source\CreateSourcePaths;
+use Misery\Component\Source\SourceCollection;
 use Misery\Component\Source\SourceCollectionFactory;
 use Misery\Component\Writer\CsvWriter;
 use Symfony\Component\Yaml\Yaml;
 
-class ItemConverter
+class ItemConfigurationHandler
 {
     /**
      * @var ItemEncoderFactory
@@ -32,23 +33,23 @@ class ItemConverter
         $this->actionFactory = $actionFactory;
     }
 
-    public function convertFromConfigurationFile(string $configuration): void
+    public function handle($configuration, SourceCollection $sources = null): void
     {
-        $configuration = Yaml::parseFile($configuration);
+        if (false === is_array($configuration)) {
+            $configuration = Yaml::parseFile($configuration);
+        }
 
-        $this->convertFromConfigurationArray($configuration);
-    }
+        if (null === $sources) {
+            // if no sources are given as a Collectection, we expect that we are dealing with akeneo sources.
+            $rootDir = '/app';
+            $bluePrintDir = $rootDir.'/src/BluePrint';
+            $sourcePaths = CreateSourcePaths::create(
+                $configuration['sources'],
+                $configuration['source_path'] . '/%s.csv'
+            );
 
-    public function convertFromConfigurationArray(array $configuration): void
-    {
-        $rootDir = '/app';
-        $bluePrintDir = $rootDir.'/src/BluePrint';
-        $sourcePaths = CreateSourcePaths::create(
-            $configuration['sources'],
-            $configuration['source_path'] . '/%s.csv' ?? $rootDir.'/examples/akeneo/icecat_demo_dev/%s.csv'
-        );
-
-        $sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, $sourcePaths, $bluePrintDir);
+            $sources = SourceCollectionFactory::create($this->encoderFactory, $this->decoderFactory, $sourcePaths, $bluePrintDir);
+        }
 
         // blend client configuration and customer configuration
         $actionProcessor = $this->actionFactory->createActionProcessor($sources, $configuration['conversion']['actions'] ?? []);
