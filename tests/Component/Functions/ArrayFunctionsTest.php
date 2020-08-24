@@ -2,11 +2,7 @@
 
 namespace Tests\Misery\Component\Functions;
 
-use Misery\Component\Common\Cursor\CachedCursor;
 use Misery\Component\Common\Functions\ArrayFunctions;
-use Misery\Component\Common\Tracker\TimeTracker;
-use Misery\Component\Parser\CsvParser;
-use Misery\Component\Reader\ItemReader;
 use PHPUnit\Framework\TestCase;
 
 class ArrayFunctionsTest extends TestCase
