@@ -35,7 +35,7 @@ class ItemConfigurationHandler
 
     public function handle($configuration, SourceCollection $sources = null): void
     {
-        if (false === is_array($configuration)) {
+        if (is_file($configuration)) {
             $configuration = Yaml::parseFile($configuration);
         }
 

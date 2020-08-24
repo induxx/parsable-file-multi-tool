@@ -2,6 +2,33 @@
 
 namespace Misery\Component\Akeneo;
 
+/**
+ *  expected/supported array values sturcture
+ *
+ * / local and scope
+ *
+ *     'description' => [
+ *          'pim' => [
+ *              'nl_BE' => 'LVS',
+ *          ],
+ *      ],
+ *
+ * / local
+ *
+ *     'description' => [
+ *          'nl_BE' => 'LVS',
+ *      ],
+ *
+ * / scope
+ *
+ *     'description' => [
+ *          'pim' => 'LVS',
+ *      ],
+ *
+ * / global
+ *
+ *     'description' => 'LVS',
+ **/
 class AkeneoValuePicker
 {
     private static $default = [
@@ -25,25 +52,6 @@ class AkeneoValuePicker
             }
             elseif ($context['scope'] && isset($itemValue[$context['scope']])) {
                 return $itemValue[$context['scope']];
-            }
-            elseif ($context['locale'] && isset($itemValue[$context['locale']])) {
-                return $itemValue[$context['locale']];
-            }
-        }
-
-        return $itemValue;
-    }
-
-    public static function pickLabel(array $item, array $context = [])
-    {
-        $context = array_merge(self::$default, $context);
-
-        $itemValue = $item['label'] ?? null;
-
-        if ($itemValue) {
-            // akeneo value picker
-            if (null === $context['scope'] && null === $context['locale']) {
-                return $itemValue;
             }
             elseif ($context['locale'] && isset($itemValue[$context['locale']])) {
                 return $itemValue[$context['locale']];

@@ -10,11 +10,12 @@ class SourceCollectionFactory
 {
     public static function create(ItemEncoderFactory $encoderFactory, ItemDecoderFactory $decoderFactory, array $references, string $bluePrintDir): SourceCollection
     {
+        // TODO open up the SourceCollection
         $sources = new SourceCollection('akeneo/csv');
 
         foreach ($references as $reference => $file) {
             if (is_file($file)) {
-                $configuration = self::createConfigurationFromBluePrint($bluePrintDir, 'akeneo/csv', $reference);
+                $configuration = self::createConfigurationFromBluePrint($bluePrintDir, $reference);
                 $sources->add(new Source(
                     SourceType::file(),
                     $encoderFactory->createItemEncoder($configuration),
@@ -28,13 +29,9 @@ class SourceCollectionFactory
         return $sources;
     }
 
-    private static function createConfigurationFromBluePrint(string $bluePrintDir, string $sourceType, string $reference): array
+    private static function createConfigurationFromBluePrint(string $bluePrintDir, string $reference): array
     {
-        $configurationFile = implode(DIRECTORY_SEPARATOR, [
-            $bluePrintDir,
-            $sourceType,
-            $reference .'.yaml'
-        ]);
+        $configurationFile = $bluePrintDir . DIRECTORY_SEPARATOR . $reference . '.yaml';
 
         if (is_file($configurationFile)) {
             return Yaml::parseFile($configurationFile);

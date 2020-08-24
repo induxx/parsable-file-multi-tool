@@ -30,7 +30,7 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
         if (isset($item[$this->options['key']])) {
             if ($this->options['method'] === 'getLabel') {
                 if ($sourceItem = $this->getItem($item[$this->options['key']])) {
-                    $item[$this->options['key']] = AkeneoValuePicker::pickLabel($sourceItem, $this->options);
+                    $item[$this->options['key']] = AkeneoValuePicker::pick($sourceItem, 'label', $this->options);
                 }
             }
         }
