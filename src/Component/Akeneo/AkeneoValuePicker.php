@@ -55,6 +55,7 @@ class AkeneoValuePicker
             elseif ($context['locale'] && isset($itemValue[$context['locale']])) {
                 return $itemValue[$context['locale']];
             }
+            return $itemValue;
         }
 
         return null;
