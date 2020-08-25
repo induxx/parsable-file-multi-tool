@@ -43,7 +43,6 @@ class AkeneoValuePicker
         $itemValue = $item[$key] ?? null;
 
         if ($itemValue) {
-            // akeneo value picker
             if (null === $context['scope'] && null === $context['locale']) {
                 return $itemValue;
             }
@@ -58,6 +57,6 @@ class AkeneoValuePicker
             }
         }
 
-        return $itemValue;
+        return null;
     }
 }
