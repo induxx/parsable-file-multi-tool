@@ -57,8 +57,6 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
                         }
                     }
                     $item[$this->options['key']] = $tmp;
-
-                    var_dump($item);
                     break;
 
                 default;
