@@ -4,34 +4,46 @@ namespace Misery\Component\Converter;
 
 class AkeneoCsvStructureConverter
 {
-    public static function convert(array $item, array $config)
+    public static function convert(array $item, array $codes)
     {
         $separator = '-';
-        $narrow = [
-            'codes' => ['code'],
-        ];
 
         $output = [];
         foreach ($item as $key => $value) {
-            if (\is_array($value) && \strpos($key, $separator) !== false) {
-                $output[$key] = static::convert($value, $config);
-            } elseif (is_string($value)) {
-                $output[$key] = $value;
+
+            $keys = explode($separator, $key);
+            if (false === in_array($keys[0], $codes)) {
+                continue;
+            }
+
+            $output[$keys[0]][] = [
+                'data' => $value,
+                'locale' => $keys[1] ?? null,
+                'scope' => $keys[2] ?? null,
+            ];
+            unset($item[$key]);
+        }
+
+        return $item+$output;
+    }
+
+    public static function revert(array $item, array $codes)
+    {
+        $separator = '-';
+
+        $output = [];
+        foreach ($item as $key => $value) {
+
+            if (in_array($key, $codes)) {
+                foreach ($value as $valueItem) {
+                    $keys = implode($separator, array_filter([$key, $valueItem['locale'], $valueItem['scope']]));
+                    $output[$keys] = $valueItem['data'];
+                }
+
+                unset($item[$key]);
             }
         }
 
-        return $output;
-    }
-
-    private function doConvert($item)
-    {
-        $oldKey = key($item);
-        $key = explode('-', $oldKey);
-
-        return [$key[0] => [
-            'data' => $item[$oldKey],
-            'locale' => $key[1] ?? null,
-            'scope' => $key[2] ?? null,
-        ]];
+        return $item+$output;
     }
 }
