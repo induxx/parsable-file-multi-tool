@@ -22,12 +22,11 @@ class DecodeSpecialModifier implements CellModifier, OptionsInterface
         'html 4.01' => ENT_HTML401,
         'xml 1' => ENT_XML1,
         'xhtml' => ENT_XHTML,
-        'html 5' => ENT_HTML5
+        'html 5' => ENT_HTML5,
     ];
 
     public function modify(string $value)
     {
-        var_dump($this->options['decoder']);
-        return html_entity_decode($value, $this->flags[$this->options['decoder']]);
+        return html_entity_decode($value, $this->flags[$this->options['decoder']] ?? null);
     }
 }
