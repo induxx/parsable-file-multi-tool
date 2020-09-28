@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Converter;
 
-class AkeneoCsvStructureConverter
+class AkeneoCsvStructureConverter implements Converter
 {
     public static function convert(array $item, array $codes)
     {
