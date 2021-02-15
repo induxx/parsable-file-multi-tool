@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Misery\Component\Statement;
-
 
 class Field
 {
