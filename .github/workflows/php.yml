@@ -6,6 +6,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['7.3']
 
     steps:
     - uses: actions/checkout@v2
