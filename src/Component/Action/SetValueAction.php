@@ -20,6 +20,7 @@ class SetValueAction implements ActionInterface, OptionsInterface
     public function apply(array $item): array
     {
         $item[$this->options['key']] = $this->options['value'];
+
         return $item;
     }
 }
