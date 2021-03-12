@@ -4,63 +4,65 @@ namespace Misery\Component\Writer;
 
 class XmlWriter
 {
-    /** @var \SplFileObject */
-    private $filename;
+    public const CONTAINER = 'container';
+    public const HEADER = 'header';
+    public const START = 'start';
 
+    private $options = [];
     private $header = [
         'version' => '1.0',
         'encoding' => 'UTF-8',
         'indent' => 4,
-        'indent_string' => '    ',
+        'indent_string' => ' ',
     ];
 
-    private $start = [
-        'PutRequest' => [
-            'attributes' => [
-                'xmlns' => 'urn:xmlns:nedfox-retail3000api-com:putrequest',
-                'version' => '6.0',
-            ],
-        ],
-        'Records' => null,
-    ];
-
-    /**
-     * @var \XMLWriter
-     */
+    /**  @var \XMLWriter */
     private $writer;
 
-    public function __construct(string $filename, array $header = [], array $start = [])
-    {
-        $this->filename = $filename;
-        $this->start = array_merge($this->start, $start);
-        $this->writer = $this->createWriter(array_merge($this->header, $header), $start);
-    }
+    public function __construct(
+        string $filename,
+        array $options = []
+    ) {
+        $this->options = $options;
+        $start = isset($options[self::START]) > 0 ? $options[self::START]: [];
+        $header = array_merge($this->header, $options[self::HEADER] ?? []);
 
-    private function createWriter(array $header, array $start = []): \XMLWriter
-    {
         $XMLWriter = new \XMLWriter();
         $XMLWriter->openMemory();
-        $XMLWriter->openUri($this->filename);
-        $XMLWriter->startDocument($header['version'], $header['encoding']);
+        $XMLWriter->openUri($filename);
+        if (isset($header['version'], $header['encoding'])) {
+            $XMLWriter->startDocument($header['version'], $header['encoding']);
+        }
         $XMLWriter->setIndent($header['indent']);
-        $XMLWriter->setIndentString($header['indent_string']);
+        $XMLWriter->setIndentString(str_repeat($header['indent_string'], $header['indent']));
 
+        $this->writer = $XMLWriter;
+        // write the start
         foreach ($start as $elemName => $elemAttributes) {
             $XMLWriter->startElement($elemName);
-            if (is_array($elemAttributes)) {
-                foreach ($elemAttributes as $attributeName => $attributeValue) {
-                    $XMLWriter->writeAttribute($attributeName, $attributeValue);
-                }
+            foreach ($elemAttributes['@attributes'] ?? [] as $attributeName => $attributeValue) {
+                $XMLWriter->writeAttribute($attributeName, $attributeValue);
             }
         }
 
-        return $XMLWriter;
+        // open the container
+        foreach ($options as $elemName => $elemAttributes) {
+            if ($elemName === self::CONTAINER) {
+                $this->writer->startElement($elemAttributes);
+            }
+        }
     }
 
     public function write(array $data)
     {
         foreach($data as $key => $value) {
             if (\is_array($value)) {
+                if ('@attributes' === $key) {
+                    foreach ($value as $i => $collectionValue) {
+                        $this->writer->writeAttribute($i, $collectionValue);
+                    }
+                    continue;
+                }
                 if (\is_string($key) && is_numeric(current(array_keys($value)))) {
                     foreach ($value as $i => $collectionValue) {
                         $this->writer->startElement($key);
@@ -93,7 +95,13 @@ class XmlWriter
     {
         $writer = $this->writer;
 
-        foreach (count($this->start) as $elem) {
+        // close the container
+        if (isset($this->options[self::CONTAINER])) {
+            $writer->endElement();
+        }
+
+        // close the start
+        if (isset($this->options[self::START])) {
             $writer->endElement();
         }
 

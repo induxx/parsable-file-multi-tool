@@ -37,6 +37,9 @@
             "vendor/bin/phpstan analyse -l 5 src",
             "vendor/bin/phpstan analyse -l 3 tests"
         ],
+        "unit-check": [
+            "php vendor/bin/phpunit --exclude-group performance"
+        ],
         "unit-test": [
             "php vendor/bin/phpunit --exclude-group performance",
             "vendor/bin/phpstan analyse -l 5 src",
