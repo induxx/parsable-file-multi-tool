@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Writer;
 
-class XmlWriter
+class XmlWriter implements ItemWriterInterface
 {
     public const CONTAINER = 'container';
     public const HEADER = 'header';
@@ -53,16 +53,17 @@ class XmlWriter
         }
     }
 
-    public function write(array $data)
+    public function write(array $data): void
     {
+        if (isset($data['@attributes'])) {
+            foreach ($data['@attributes'] as $attributeName => $attributeValue) {
+                $this->writer->writeAttribute($attributeName, $attributeValue);
+            }
+            unset($data['@attributes']);
+        }
+
         foreach($data as $key => $value) {
             if (\is_array($value)) {
-                if ('@attributes' === $key) {
-                    foreach ($value as $i => $collectionValue) {
-                        $this->writer->writeAttribute($i, $collectionValue);
-                    }
-                    continue;
-                }
                 if (\is_string($key) && is_numeric(current(array_keys($value)))) {
                     foreach ($value as $i => $collectionValue) {
                         $this->writer->startElement($key);
@@ -84,7 +85,9 @@ class XmlWriter
                 }
 
                 continue;
-            } elseif (is_string($value)) {
+            }
+
+            if (is_string($value) && !empty($key)) {
                 $this->writer->writeElement($key, $value);
                 continue;
             }
