@@ -3,6 +3,7 @@
 namespace Misery\Component\Common\Pipeline;
 
 use Misery\Component\Action\ItemActionProcessorFactory;
+use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Decoder\ItemDecoderFactory;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Parser\CsvParser;
@@ -29,7 +30,7 @@ class PipelineFactory
         $this->actionFactory = $actionFactory;
     }
 
-    public function createFromConfiguration(array $configuration) : Pipeline
+    public function createFromConfiguration(array $configuration, LocalFileManager $manager) : Pipeline
     {
         $context = $configuration['context'];
         $configuration = $configuration['pipeline'];
@@ -38,7 +39,7 @@ class PipelineFactory
         $sources = new SourceCollection('akeneo/csv');
 
         $reader = new ItemReader(CsvParser::create(
-            $context['workpath'] . DIRECTORY_SEPARATOR . $configuration['input']['reader']['filename'],
+            $manager->getWorkingDirectory(). DIRECTORY_SEPARATOR . $configuration['input']['reader']['filename'],
             $configuration['input']['reader']['delimiter'] ?? CsvParser::DELIMITER,
             $configuration['input']['reader']['enclosure'] ?? CsvParser::ENCLOSURE
         ));
@@ -46,7 +47,7 @@ class PipelineFactory
 
         if (isset($configuration['output'])) {
             $writer = new XmlWriter(
-                $context['workpath'] . DIRECTORY_SEPARATOR . $configuration['output']['writer']['filename'],
+                $manager->getWorkingDirectory() . DIRECTORY_SEPARATOR . $configuration['output']['writer']['filename'],
                 $configuration['output']['writer']['options'] ?? []
             );
             $pipeline->output(new PipeWriter($writer));
