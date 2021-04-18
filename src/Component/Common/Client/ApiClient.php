@@ -1,0 +1,98 @@
+<?php
+
+namespace Misery\Component\Common\Client;
+
+use Misery\Component\Common\Generator\UrlGenerator;
+
+class ApiClient
+{
+    private $handle;
+    /** @var UrlGenerator */
+    private $urlGenerator;
+    /** @var AuthenticatedAccount */
+    private $authenticatedAccount;
+
+    public function connect(ApiClientAccountInterface $account): void
+    {
+        if (null === $this->handle) {
+            $this->handle = \curl_init();
+            //curl_setopt($this->handle, CURLOPT_SSL_VERIFYHOST, FALSE);
+            //curl_setopt($this->handle, CURLOPT_SSL_VERIFYPEER, FALSE);
+            $this->urlGenerator = new UrlGenerator($account->getRootUrl());
+
+            $this->authenticatedAccount = $account->authorize($this);
+        }
+    }
+
+    public function generateUrl(...$params): string
+    {
+        return $this->urlGenerator->generate(...$params);
+    }
+
+    public function post(string $endpoint, array $postData): self
+    {
+        if ($this->authenticatedAccount instanceof AuthenticatedAccount) {
+            $this->authenticatedAccount->useToken($this);
+        }
+
+        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
+        \curl_setopt($this->handle, CURLOPT_POST, true);
+        \curl_setopt($this->handle, CURLOPT_POSTFIELDS, \json_encode($postData));
+
+        return $this;
+    }
+
+    public function get(string $endpoint): self
+    {
+        $this->clear();
+
+        if ($this->authenticatedAccount instanceof AuthenticatedAccount) {
+            $this->authenticatedAccount->useToken($this);
+        }
+
+        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
+
+        return $this;
+    }
+
+    public function setHeaders(array $headerData): self
+    {
+        \curl_setopt($this->handle, CURLOPT_HTTPHEADER, $headerData);
+
+        return $this;
+    }
+
+    public function getResponse(): ApiResponse
+    {
+        \curl_setopt($this->handle, CURLOPT_HEADER, false);
+        \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
+
+        // obtain response
+        $content = \curl_exec($this->handle);
+        if (!$content) {
+            throw new \RuntimeException(curl_error($this->handle), curl_errno($this->handle));
+        }
+
+        return ApiResponse::create(\json_decode($content, true));
+    }
+
+    public function clear(): void
+    {
+        \curl_setopt($this->handle, \CURLOPT_HEADERFUNCTION, null);
+        \curl_setopt($this->handle, \CURLOPT_READFUNCTION, null);
+        \curl_setopt($this->handle, \CURLOPT_WRITEFUNCTION, null);
+        \curl_setopt($this->handle, \CURLOPT_PROGRESSFUNCTION, null);
+        \curl_reset($this->handle);
+    }
+
+    public function close(): void
+    {
+        $this->clear();
+        \curl_close($this->handle);
+    }
+
+    public function __destruct()
+    {
+        $this->close();
+    }
+}

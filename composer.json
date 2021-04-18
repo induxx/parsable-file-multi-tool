@@ -13,6 +13,8 @@
         "ext-json": "*",
         "ext-iconv": "*",
         "ext-xmlwriter": "*",
+        "ext-xmlreader": "*",
+        "ext-curl": "*",
         "symfony/yaml": "5.*|^4.3|^3.4"
     },
     "require-dev": {

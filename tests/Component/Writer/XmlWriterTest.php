@@ -25,7 +25,7 @@ class XmlWriterTest extends TestCase
         ],
     ];
 
-    public function test_parse_csv_file(): void
+    public function test_parse_xml_file(): void
     {
         $filename = __DIR__ . '/../../examples/new_users.xml';
         $writer = new XmlWriter($filename, [
