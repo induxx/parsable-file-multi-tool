@@ -42,6 +42,37 @@ class ApiClient
         return $this;
     }
 
+    public function multiPatch(string $endpoint, array $dataSet): self
+    {
+        if ($this->authenticatedAccount instanceof AuthenticatedAccount) {
+            $this->authenticatedAccount->useToken($this);
+        }
+
+        $patchData = "";
+        foreach($dataSet as $item) {
+            $patchData .= json_encode($item)."\n";
+        }
+
+        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
+        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+        \curl_setopt($this->handle, CURLOPT_POSTFIELDS, $patchData);
+
+        return $this;
+    }
+    
+    public function patch(string $endpoint, array $patchData): self
+    {
+        if ($this->authenticatedAccount instanceof AuthenticatedAccount) {
+            $this->authenticatedAccount->useToken($this);
+        }
+
+        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
+        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+        \curl_setopt($this->handle, CURLOPT_POSTFIELDS, \json_encode($patchData));
+
+        return $this;
+    }
+    
     public function get(string $endpoint): self
     {
         $this->clear();
@@ -73,7 +104,10 @@ class ApiClient
             throw new \RuntimeException(curl_error($this->handle), curl_errno($this->handle));
         }
 
-        return ApiResponse::create(\json_decode($content, true));
+        return ApiResponse::create(array_merge(
+            ['code' => curl_getinfo($this-handle, CURLINFO_HTTP_CODE),
+            \json_decode($content, true)
+        );
     }
 
     public function clear(): void
