@@ -15,10 +15,10 @@ class ApiResponse
         $this->content = $content;
     }
 
-    public static function create(array $data): self
+    public static function create(array $data, string $code = null): self
     {
         return new self(
-            $data['code'] ?? null,
+            $data['code'] ?? $code,
             $data['message'] ?? null,
             $data);
     }

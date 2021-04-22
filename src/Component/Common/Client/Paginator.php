@@ -4,7 +4,7 @@ namespace Misery\Component\Common\Client;
 
 use Misery\Component\Reader\ItemCollection;
 
-class Page
+class Paginator
 {
     private $client;
     private $first;
