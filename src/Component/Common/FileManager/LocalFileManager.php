@@ -53,7 +53,6 @@ class LocalFileManager implements FileManagerInterface
         }
     }
 
-
     public function find(string $regex): \Iterator
     {
         return new \GlobIterator($this->getAbsolutePath($regex));

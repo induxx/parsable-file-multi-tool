@@ -49,6 +49,8 @@ class ConfigurationFactory
         });
         $configuration = array_merge(array_flip($order), $configuration);
 
+        dump($configuration['context']);exit;
+
         // level 0 directives only
         foreach ($configuration as $key => $valueConfiguration) {
             switch ($key) {

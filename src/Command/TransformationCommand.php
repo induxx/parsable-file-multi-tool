@@ -16,6 +16,7 @@ class TransformationCommand extends Command
 {
     private $file;
     private $sources;
+    private $workpath;
     private $debug;
     private $showMappings;
     private $try;
@@ -27,6 +28,7 @@ class TransformationCommand extends Command
         $this
             ->option('-f --file', 'The transformation file location')
             ->option('-s --source', 'The sources location')
+            ->option('-w --workpath', 'The workpath location')
             ->option('-d --debug', 'enable debugging', 'boolval', false)
             ->option('-m --showMappings', 'show lists or mappings', 'boolval', false)
             ->option('-t --try', 'tryout a set for larger files')
@@ -38,12 +40,15 @@ class TransformationCommand extends Command
         ;
     }
 
-    public function execute(string $file, string $source, bool $debug, int $try = null, bool $showMappings = null)
+    public function execute(string $file, string $source, string $workpath, bool $debug, int $try = null, bool $showMappings = null)
     {
         $io = $this->app()->io();
 
         Assertion::file($file);
         Assertion::directory($source);
+        Assertion::directory($workpath);
+
+        $transformationsPath = dirname($file);
 
         require_once __DIR__.'/../../src/bootstrap.php';
 
@@ -57,8 +62,9 @@ class TransformationCommand extends Command
                 'context' => [
                     'transformation_file' => $file,
                     'sources' => $source,
+                    'workpath' => $workpath,
+                    'transformations' => $transformationsPath,
                     'scripts' => '/app/scripts',
-                    'workpath' => $source,
                     'debug' => $debug,
                     'try' => $try,
                     'show_mappings' => $showMappings,
