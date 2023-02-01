@@ -7,6 +7,8 @@ use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\Common\Cursor\CachedCursor;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Configurator\Configuration;
+use Misery\Component\Configurator\ConfigurationManager;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Item\Processor\DecoderProcessor;
 use Misery\Component\Item\Processor\EncoderProcessor;
@@ -27,15 +29,35 @@ class SourceCollectionFactory implements RegisteredByNameInterface
         return $sourceCollection;
     }
 
-    public function createFromConfiguration(array $configuration, SourceCollection $sourceCollection = null): SourceCollection
+    public function createFromConfiguration(array $configuration, SourceCollection $sourceCollection = null, ConfigurationManager $config): SourceCollection
     {
         $sourceCollection = $sourceCollection ?: new SourceCollection('manager');
 
-        foreach ($configuration as $sourcePath) {
-            $this->addSourceFileToCollection($sourceCollection, $sourcePath);
+        foreach ($configuration as $source) {
+            if (is_string($source)) {
+                $this->addSourceFileToCollection($sourceCollection, $source);
+            }
+            if (is_array($source) && isset($source['alias'])) {
+                $sourceCollection->add(
+                    $this->createSource($source, $sourceCollection, $config)
+                );
+            }
         }
 
         return $sourceCollection;
+    }
+
+    public function createSource(array $configuration, SourceCollection $sourceCollection, ConfigurationManager $config): Source
+    {
+        $source = $sourceCollection->get($configuration['alias']. '.csv');
+        $bluePrint = $config->createBlueprint($configuration['blueprint']);
+
+        return new Source(
+            clone $source->getCursor(),
+            new EncoderProcessor($bluePrint->getEncoder()),
+            new DecoderProcessor($bluePrint->getDecoder()),
+            $configuration['alias']
+        );
     }
 
     /**

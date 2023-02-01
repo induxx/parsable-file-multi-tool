@@ -35,24 +35,29 @@ class ModifierAction implements OptionsInterface
         // this should be part of the prepare state
         // when we set the options
         // so don't need to check on every action::apply
-        $keys = explode(',',$this->options['keys']);
+        if ($this->getModifier() instanceof  CellModifier) {
+            $keys = $this->options['keys'] ? explode(',',$this->options['keys']) : array_keys($item);
 
-        foreach ($keys as $key) {
-            $listItem = $item[$key] ?? null;
-            /** @var RowModifier|CellModifier $modifier */
-            if ($listItem && $modifier = $this->getModifier()) {
-                if (is_array($listItem)) {
-                    $item[$key] = array_map(function ($itemValue) use ($modifier) {
-                        return is_string($itemValue) ? $modifier->modify($itemValue) : null;
-                    }, $listItem);
-                }
-                if (is_string($listItem)) {
-                    $item[$key] = $modifier->modify($listItem);
+            foreach ($keys as $key) {
+                $listItem = $item[$key] ?? null;
+                /** @var RowModifier|CellModifier $modifier */
+                if ($listItem && $modifier = $this->getModifier()) {
+                    if (is_array($listItem)) {
+                        $item[$key] = array_map(function ($itemValue) use ($modifier) {
+                            return is_string($itemValue) ? $modifier->modify($itemValue) : null;
+                        }, $listItem);
+                    }
+                    if (is_string($listItem)) {
+                        $item[$key] = $modifier->modify($listItem);
+                    }
                 }
             }
-        }
 
-        return $item;
+            return $item;
+        }
+        if ($this->getModifier() instanceof RowModifier) {
+            return $this->getModifier()->modify($item);
+        }
     }
 
     private function getModifier()

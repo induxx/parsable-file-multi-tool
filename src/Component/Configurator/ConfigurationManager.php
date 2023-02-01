@@ -81,14 +81,14 @@ class ConfigurationManager
     {
         /** @var SourceCollectionFactory $factory */
         $factory = $this->factory->getFactory('source');
-        $this->sources = $factory->createFromConfiguration($configuration, $this->sources);
+        $this->sources = $factory->createFromConfiguration($configuration, $this->sources, $this);
 
         /** @var BluePrint $blueprint */
         foreach ($this->config->getBlueprints()->getValues() as $blueprint) {
             $factory->createFromBluePrint($blueprint, $this->sources);
         }
 
-        $this->inMemoryFileManager->addFiles($configuration);
+        //$this->inMemoryFileManager->addFiles($configuration);
 
         $this->config->addSources($this->sources);
     }

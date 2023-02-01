@@ -4,6 +4,7 @@ namespace Misery\Component\Source;
 
 use Misery\Component\Common\Cursor\CachedCursor;
 use Misery\Component\Common\Cursor\CursorInterface;
+use Misery\Component\Common\Cursor\FunctionalCursor;
 use Misery\Component\Item\Processor\NullProcessor;
 use Misery\Component\Item\Processor\ProcessorInterface;
 use Misery\Component\Reader\ItemReader;
@@ -57,6 +58,22 @@ class Source
     public function getReader(): ItemReaderInterface
     {
         return new ItemReader(clone $this->cursor);
+    }
+
+    public function getProcessedReader(array $options = []): ItemReaderInterface
+    {
+        if (null === $this->cache) {
+            $options = array_merge(['cache_size' => CachedCursor::LARGE_CACHE_SIZE], $options);
+
+            $this->cache = new ItemReader(new CachedCursor(
+                new FunctionalCursor(clone $this->cursor, function ($item) {
+                    return $this->encode($item);
+                }),
+                $options
+            ));
+        }
+
+        return $this->cache;
     }
 
     public function getCachedReader(array $options = []): ItemReaderInterface

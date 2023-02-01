@@ -65,7 +65,7 @@ class ItemActionProcessorFactory implements RegisteredByNameInterface
                 }
 
                 if ($action instanceof ItemReaderAwareInterface && isset($value['source'])) {
-                    $action->setReader($sources->get($value['source'])->getReader());
+                    $action->setReader($sources->get($value['source'])->getProcessedReader());
                 }
 
                 $rules[$name] = $action;

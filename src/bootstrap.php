@@ -44,6 +44,7 @@ $feedRegistry->registerAllByName(
 $modifierRegistry = new Misery\Component\Common\Registry\Registry('modifier');
 $modifierRegistry
     ->register(Misery\Component\Modifier\StripSlashesModifier::NAME, new Misery\Component\Modifier\StripSlashesModifier())
+    ->register(Misery\Component\Modifier\ArrayFlattenModifier::NAME, new Misery\Component\Modifier\ArrayFlattenModifier())
     ->register(Misery\Component\Modifier\ArrayUnflattenModifier::NAME, new Misery\Component\Modifier\ArrayUnflattenModifier())
     ->register(Misery\Component\Modifier\NullifyEmptyStringModifier::NAME, new Misery\Component\Modifier\NullifyEmptyStringModifier())
     ->register(Misery\Component\Modifier\ReplaceCharacterModifier::NAME, new Misery\Component\Modifier\ReplaceCharacterModifier())

@@ -124,7 +124,6 @@ class ReplaceAction implements OptionsInterface, ItemReaderAwareInterface
         }
 
         // @todo make a prep reader
-
         return $this->getSource()
             ->find([$this->options['source_reference'] => $reference])
             ->getIterator()

@@ -17,18 +17,18 @@ class MappingFactory implements RegisteredByNameInterface
                 $mapping = $configurationManager->getConfig()->getMapping($mappingList['name']);
                 if (null === $mapping && isset($mappingList['source'])) {
                     $mapping = $this->create($fm->getFile($mappingList['source']));
-                    if (isset($mappingList['options'])) {
-                        if (in_array('flatten', $mappingList['options'])) {
-                            $mapping = ArrayFunctions::flatten($mapping);
-                        }
-                        if (in_array('flip', $mappingList['options'])) {
-                            $mapping = array_flip($mapping);
-                        }
-                    }
                 }
-
                 if (null === $mapping && isset($mappingList['map'])) {
                     $mapping = $mappingList['map'];
+                }
+
+                if (isset($mappingList['options'])) {
+                    if (in_array('flatten', $mappingList['options'])) {
+                        $mapping = ArrayFunctions::flatten($mapping);
+                    }
+                    if (in_array('flip', $mappingList['options'])) {
+                        $mapping = array_flip($mapping);
+                    }
                 }
 
                 // @TODO join mapping and lists into one principle

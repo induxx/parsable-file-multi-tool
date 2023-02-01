@@ -19,7 +19,7 @@ class ItemSortFilter
         foreach ($criteria as $keyName => $sortDirection) {
             $setup[] = $index = ReferenceBuilder::buildValues($reader, $keyName);
             $setup[] = $flags[strtoupper($sortDirection)];
-            $setup[] = SORT_NUMERIC;
+            $setup[] = is_numeric(current($index)) ? SORT_NUMERIC : SORT_STRING;
             $setup[] = array_keys($index);
         }
 

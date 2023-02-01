@@ -62,9 +62,11 @@ class ConfigurationFactory
                     break;
                 case $key === 'sources';
                     // ValueFormatter converts %workpath% or other context params
-                    $this->manager->addSources(
-                        ValueFormatter::formatMulti($configuration['sources'], $this->config->getContext())
-                    );
+//                    $this->manager->addSources(
+//                        ValueFormatter::formatMulti($configuration['sources'], $this->config->getContext())
+//                    );
+                    $this->manager->addSources($configuration['sources']);
+
                     break;
                 case $key === 'account';
                     $this->manager->createAccounts($configuration['account']);
