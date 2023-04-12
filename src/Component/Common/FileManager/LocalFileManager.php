@@ -6,6 +6,7 @@ class LocalFileManager implements FileManagerInterface
 {
     private $workingDirectory;
     private $removeEmptyDir;
+    private $aliases;
 
     public function __construct(string $workingDirectory, bool $removeEmptyDir = true)
     {
@@ -36,9 +37,31 @@ class LocalFileManager implements FileManagerInterface
         return $this->getAbsolutePath($filename);
     }
 
+    /**
+     * We use the aliases here as provisionalPaths
+     *
+     * @example
+     *    "family_wildcard" => "examples/app-data/DIMENSIONS_*.CSV"
+     *    "family_1" => "examples/app-work-dir/family_1.csv"
+     * @becomes
+     *    "family_wildcard" => "DIMENSIONS_*.CSV"
+     *    "family_1" => "family_1.csv"
+     *
+     * when we ask provisionPath to create a path for use
+     * We can use these alias reverses to return the expect filename
+     *
+     * @return void
+     */
+    public function addAliases(array $aliases)
+    {
+        foreach ($aliases as $aliasName => $path) {
+            $this->aliases[$aliasName] = pathinfo($path, PATHINFO_BASENAME);
+        }
+    }
+
     public function provisionPath(string $filename): string
     {
-        return $this->getAbsolutePath($filename);
+        return $this->getAbsolutePath($this->aliases[$filename] ?? $filename);
     }
 
     public function copyFile(string $filename, string $newFilename)

@@ -67,7 +67,7 @@ class TransformationCommand extends Command
 
         $transformationFile = Yaml::parseFile($file);
         $configuration = $configurationFactory->parseDirectivesFromConfiguration(
-            array_merge($transformationFile, [
+            array_replace_recursive($transformationFile, [
                 'context' => [
                     'transformation_file' => $file,
                     'sources' => $source,
