@@ -62,6 +62,7 @@ class ConfigurationFactory
                     $this->manager->addContext($configuration['context']);
                     break;
                 case $key === 'aliases';
+                    // ValueFormatter converts %workpath% or other context params
                     $aliases = ValueFormatter::formatMulti($configuration['aliases'], $this->config->getContext());
                     $this->manager->getWorkFileManager()->addAliases($aliases);
                     $this->manager->getInMemoryFileManager()->addFromFileManager($this->manager->getWorkFileManager());
@@ -72,10 +73,9 @@ class ConfigurationFactory
                     break;
                 case $key === 'sources';
                     // ValueFormatter converts %workpath% or other context params
-                    $this->manager->addSources(
-                        ValueFormatter::formatMulti($configuration['sources'], $this->config->getContext())
-                    );
-                    $this->manager->getInMemoryFileManager()->addFiles($configuration);
+                    $sources = ValueFormatter::formatMulti($configuration['sources'], $this->config->getContext());
+                    $this->manager->addSources($sources);
+                    $this->manager->getInMemoryFileManager()->addFiles($sources);
                     break;
                 case $key === 'account';
                     $this->manager->createAccounts($configuration['account']);

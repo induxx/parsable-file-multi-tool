@@ -15,6 +15,7 @@ use Misery\Component\Common\Cursor\CursorInterface;
 use Misery\Component\Common\FileManager\FileManagerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\FileManager\InMemoryFileManager;
+use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Pipeline\PipelineFactory;
 use Misery\Component\Converter\ConverterFactory;
 use Misery\Component\Converter\ConverterInterface;
@@ -119,16 +120,17 @@ class ConfigurationManager
             Assertion::file($file);
 
             // we need to start a new configuration manager.
-            $transformationFile = Yaml::parseFile($file);
-            $configuration = $this->factory->parseDirectivesFromConfiguration(
-                array_replace_recursive($masterConfiguration, $transformationFile, [
+            $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {
+                return $value !== NULL;
+            });
+            $configuration = array_replace_recursive($masterConfiguration, $transformationFile, [
                 'context' => [
                     'try' => $transformationFile['context']['try'] ?? null,
                     'debug' => $debug,
                     'dirname' => $dirName,
                     'transformation_file' => $file,
-                ]
-            ]));
+            ]]);
+            $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
             // only start the process if our transformation file has a pipeline
             if (!isset($transformationFile['pipeline'])) {
