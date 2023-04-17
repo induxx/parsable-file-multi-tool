@@ -23,6 +23,7 @@ class SkipAction implements OptionsInterface, ActionInterface
     {
         $field = $this->getOption('field');
         $state = $this->getOption('state');
+        $message = $this->getOption('skip_message', '');
 
         $message = $this->getOption('skip_message', '');
         $forceSkip = $this->getOption('force_skip', false);
@@ -44,6 +45,7 @@ class SkipAction implements OptionsInterface, ActionInterface
         if ($value === $state) {
             throw new SkipPipeLineException($message);
         }
+
 
         return $item;
     }
