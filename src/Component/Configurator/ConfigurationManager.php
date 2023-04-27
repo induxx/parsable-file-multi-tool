@@ -64,9 +64,9 @@ class ConfigurationManager
         $this->config = $config;
         $this->factory = $factory;
         $this->workFiles = $workFiles;
-        $this->inMemoryFileManager = InMemoryFileManager::createFromFileManager($this->sourceFiles);
+        $this->inMemoryFileManager = InMemoryFileManager::createFromFileManager($this->sourceFiles, InMemoryFileManager::GROUP_SOURCES);
         if ($additionalSources) {
-            $this->inMemoryFileManager->addFromFileManager($additionalSources);
+            $this->inMemoryFileManager->addFromFileManager($additionalSources, InMemoryFileManager::GROUP_SOURCES_EXTRA);
         }
     }
 

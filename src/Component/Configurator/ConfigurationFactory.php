@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use Misery\Component\Common\FileManager\InMemoryFileManager;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Registry\Registry;
 use Misery\Component\Common\Utils\ValueFormatter;
@@ -64,17 +65,17 @@ class ConfigurationFactory
                 case $key === 'aliases';
                     // ValueFormatter converts %workpath% or other context params
                     $aliases = ValueFormatter::formatMulti($configuration['aliases'], $this->config->getContext());
-                    $this->manager->getInMemoryFileManager()->addFromFileManager($this->manager->getWorkFileManager());
+                    $this->manager->getInMemoryFileManager()->addFromFileManager($this->manager->getWorkFileManager(), InMemoryFileManager::GROUP_WORKPATH);
                     $this->manager->getInMemoryFileManager()->addAliases($aliases);
                     $this->manager->addSources(
-                        iterator_to_array($this->manager->getInMemoryFileManager()->listFiles())
+                        iterator_to_array($this->manager->getInMemoryFileManager()->listFiles(InMemoryFileManager::GROUP_ALIAS))
                     );
                     break;
                 case $key === 'sources';
                     // ValueFormatter converts %workpath% or other context params
                     $sources = ValueFormatter::formatMulti($configuration['sources'], $this->config->getContext());
                     $this->manager->addSources($sources);
-                    $this->manager->getInMemoryFileManager()->addFiles($sources);
+                    $this->manager->getInMemoryFileManager()->addFiles($sources, InMemoryFileManager::GROUP_SOURCES);
                     break;
                 case $key === 'account';
                     $this->manager->createAccounts($configuration['account']);

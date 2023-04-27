@@ -6,13 +6,18 @@ use Assert\Assert;
 
 class InMemoryFileManager implements FileManagerInterface
 {
+    public const GROUP_SOURCES = 'sources';
+    public const GROUP_SOURCES_EXTRA = 'sources-extra';
+    public const GROUP_WORKPATH = 'workpath';
+    public const GROUP_ALIAS = 'alias';
+
     private $files;
     private $aliases = [];
 
-    public static function createFromFileManager(FileManagerInterface $fileManager): self
+    public static function createFromFileManager(FileManagerInterface $fileManager, string $group): self
     {
         $fm = new self();
-        $fm->addFiles($fileManager->listFiles());
+        $fm->addFiles($fileManager->listFiles(), $group);
 
         return $fm;
     }
@@ -21,42 +26,52 @@ class InMemoryFileManager implements FileManagerInterface
     {
         $this->aliases = array_merge($this->aliases, $aliases);
 
-        foreach ($aliases as $aliasName => $pattern) {
-            $matches = array_filter($this->getAliases(), function($key) use ($pattern) {
-                return fnmatch(pathinfo($pattern, PATHINFO_BASENAME), $key);
-            });
-            if (count($matches) === 1) {
-                $this->files[$aliasName] = $this->files[current($matches)];
+        foreach ($this->files as $group => $files) {
+            foreach ($aliases as $aliasName => $pattern) {
+                $matches = array_filter(array_keys($files), function($key) use ($pattern) {
+                    return fnmatch(pathinfo($pattern, PATHINFO_BASENAME), $key);
+                });
+                if (count($matches) === 1) {
+                    $this->files[self::GROUP_ALIAS][$aliasName] = $this->files[$group][current($matches)];
+                }
             }
         }
     }
 
-    public function getAliases(): array
+    public function addFromFileManager(FileManagerInterface $sourceCollection, string $group): void
     {
-        return array_keys($this->files);
+        $this->addFiles($sourceCollection->listFiles(), $group);
     }
 
-    public function addFromFileManager(FileManagerInterface $sourceCollection): void
+    public function getFile(string $filename, string $group = null): string
     {
-        $this->addFiles($sourceCollection->listFiles());
-    }
-
-    public function getFile(string $filename): string
-    {
-        $file = $this->files[$filename] ?? null;
-        if ($file) {
-            return  $file;
+        if (is_string($group)) {
+            $file = $this->files[$group][$filename] ?? null;
+        } else {
+            $file =
+                $this->files[self::GROUP_SOURCES][$filename] ??
+                $this->files[self::GROUP_SOURCES_EXTRA][$filename] ??
+                $this->files[self::GROUP_ALIAS][$filename] ??
+                $this->files[self::GROUP_WORKPATH][$filename] ??
+                $this->aliases[$filename] ??
+                null
+            ;
         }
+
+        if ($file) {
+            return $file;
+        }
+
         throw new \Exception(sprintf('File %s not found', $filename));
     }
 
-    public function addFiles($files): void
+    public function addFiles($files, string $group): void
     {
         Assert::that($files)->isTraversable();
 
         foreach ($files as $file) {
             Assert::that($file)->file();
-            $this->files[pathInfo($file, PATHINFO_BASENAME)] = $file;
+            $this->files[$group][pathInfo($file, PATHINFO_BASENAME)] = $file;
         }
     }
 
@@ -85,9 +100,15 @@ class InMemoryFileManager implements FileManagerInterface
         // TODO: Implement isFile() method.
     }
 
-    public function listFiles(): \Generator
+    public function listFiles(string $group = null): \Generator
     {
-        foreach ($this->files as $alias => $file) {
+        if (is_string($group)) {
+            $files = $this->files[$group] ?? [];
+        } else {
+            $files = array_merge(...array_values($this->files));
+        }
+
+        foreach ($files as $alias => $file) {
             if (is_file($file)) {
                 yield $alias => $file;
             }
