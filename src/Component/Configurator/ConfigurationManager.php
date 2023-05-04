@@ -16,6 +16,7 @@ use Misery\Component\Common\FileManager\FileManagerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\FileManager\InMemoryFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
+use Misery\Component\Common\Pipeline\Exception\NoWorkFoundException;
 use Misery\Component\Common\Pipeline\PipelineFactory;
 use Misery\Component\Converter\ConverterFactory;
 use Misery\Component\Converter\ConverterInterface;
@@ -137,7 +138,12 @@ class ConfigurationManager
                 continue;
             }
 
-            (new ProcessManager($configuration))->startProcess();
+            try {
+                (new ProcessManager($configuration))->startProcess();
+            } catch (NoWorkFoundException $e) {
+                // echo "No Work Found"
+                continue;
+            }
 
             // TODO connect the outputs here
             if ($shellCommands = $configuration->getShellCommands()) {
