@@ -3,7 +3,6 @@
 namespace Misery\Component\Common\Pipeline;
 
 use Misery\Component\Common\Pipeline\Exception\InvalidItemException;
-use Misery\Component\Common\Pipeline\Exception\NoWorkFoundException;
 use Misery\Component\Common\Pipeline\Exception\SkipPipeLineException;
 use Misery\Component\Debugger\ItemDebugger;
 use Misery\Component\Debugger\NullItemDebugger;
@@ -89,10 +88,6 @@ class Pipeline
             if ($i === $lineNumber) {
                 break;
             }
-        }
-
-        if ($i === 0) {
-            throw new NoWorkFoundException();
         }
 
         // stopping
