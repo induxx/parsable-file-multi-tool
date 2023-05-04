@@ -6,6 +6,7 @@ use Ahc\Cli\Input\Command;
 use Assert\Assertion;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
+use Misery\Component\Common\Pipeline\Exception\NoWorkFoundException;
 use Misery\Component\Process\ProcessManager;
 use Symfony\Component\Yaml\Yaml;
 
@@ -85,7 +86,12 @@ class TransformationCommand extends Command
         );
 
         if (false === $configuration->isMultiStep()) {
-            (new ProcessManager($configuration))->startProcess();
+            try {
+                (new ProcessManager($configuration))->startProcess();
+            } catch (NoWorkFoundException $e) {
+                // echo "No Work Found"
+                return;
+            }
 
             // TODO connect the outputs here
             if ($shellCommands = $configuration->getShellCommands()) {
