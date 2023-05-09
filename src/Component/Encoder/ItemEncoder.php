@@ -3,6 +3,7 @@
 namespace Misery\Component\Encoder;
 
 use Misery\Component\Common\Format\ArrayFormat;
+use Misery\Component\Common\Format\FreeFormat;
 use Misery\Component\Common\Format\StringFormat;
 use Misery\Component\Common\Modifier\CellModifier;
 use Misery\Component\Common\Modifier\RowModifier;
@@ -54,6 +55,7 @@ class ItemEncoder
             case $class instanceof CellModifier:
                 $item[$property] = $class->modify($item[$property]);
                 break;
+            case $class instanceof FreeFormat:
             case $class instanceof StringFormat:
                 $item[$property] = $class->format($item[$property]);
                 break;

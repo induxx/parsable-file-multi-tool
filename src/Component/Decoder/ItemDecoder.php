@@ -3,6 +3,7 @@
 namespace Misery\Component\Decoder;
 
 use Misery\Component\Common\Format\ArrayFormat;
+use Misery\Component\Common\Format\FreeFormat;
 use Misery\Component\Common\Format\StringFormat;
 use Misery\Component\Common\Modifier\RowModifier;
 use Misery\Component\Common\Options\OptionsInterface;
@@ -45,11 +46,12 @@ class ItemDecoder
         }
 
         switch (true) {
+            case $class instanceof FreeFormat:
             case $class instanceof StringFormat:
                 $item[$property] = $class->reverseFormat($item[$property]);
                 break;
             case $class instanceof ArrayFormat:
-                $item = $class->reverseFormat($item);
+            $item = $class->reverseFormat($item);
                 break;
             case $class instanceof RowModifier:
                 $item = $class->reverseModify($item);

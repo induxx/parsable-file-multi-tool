@@ -47,6 +47,7 @@ class OldAS400ArticleAttributesCsvToStructuredDataConverter implements Converter
             $this->header = (new AS400ArticleAttributesHeaderContext())->create(
                 $this->getOption('attributes:list'),
                 $this->getOption('localizable_codes:list'),
+                [],
                 $this->getOption('locales')
             );
 

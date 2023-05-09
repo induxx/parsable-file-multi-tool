@@ -3,19 +3,13 @@
 namespace Misery\Component\Parser;
 
 use Assert\Assert;
-use Misery\Component\Combine\ItemCombine;
-use Misery\Component\Common\Collection\ArrayCollection;
-use Misery\Component\Common\Cursor\CachedCursor;
-use Misery\Component\Common\Cursor\CachedZoneFetcher;
 use Misery\Component\Common\Cursor\ContinuousBufferFetcher;
 use Misery\Component\Common\Cursor\CursorInterface;
 use Misery\Component\Common\Cursor\FunctionalCursor;
 use Misery\Component\Common\FileManager\InMemoryFileManager;
-use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Filter\ColumnReducer;
 use Misery\Component\Reader\ItemCollection;
-use Misery\Component\Writer\CsvWriter;
 
 class ItemParserFactory implements RegisteredByNameInterface
 {

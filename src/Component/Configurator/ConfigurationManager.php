@@ -185,15 +185,26 @@ class ConfigurationManager
         return $actions;
     }
 
-    public function createConverter(array $configuration): ConverterInterface
+    public function createConverter($configuration)
     {
+        $converter = null;
         /** @var ConverterFactory $factory */
         $factory = $this->factory->getFactory('converter');
-        $converter = $factory->createFromConfiguration($configuration, $this->config);
 
-        $this->config->addConverter($converter);
+        if (is_string($configuration)) {
+            $converter = $factory->getConverterFromRegistry($configuration);
+        }
+        if (is_array($configuration) && isset($configuration['name'])) {
+            $converter = $factory->createFromConfiguration($configuration, $this->config);
+            $this->config->addConverter($converter);
+        }
+        if ($converter) {
+            return $converter;
+        }
 
-        return $converter;
+        if (is_array($configuration) && isset($configuration[0])) {
+            $factory->createMultipleConfigurations($configuration, $this->config);
+        }
     }
 
     public function createFeed(array $configuration): FeedInterface

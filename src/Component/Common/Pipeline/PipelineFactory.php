@@ -49,12 +49,17 @@ class PipelineFactory implements RegisteredByNameInterface
                     // what about decode and revert
                     break;
                 case $key === 'converter':
-                    $converter = $configurationManager->getConfig()->getConverter($configuration['converter']);
+                case $key === 'i_convert';
+                    $converter = $configurationManager->createConverter($configuration['converter'] ?? $configuration['i_convert']);
                     $pipeline->line(new ConverterPipe($converter));
                     break;
                 case $key === 'actions';
                     $actions = $configurationManager->createActions($configuration['actions']);
                     $pipeline->line(new ActionPipe($actions));
+                    break;
+                case $key === 'o_convert';
+                    $converter = $configurationManager->createConverter($configuration['o_convert']);
+                    $pipeline->line(new RevertPipe($converter));
                     break;
                 case $key === 'decoder';
                     $decoder = $configurationManager->createDecoder($configuration['decoder']);
