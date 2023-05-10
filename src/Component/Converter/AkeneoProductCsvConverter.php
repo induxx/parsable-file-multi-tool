@@ -37,7 +37,6 @@ class AkeneoProductCsvConverter implements ConverterInterface, RegisteredByNameI
             ]
         ]
     ];
-    private $header;
     private $decoder;
 
     public function convert(array $item): array
@@ -58,14 +57,7 @@ class AkeneoProductCsvConverter implements ConverterInterface, RegisteredByNameI
 
     public function revert(array $item): array
     {
-        if (null === $this->header) {
-            // header Factory
-            $this->header = (new AS400ArticleAttributesHeaderContext())->create(
-                $this->getOption('attribute_types:list'),
-                $this->getOption('localizable_attribute_codes:list'),
-                $this->getOption('scopable_attribute_codes:list'),
-                $this->getOption('locales')
-            );
+        if (null === $this->decoder) {
             $this->decoder = $this->ItemDecoderFactory()->createItemDecoder([
                 'encode' => $this->getOption('properties'),
             ]);
@@ -80,18 +72,29 @@ class AkeneoProductCsvConverter implements ConverterInterface, RegisteredByNameI
                 unset($item[$key]);
                 if (isset($itemValue['data']['unit'])) {
                     $output[$matcher->getRowKey()] = $itemValue['data']['amount'];
-                    $output[$this->header->createItemHeader($matcher->getPrimaryKey(), ['extra' => 'unit'])] = $itemValue['data']['unit'];
+                    $output[$matcher->getRowKey().'-unit'] = $itemValue['data']['unit'];
+                }
+                if (is_string($itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = $itemValue['data'];
                 }
             }
         }
-        $output = array_replace($this->header->getHeaders(), $output);
+
+        // correct the identifier
+        $item['sku'] = $item['identifier'];
+        unset($item['identifier']);
 
         unset($item['values']);
         $item = $this->decoder->decode($item);
-        $associations = $item['associations'];
-        unset($item['associations']);
 
-        return $item+$output+$associations;
+        // correct the associations
+        if (isset($item['associations'])) {
+            $associations = $item['associations'];
+            unset($item['associations']);
+            $item+=$associations;
+        }
+
+        return $item+$output;
     }
 
     private function ItemDecoderFactory(): ItemDecoderFactory
