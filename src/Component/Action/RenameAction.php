@@ -25,35 +25,21 @@ class RenameAction implements OptionsInterface
         'to' => null,
         'suffix' => null,
         'exclude_list' => [],
-        'filter_list' => [],
+        'filter_list' => null,
         'fields' => [],
-        'node' => null,
     ];
 
     public function apply(array $item): array
     {
-        $node = $this->getOption('node');
         $from = $this->getOption('from');
         $to = $this->getOption('to');
-
-        if ($node && is_array($item[$node])) {
-            // this is an implementation for list items
-            $subItem = $item[$node];
-            if (in_array($from, $subItem)) {
-                $subItem = array_diff($subItem, [$from]);
-                $subItem[] = $to;
-                $item[$node] = $subItem;
-            }
-
-            return $item;
-        }
 
         if (!empty($this->options['suffix'])) {
             return $this->mapper->mapWithSuffix(
                 $item,
                 $this->options['suffix'],
                 $this->options['exclude_list'],
-                $this->options['filter_list']
+                $this->options['filter_list'] ?? $this->options['fields'],
             );
         }
 
@@ -62,6 +48,6 @@ class RenameAction implements OptionsInterface
             return $this->mapper->map($item, $fields);
         }
 
-        return $this->mapper->map($item, [$this->options['from'] => $this->options['to']]);
+        return $this->mapper->map($item, [$from => $to]);
     }
 }
