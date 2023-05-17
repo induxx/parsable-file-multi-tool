@@ -21,7 +21,11 @@ class ItemParserFactory implements RegisteredByNameInterface
         Assert::that(
             $type,
             'type must be filled in.'
+<<<<<<< HEAD
         )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed', 'yaml', 'buffer', 'json']);
+=======
+        )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed', 'buffer', 'json']);
+>>>>>>> 9b8cc6e (added: attribute converter)
 
         if (isset($configuration['join'])) {
             $joins = $configuration['join'];
