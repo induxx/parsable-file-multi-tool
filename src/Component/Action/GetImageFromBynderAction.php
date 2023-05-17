@@ -46,7 +46,7 @@ class GetImageFromBynderAction implements OptionsInterface
 
     public function sendRequest(array $bynder, array $item, array $fields, array $array_location)
     {
-        if(!isset($fields) || !is_array($fields['from'])) {
+        if(!isset($fields) || !is_array($fields['from']) || !is_string($fields['to'])) {
             return $item;
         }
 
@@ -70,7 +70,7 @@ class GetImageFromBynderAction implements OptionsInterface
 
         // Get the code from the item
         $fullcode = $bynder['url'] . implode(',', $fullcodeArray);
-        $sepparator = $fields['sepparator'] ?? ',';
+        $separator = $fields['separator'] ?? ',';
 
         // Initialize cURL session
         $ch = curl_init();
@@ -120,10 +120,9 @@ class GetImageFromBynderAction implements OptionsInterface
                     }
                     $images[] = $image;
                 }
-                $item[$fields['to']] = implode($sepparator, $images);
+                $item[$fields['to']] = implode($separator, $images);
 
             }
-            return $item;
 
         }
 
