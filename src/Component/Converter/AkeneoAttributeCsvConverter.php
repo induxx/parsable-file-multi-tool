@@ -10,9 +10,11 @@ use Misery\Component\Decoder\ItemDecoderFactory;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Format\ArrayListFormat;
 use Misery\Component\Format\StringToBooleanFormat;
+use Misery\Component\Format\ArrayGroupFormat;
 use Misery\Component\Format\StringToIntFormat;
 use Misery\Component\Format\StringToListFormat;
 use Misery\Component\Modifier\ArrayUnflattenModifier;
+use Misery\Component\Modifier\NullifyEmptyStringModifier;
 
 class AkeneoAttributeCsvConverter implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
@@ -21,34 +23,41 @@ class AkeneoAttributeCsvConverter implements ConverterInterface, RegisteredByNam
     private $options = [
         'properties' => [
             'unique' => [
-                'boolean' => [],
+                'boolean' => null,
             ],
             'useable_as_grid_filter' => [
-                'boolean' => [],
+                'boolean' => null,
             ],
             'localizable' => [
-                'boolean' => [],
+                'boolean' => null,
             ],
             'scopable' => [
-                'boolean' => [],
+                'boolean' => null,
             ],
             'is_read_only' => [
-                'boolean' => [],
+                'boolean' => null,
             ],
             'allowed_extensions' => [
-                'list' => [],
+                'list' => null,
+            ],
+            'sort_order' => [
+                'integer' => null,
             ],
             'available_locales' => [
-                'list' => [],
+                'list' => null,
             ],
             'guidelines' => [
-                'list' => [],
+                'list' => null,
+            ],
+            'labels' => [
+                'group' => null,
+            ],
+            'group_labels' => [
+                'group' => null,
             ],
         ],
         'parse' => [
-            'unflatten' => [
-                'separator' => '-',
-            ]
+            'nullify' => null,
         ]
     ];
     private $decoder;
@@ -88,6 +97,7 @@ class AkeneoAttributeCsvConverter implements ConverterInterface, RegisteredByNam
 
         $formatRegistry = new Registry('format');
         $formatRegistry
+            ->register(ArrayGroupFormat::NAME, new ArrayGroupFormat())
             ->register(StringToListFormat::NAME, new StringToListFormat())
             ->register(StringToIntFormat::NAME, new StringToIntFormat())
             ->register(StringToBooleanFormat::NAME, new StringToBooleanFormat())
@@ -96,6 +106,7 @@ class AkeneoAttributeCsvConverter implements ConverterInterface, RegisteredByNam
         $modifierRegistry = new Registry('modifier');
         $modifierRegistry
             ->register(ArrayUnflattenModifier::NAME, new ArrayUnflattenModifier())
+            ->register(NullifyEmptyStringModifier::NAME, new NullifyEmptyStringModifier())
         ;
 
         $encoderFactory->addRegistry($modifierRegistry);
@@ -110,6 +121,7 @@ class AkeneoAttributeCsvConverter implements ConverterInterface, RegisteredByNam
 
         $formatRegistry = new Registry('format');
         $formatRegistry
+            ->register(ArrayGroupFormat::NAME, new ArrayGroupFormat())
             ->register(StringToListFormat::NAME, new StringToListFormat())
             ->register(StringToIntFormat::NAME, new StringToIntFormat())
             ->register(StringToBooleanFormat::NAME, new StringToBooleanFormat())
@@ -117,6 +129,7 @@ class AkeneoAttributeCsvConverter implements ConverterInterface, RegisteredByNam
         ;
         $modifierRegistry = new Registry('modifier');
         $modifierRegistry
+            ->register(NullifyEmptyStringModifier::NAME, new NullifyEmptyStringModifier())
             ->register(ArrayUnflattenModifier::NAME, new ArrayUnflattenModifier())
         ;
 

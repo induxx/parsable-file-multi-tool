@@ -12,11 +12,15 @@ use Misery\Component\BluePrint\BluePrintFactory;
 use Misery\Component\Common\Client\ApiClientFactory;
 use Misery\Component\Common\Cursor\CursorFactory;
 use Misery\Component\Common\Cursor\CursorInterface;
+use Misery\Component\Common\Cursor\FunctionalCursor;
 use Misery\Component\Common\FileManager\FileManagerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\FileManager\InMemoryFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
+use Misery\Component\Common\Pipeline\ConverterPipe;
+use Misery\Component\Common\Pipeline\Pipeline;
 use Misery\Component\Common\Pipeline\PipelineFactory;
+use Misery\Component\Common\Pipeline\RevertPipe;
 use Misery\Component\Converter\ConverterFactory;
 use Misery\Component\Converter\ConverterInterface;
 use Misery\Component\Feed\FeedFactory;
@@ -160,9 +164,7 @@ class ConfigurationManager
     {
         /** @var PipelineFactory $factory */
         $factory = $this->factory->getFactory('pipeline');
-        $this->config->setPipeline(
-            $factory->createFromConfiguration($configuration, $this)
-        );
+        $factory->createFromConfiguration($configuration, $this);
     }
 
     public function createAccounts(array $configuration): void
@@ -303,6 +305,11 @@ class ConfigurationManager
         $factory = $this->factory->getFactory('writer');
         $writer = $factory->createFromConfiguration($configuration, $this->getWorkFileManager());
 
+        if (isset($configuration['converter'])) {
+            $converter = $this->createConverter($configuration['converter']);
+            $this->config->getPipeline()->line(new RevertPipe($converter));
+        }
+
         $this->config->setWriter($writer);
 
         return $writer;
@@ -358,6 +365,11 @@ class ConfigurationManager
         /** @var ItemReaderFactory $factory */
         $factory = $this->factory->getFactory('reader');
         $reader = $factory->createFromConfiguration($cursor, $configuration, $this->getConfig());
+
+        if (isset($configuration['converter'])) {
+            $converter = $this->createConverter($configuration['converter']);
+            $this->config->getPipeline()->line(new ConverterPipe($converter));
+        }
 
         $this->config->setReader($reader);
 

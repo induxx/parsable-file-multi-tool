@@ -88,13 +88,11 @@ class Configuration
         return $this->accounts[$name] ?? null;
     }
 
-    public function setPipeline(Pipeline $pipeline): void
+    public function getPipeline(): Pipeline
     {
-        $this->pipeline = $pipeline;
-    }
-
-    public function getPipeline(): ?Pipeline
-    {
+        if ($this->pipeline === null) {
+            $this->pipeline = new Pipeline();
+        }
         return $this->pipeline;
     }
 

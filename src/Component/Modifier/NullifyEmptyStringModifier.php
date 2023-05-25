@@ -10,7 +10,7 @@ class NullifyEmptyStringModifier implements RowModifier
 
     public function modify($value)
     {
-        if(\is_array($value)) {
+        if (\is_array($value)) {
             return array_map(function ($row) {
                 return $this->modify($row);
             }, $value);
