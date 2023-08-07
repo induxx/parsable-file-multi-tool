@@ -100,7 +100,8 @@ $actionRegistry
     ->register(Misery\Component\Action\FilterAction::NAME, new Misery\Component\Action\FilterAction())
     ->register(Misery\Component\Action\PopAction::NAME, new Misery\Component\Action\PopAction())
     ->register(Misery\Component\Action\ColumnValueMapperAction::NAME, new Misery\Component\Action\ColumnValueMapperAction())
-
+    ->register(\Misery\Component\Action\ValueFormatterAction::NAME, new Misery\Component\Action\ValueFormatterAction())
+    ->register(\Misery\Component\Action\ConvergenceAction::NAME, new Misery\Component\Action\ConvergenceAction())
 ;
 
 #$statementRegistry = new Misery\Component\Common\Registry\Registry('statement');
