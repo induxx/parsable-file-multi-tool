@@ -11,6 +11,7 @@ use Misery\Component\AttributeFormatter\PropertyFormatterRegistry;
 use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
+use Misery\Component\Converter\Matcher;
 
 class ConvergenceAction implements OptionsInterface
 {
@@ -20,8 +21,9 @@ class ConvergenceAction implements OptionsInterface
 
     /** @var array */
     private $options = [
-        'field' => null,
-        'selection' => [],
+        'store_field' => null,
+        'fields' => [],
+        'list' => null,
         'item_sep' => ',',
         'key_value_sep' => ':',
         'encapsulate' => false,
@@ -30,12 +32,13 @@ class ConvergenceAction implements OptionsInterface
 
     public function apply(array $item): array
     {
-        $field = $this->getOption('field');
+        $field = $this->getOption('store_field');
         if (null === $field) {
             return $item;
         }
 
-        $fields = $this->getOption('selection');
+        $fields = $this->getOption('list', $this->getOption('fields'));
+
         $keyValueSeparator = trim($this->getOption('key_value_sep'));
         $elementSeparator = trim($this->getOption('item_sep'));
         $encapsulate = $this->getOption('encapsulate');
@@ -45,19 +48,36 @@ class ConvergenceAction implements OptionsInterface
         $keyValueSeparator .= ' ';
 
         $result = [];
-        foreach ($this->getOption('selection') as $key) {
-            $value = key_exists($key, $item) ? $item[$key] : null;
+        foreach ($fields as $fieldKey) {
+            // converted data
+            $key = $this->findMatchedValueData($item, $fieldKey);
+
+            $value = $item[$fieldKey]['data'] ?? $item[$fieldKey] ?? $item[$key]['data'] ?? null;
+
             // Include only the fields with assigned values
             if ($value !== null) {
                 // Encapsulate keys and values if needed
-                $key = $encapsulate ? $encapsulationChar . $key . $encapsulationChar : $key;
+                $fieldKey = $encapsulate ? $encapsulationChar . $fieldKey . $encapsulationChar : $fieldKey;
                 $value = $encapsulate ? $encapsulationChar . $value . $encapsulationChar : $value;
-                $result[] = $key . $keyValueSeparator . $value;
+                $result[] = $fieldKey . $keyValueSeparator . $value;
             }
         }
 
         $item[$field] = implode($elementSeparator, $result);
 
         return $item;
+    }
+
+    private function findMatchedValueData(array $item, string $field)
+    {
+        foreach ($item as $key => $itemValue) {
+            $matcher = $itemValue['matcher'] ?? null;
+            /** @var $matcher Matcher */
+            if ($matcher && $matcher->matches($field)) {
+                return $key;
+            }
+        }
+
+        return null;
     }
 }

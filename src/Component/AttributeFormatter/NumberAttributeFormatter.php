@@ -45,6 +45,7 @@ class NumberAttributeFormatter implements PropertyFormatterInterface
 
     public function supports(string $type): bool
     {
+        return false;
         return in_array($type, ['pim_catalog_number', 'pim_catalog_metric']);
     }
 }

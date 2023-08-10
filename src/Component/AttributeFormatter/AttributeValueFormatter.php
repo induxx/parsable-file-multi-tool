@@ -2,6 +2,8 @@
 
 namespace Misery\Component\AttributeFormatter;
 
+use Misery\Component\Source\SourceAwareInterface;
+
 class AttributeValueFormatter
 {
     private array $attributeTypesAndCodes = [];
@@ -34,22 +36,17 @@ class AttributeValueFormatter
             return $value;
         }
 
-        $formatters = $this->formatterRegistry->findByType($type);
-
-
         $context['current-attribute-code'] = $code;
         $context['current-attribute-type'] = $type;
+        $context = isset($context[$type]) ? $context + $context[$type]: $context;
 
         /** @var PropertyFormatterInterface $formatter */
-        foreach ($formatters as $formatter) {
+        foreach ($this->formatterRegistry->findByType($type) as $formatter) {
             if ($formatter instanceof RequiresContextInterface && false === $formatter->requires($context)) {
                 continue;
             }
 
-            $value = $formatter->format(
-                $value,
-                isset($context[$type]) ? $context + $context[$type]: $context
-            );
+            $value = $formatter->format($value, $context);
         }
 
         return $value;

@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Akeneo;
 
+use _PHPStan_b8e553790\Nette\Neon\Exception;
 use Misery\Component\Common\Picker\ValuePickerInterface;
 
 /**
@@ -38,11 +39,29 @@ class AkeneoValuePicker implements ValuePickerInterface
         'scope' => null,
     ];
 
-    public static function pick(array $item, string $key, array $context = [])
+    public static function autoPick(array $sourceItem, $field, array $context): array|string
+    {
+        if (isset($context['locales'][0]) && count($context['locales']) === 1) {
+            return self::pick($sourceItem, $field, ['locale' => $context['locales'][0]]);
+        }
+        if (isset($context['locales'][0]) && count($context['locales']) > 1) {
+            foreach ($context['locales'] as $locale) {
+                $tmp[$locale] = $sourceItem ? self::pick($sourceItem, $field, ['locale' => $locale]) : $listItem;
+            }
+            return $tmp;
+        }
+        if (isset($context['locale'])) {
+            return self::pick($sourceItem, $field, $context);
+        }
+
+        throw new \Exception('Unsupported method class');
+    }
+
+    public static function pick(array $item, string $field, array $context = [])
     {
         $context = array_merge(self::$default, $context);
 
-        $itemValue = $item[$key] ?? null;
+        $itemValue = $item[$field] ?? null;
 
         if ($itemValue) {
             if (null === $context['scope'] && null === $context['locale']) {

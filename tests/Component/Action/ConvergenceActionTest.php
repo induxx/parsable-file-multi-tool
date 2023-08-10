@@ -12,8 +12,8 @@ class ConvergenceActionTest extends TestCase
     {
         $format = new ConvergenceAction();
         $format->setOptions([
-            'field' => 'address_line',
-            'selection' => ['street', 'city', 'state'],
+            'store_field' => 'address_line',
+            'fields' => ['street', 'city', 'state'],
             'value' => '1',
         ]);
 

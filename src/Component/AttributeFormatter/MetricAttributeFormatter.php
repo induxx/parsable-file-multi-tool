@@ -2,6 +2,8 @@
 
 namespace Misery\Component\AttributeFormatter;
 
+use Misery\Component\Common\Utils\ValueFormatter;
+
 class MetricAttributeFormatter implements PropertyFormatterInterface
 {
     private const FORMAT = '%amount% %unit%';
@@ -36,7 +38,7 @@ class MetricAttributeFormatter implements PropertyFormatterInterface
 
         $format = $context['format'] ?? self::FORMAT;
 
-        if ($value['amount'] === null) {
+        if (false == isset($value['amount'])) {
             return null;
         }
 
