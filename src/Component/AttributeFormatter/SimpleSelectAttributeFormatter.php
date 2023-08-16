@@ -2,10 +2,6 @@
 
 namespace Misery\Component\AttributeFormatter;
 
-use Misery\Component\Akeneo\AkeneoValuePicker;
-use Misery\Component\Common\Utils\ValueFormatter;
-use Misery\Component\Filter\ColumnReducer;
-use Misery\Component\Reader\ItemCollection;
 use Misery\Component\Source\Source;
 
 class SimpleSelectAttributeFormatter implements PropertyFormatterInterface, RequiresContextInterface
@@ -31,23 +27,24 @@ class SimpleSelectAttributeFormatter implements PropertyFormatterInterface, Requ
         $this->recursiveReplace($context, '{value}', $value);
         $this->recursiveReplace($context, '{attribute-code}', $context['current-attribute-code']);
 
-        $reader = $this->source->getReader();
-
         if (isset($context['filter'])) {
             $sourceItem = $this->getItem($context['filter']);
+            if (null === $sourceItem) {
+                return $value;
+            }
 
             if (is_string($context['return'])) {
                 return $this->getValueByFormat($sourceItem, $context['return'], $separator);
             }
 
-            $tmp = [];
-            foreach ($context['return'] as $returnField) {
-                $tmp[] = $this->getValueByFormat($sourceItem, $context['return'], $separator);
+            if (is_array($context['return'])) {
+                $tmp = [];
+                foreach ($context['return'] as $returnField) {
+                    $tmp[] = $this->getValueByFormat($sourceItem, $returnField, $separator);
+                }
+                return $tmp;
             }
-            return $tmp;
         }
-
-        dd($value);
 
         return $value;
     }
@@ -88,14 +85,13 @@ class SimpleSelectAttributeFormatter implements PropertyFormatterInterface, Requ
         foreach ($keys as $key) {
             if (is_array($value) && array_key_exists($key, $value)) {
                 $value = $value[$key];
-                dump('1');
             }
         }
 
         return $value;
     }
 
-    private function recursiveReplace(&$array, $search, $replace)
+    private function recursiveReplace(&$array, $search, $replace): void
     {
         foreach ($array as &$value) {
             if (is_array($value)) {

@@ -2,32 +2,32 @@
 
 namespace Tests\Misery\Component\Action;
 
-use Misery\Component\Action\CopyAction;
-use Misery\Component\Action\ValueFormatterAction;
+use Misery\Component\Action\AkeneoValueFormatterAction;
 use Misery\Component\Configurator\Configuration;
+use Misery\Component\Converter\Matcher;
 use Misery\Component\Reader\ItemCollection;
 use Misery\Component\Source\Source;
 use Misery\Component\Source\SourceCollection;
 use PHPUnit\Framework\TestCase;
 
-class ValueFormatterActionTest extends TestCase
+class AkeneoValueFormatterActionTest extends TestCase
 {
     public function test_it_should_value_format_a_boolean(): void
     {
-        $format = new ValueFormatterAction();
+        $format = new AkeneoValueFormatterAction();
 
         $item = [
-            'brand' => 'louis',
-            'description' => 'LV',
-            'values' => [
-                'enabled' => '1',
+            'identifier' => '1234',
+            'values|enabled' => [
+                'matcher' => Matcher::create('enabled'),
+                'locale' => null,
+                'scope' => null,
+                'data' => true,
             ],
-            'sku' => '1234',
         ];
 
         $format->setOptions([
             'fields' => ['enabled'],
-            'section' => 'values',
             'context' => [
                 'pim_catalog_boolean' => [
                     'label' => [
@@ -43,64 +43,53 @@ class ValueFormatterActionTest extends TestCase
         ]);
 
         $this->assertEquals([
-            'brand' => 'louis',
-            'description' => 'LV',
-            'values' => [
-                'enabled' => 'TRUE',
+            'identifier' => '1234',
+            'values|enabled' => [
+                'matcher' => Matcher::create('enabled'),
+                'locale' => null,
+                'scope' => null,
+                'data' => 'TRUE',
             ],
-            'sku' => '1234',
         ], $format->apply($item));
     }
 
     public function test_it_should_value_format_a_metric(): void
     {
-        $format = new ValueFormatterAction();
+        $format = new AkeneoValueFormatterAction();
 
         $item = [
-            'brand' => 'louis',
-            'description' => 'LV',
-            'values' => [
-                'length_cable' => [
-                    [
-                        'scope' => null,
-                        'locale' => null,
-                        'data' => [
-                            'unit' => 'METER',
-                            'amount' => 1.0000,
-                        ]
-                    ]
+            'identifier' => '1234',
+            'values|length_cable' => [
+                'matcher' => Matcher::create('length_cable'),
+                'scope' => null,
+                'locale' => null,
+                'data' => [
+                    'unit' => 'METER',
+                    'amount' => 1.0000,
                 ],
             ],
-            'sku' => '1234',
         ];
 
         $format->setOptions([
             'fields' => ['length_cable'],
-            'section' => 'values',
             'context' => [
                 'pim_catalog_metric' => [
                     'format' => '%amount% %unit%',
                 ],
             ],
-            'format_key' => null,
             'filter_list' => [
                 'length_cable' => 'pim_catalog_metric',
             ],
         ]);
 
         $this->assertEquals([
-            'brand' => 'louis',
-            'description' => 'LV',
-            'values' => [
-                'length_cable' => [
-                    [
-                        'scope' => null,
-                        'locale' => null,
-                        'data' => '1 METER',
-                    ]
-                ],
+            'identifier' => '1234',
+            'values|length_cable' => [
+                'matcher' => Matcher::create('length_cable'),
+                'scope' => null,
+                'locale' => null,
+                'data' => '1 METER',
             ],
-            'sku' => '1234',
         ], $format->apply($item));
     }
 
@@ -134,23 +123,19 @@ class ValueFormatterActionTest extends TestCase
         );
         $collection->add($source);
 
-        $format = new ValueFormatterAction();
+        $format = new AkeneoValueFormatterAction();
         $format->setConfiguration($configuration = new Configuration());
         $configuration->addSources($collection);
 
         $item = [
-            'brand' => 'louis',
+            'identifier' => '1234',
             'description' => 'LV',
-            'values' => [
-                'brand' => [
-                    [
-                        'scope' => null,
-                        'locale' => null,
-                        'data' => 'louis',
-                    ]
-                ],
+            'values|brand' => [
+                'matcher' => Matcher::create('brand'),
+                'scope' => null,
+                'locale' => null,
+                'data' => 'louis',
             ],
-            'sku' => '1234',
         ];
 
         $format->setOptions([
@@ -160,6 +145,7 @@ class ValueFormatterActionTest extends TestCase
                 'pim_catalog_simpleselect' => [
                     'source' => 'attribute_options',
                     'filter' => [
+                        'attribute' => '{attribute-code}',
                         'code' => '{value}',
                     ],
                     'return' => 'labels-nl_BE',
@@ -172,18 +158,14 @@ class ValueFormatterActionTest extends TestCase
         ]);
 
         $this->assertEquals([
-            'brand' => 'louis',
+            'identifier' => '1234',
             'description' => 'LV',
-            'values' => [
-                'brand' => [
-                    [
-                        'scope' => null,
-                        'locale' => null,
-                        'data' => 'Louis Vuitton nl_be',
-                    ]
-                ],
+            'values|brand' => [
+                'matcher' => Matcher::create('brand'),
+                'scope' => null,
+                'locale' => null,
+                'data' => 'Louis Vuitton nl_be',
             ],
-            'sku' => '1234',
         ], $format->apply($item));
     }
 }

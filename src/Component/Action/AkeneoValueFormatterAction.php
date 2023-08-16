@@ -21,12 +21,12 @@ use Misery\Component\Reader\ItemReaderAwareInterface;
 use Misery\Component\Reader\ReaderAwareTrait;
 use Misery\Component\Source\SourceTrait;
 
-class ValueFormatterAction implements OptionsInterface, ConfigurationAwareInterface
+class AkeneoValueFormatterAction implements OptionsInterface, ConfigurationAwareInterface
 {
     use OptionsTrait;
     use ConfigurationTrait;
 
-    public const NAME = 'value_format';
+    public const NAME = 'akeneo_value_format';
     private ?AttributeValueFormatter $attributeValueFormatter = null;
 
     /** @var array */
@@ -40,19 +40,17 @@ class ValueFormatterAction implements OptionsInterface, ConfigurationAwareInterf
 
     public function apply(array $item): array
     {
-        $section = $this->getOption('section');
         $context = $this->getOption('context');
-
         $fields = $this->getOption('list', $this->getOption('fields'));
 
         if ($this->attributeValueFormatter === null) {
             $registry = new PropertyFormatterRegistry();
             $registry->addAll(
+                new NumberAttributeFormatter(),
                 new BooleanLabelsAttributeFormatter(),
                 new BooleanAttributeFormatter(),
                 new MetricAttributeFormatter(),
                 new MultiValuePresenterFormatter(),
-                new NumberAttributeFormatter(),
                 new PriceCollectionFormatter(),
             );
 
@@ -98,29 +96,5 @@ class ValueFormatterAction implements OptionsInterface, ConfigurationAwareInterf
         }
 
         return null;
-    }
-
-    /**
-     * Akeneo Product Values are always structured with at least :
-     * - 1 element with start index 0
-     * - the element always contains a "data" property
-     *
-     * From here we still don't know the elements scope, [global, scopable, localizable, scopable+localizable]
-     */
-    private function isAkeneoApiValue($itemValue)
-    {
-        return key_exists('data', $itemValue[0]);
-    }
-
-    private function getAkeneoValue($itemValue, int $i = 0)
-    {
-        return $itemValue[$i]['data'];
-    }
-
-    private function setAkeneoValue($itemValue, $changedValue, int $i = 0)
-    {
-        $itemValue[$i]['data'] = $changedValue;
-
-        return $itemValue;
     }
 }
