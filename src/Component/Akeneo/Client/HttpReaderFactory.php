@@ -17,11 +17,6 @@ class HttpReaderFactory implements RegisteredByNameInterface
             'type must be filled in.'
         )->notEmpty()->string()->inArray(['rest_api']);
 
-        Assert::that(
-            $configuration['account'],
-            'account must be filled in.'
-        )->notEmpty()->string();
-
         if ($configuration['type'] === 'rest_api') {
             Assert::that(
                 $configuration['endpoint'],
@@ -68,9 +63,15 @@ class HttpReaderFactory implements RegisteredByNameInterface
             }
 
             $context['limiters'] = $configuration['limiters'] ?? [];
+            $accountCode = (isset($configuration['account'])) ? $configuration['account'] : 'source_resource';
+            $account = $config->getAccount($accountCode);
+
+            if (!$account) {
+                throw new \Exception(sprintf('Account "%s" not found.', $accountCode));
+            }
 
             return new ApiReader(
-                $config->getAccount($configuration['account']),
+                $account,
                 new $endpoint,
                 $context + $config->getContext()
             );

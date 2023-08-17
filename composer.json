@@ -20,7 +20,7 @@
         "symfony/yaml": "6.*|5.*|^4.3|^3.4",
         "beberlei/assert": "^3.3",
         "adhocore/cli": "^0.9.0",
-        "firebase/php-jwt": "^6.0",
+        "firebase/php-jwt": "^v6.8",
         "aspera/xlsx-reader": "^0.9.0"
     },
     "require-dev": {
