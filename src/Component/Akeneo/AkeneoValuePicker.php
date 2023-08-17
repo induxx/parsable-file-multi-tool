@@ -2,7 +2,6 @@
 
 namespace Misery\Component\Akeneo;
 
-use _PHPStan_b8e553790\Nette\Neon\Exception;
 use Misery\Component\Common\Picker\ValuePickerInterface;
 
 /**
@@ -46,7 +45,7 @@ class AkeneoValuePicker implements ValuePickerInterface
         }
         if (isset($context['locales'][0]) && count($context['locales']) > 1) {
             foreach ($context['locales'] as $locale) {
-                $tmp[$locale] = $sourceItem ? self::pick($sourceItem, $field, ['locale' => $locale]) : $listItem;
+                $tmp[$locale] = $sourceItem ? self::pick($sourceItem, $field, ['locale' => $locale]) : $sourceItem;
             }
             return $tmp;
         }
