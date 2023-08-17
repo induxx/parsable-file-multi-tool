@@ -36,18 +36,14 @@ class StatementAction implements OptionsInterface, ConfigurationAwareInterface
         }
 
         $statement = StatementBuilder::build($when, $context);
-        if (isset($then['action'])) {
-            if ($then['action'] === 'skip') {
-                $action = new SkipAction();
-                $message = $then['skip_message'] ?? '';
-                if (!empty($message)) {
-                    $message = ValueFormatter::format($message, $item);
-                }
-
-                $action->setOptions(['skip_message' => $message, 'force_skip' => true]);
+        if (isset($then['action']) && $then['action'] === 'skip') {
+            $action = new SkipAction();
+            $message = $then['skip_message'] ?? '';
+            if (!empty($message)) {
+                $message = ValueFormatter::format($message, $item);
             }
-            $this->getConfiguration()->setActions();
 
+            $action->setOptions(['skip_message' => $message, 'force_skip' => true]);
             $statement->setAction($action);
         }
 
