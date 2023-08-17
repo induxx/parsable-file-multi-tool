@@ -4,6 +4,7 @@ namespace Tests\Misery\Component\Action;
 
 use Misery\Component\Action\ConvergenceAction;
 use Misery\Component\Action\SetValueAction;
+use Misery\Component\Converter\Matcher;
 use PHPUnit\Framework\TestCase;
 
 class ConvergenceActionTest extends TestCase
@@ -41,5 +42,41 @@ class ConvergenceActionTest extends TestCase
             'country' => 'United States',
             'address_line' => 'street: 123 Main Street, city: Anytown, state: CA',
         ], $format->apply($item));
+    }
+
+    public function test_it_should_convergence_fields_std_data(): void
+    {
+        $format = new ConvergenceAction();
+        $format->setOptions([
+            'store_field' => 'address_line',
+            'fields' => ['street', 'city', 'state'],
+            'value' => '1',
+        ]);
+
+        $item = [
+            'values|street' => [
+                'matcher' => Matcher::create('street'),
+                'scope' => null,
+                'locale' => null,
+                'data' => '123 Main Street',
+            ],
+            'values|city' => [
+                'matcher' => Matcher::create('city'),
+                'scope' => null,
+                'locale' => null,
+                'data' => 'Anytown',
+            ],
+            'values|state' => [
+                'matcher' => Matcher::create('state'),
+                'scope' => null,
+                'locale' => null,
+                'data' => 'CA',
+            ],
+        ];
+
+        $this->assertEquals(
+            'street: 123 Main Street, city: Anytown, state: CA',
+            $format->apply($item)['address_line' ]
+        );
     }
 }
