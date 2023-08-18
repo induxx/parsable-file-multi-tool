@@ -16,8 +16,9 @@ interface ReaderInterface
     public function filter(callable $callable): self;
 
     /**
-     * Allow the reader to be rewind-ed, reset, cleared of all read data
+     * Allow the reader to be reset or cleared of all memory data
      * We do not store data in the reader but our components might
+     * so passing the function is key
      */
     public function clear(): void;
 }
