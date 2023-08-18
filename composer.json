@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": "8.*|7.4.*|7.3.*|7.2.*",
+        "php": "8.*",
         "ext-json": "*",
         "ext-iconv": "*",
         "ext-xmlwriter": "*",
