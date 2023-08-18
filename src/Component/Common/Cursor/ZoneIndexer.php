@@ -15,7 +15,7 @@ class ZoneIndexer
             // prep indexes
             $cursor->loop(function ($row) use ($cursor, $reference) {
                 $index = (int) $cursor->key();
-                $zone = (int) (($cursor->key() -1) / self::MEDIUM_CACHE_SIZE);
+                $zone = (int) (($index -1) / self::MEDIUM_CACHE_SIZE);
                 $referenceValue = $row[$reference];
                 $this->indexes[crc32($referenceValue)] = $index;
                 $this->zones[$index] = $zone;
@@ -24,7 +24,7 @@ class ZoneIndexer
         }
     }
 
-    public function depleteIndex($reference, $index): void
+    public function depleteIndex(string $reference, int $index): void
     {
         unset($this->zones[$index]);
         unset($this->indexes[crc32($reference)]);
@@ -45,7 +45,7 @@ class ZoneIndexer
         $keys = [];
         foreach ($this->zones as $key => $linkedZone) {
             if ($linkedZone === $zone) {
-                $keys[]  = $key;
+                $keys[] = $key;
             }
         }
 
