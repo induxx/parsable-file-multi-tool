@@ -7,12 +7,9 @@ use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Reader\ItemReaderAwareInterface;
 use Misery\Component\Reader\ItemReaderAwareTrait;
 
-class FormatAction implements OptionsInterface, ItemReaderAwareInterface
+class FormatAction implements OptionsInterface
 {
     use OptionsTrait;
-    use ItemReaderAwareTrait;
-
-    private $mapper;
 
     public const NAME = 'format';
 

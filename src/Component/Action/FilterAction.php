@@ -22,7 +22,7 @@ class FilterAction implements OptionsInterface
 
     public function apply($item)
     {
-        $field = $this->getOption('key', $this->getOption('field'));
+        $field = $this->getOption('key', $this->getOption('field')); # legacy support
         $listItem = $item[$field] ?? null;
         if (empty($listItem) || empty($field)) {
             return $item;
