@@ -145,7 +145,7 @@ class CachedCursor implements CursorInterface
     {
         $this->items = [];
         $this->range = [];
-        $this->position = 0;
+        $this->rewind();
         $this->cursor->clear();
     }
 }

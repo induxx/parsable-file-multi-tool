@@ -78,9 +78,6 @@ class FunctionalCursor implements CursorInterface
     public function rewind(): void
     {
         $this->cursor->rewind();
-        if (method_exists($this->cursor, 'clear')) {
-            $this->cursor->clear();
-        }
     }
 
     /**
@@ -97,11 +94,6 @@ class FunctionalCursor implements CursorInterface
     public function count(): int
     {
         return $this->cursor->count();
-    }
-
-    public function __destruct()
-    {
-        $this->clear();
     }
 
     public function clear(): void
