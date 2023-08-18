@@ -39,6 +39,7 @@ use Misery\Component\Source\SourceCollectionFactory;
 use Misery\Component\Source\SourceFilterFactory;
 use Misery\Component\Writer\ItemWriterFactory;
 use Misery\Component\Writer\ItemWriterInterface;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Yaml\Yaml;
 
 class ConfigurationManager

@@ -2,8 +2,6 @@
 
 namespace Misery\Component\Reader;
 
-use Misery\Component\Statement\StatementCollection;
-
 interface ReaderInterface
 {
     /** @return array|false */
@@ -16,4 +14,10 @@ interface ReaderInterface
     // these interfaces are not part of the ReaderInterface
     public function find(array $constraints): self;
     public function filter(callable $callable): self;
+
+    /**
+     * Allow the reader to be rewind-ed, reset, cleared of all read data
+     * We do not store data in the reader but our components might
+     */
+    public function clear(): void;
 }
