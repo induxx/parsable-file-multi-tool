@@ -49,7 +49,7 @@ class KeyMapperAction implements OptionsInterface
         return $this->mapper->map($item, $list);
     }
 
-    private function findMatchedValueData(array $item, string $field)
+    private function findMatchedValueData(array $item, string $field): int|string|null
     {
         foreach ($item as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;

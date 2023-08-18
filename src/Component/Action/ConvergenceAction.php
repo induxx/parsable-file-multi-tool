@@ -51,7 +51,6 @@ class ConvergenceAction implements OptionsInterface
         foreach ($fields as $fieldKey) {
             // converted data
             $key = $this->findMatchedValueData($item, $fieldKey);
-
             $value = $item[$fieldKey]['data'] ?? $item[$fieldKey] ?? $item[$key]['data'] ?? null;
 
             // Include only the fields with assigned values
@@ -68,7 +67,7 @@ class ConvergenceAction implements OptionsInterface
         return $item;
     }
 
-    private function findMatchedValueData(array $item, string $field)
+    private function findMatchedValueData(array $item, string $field): int|string|null
     {
         foreach ($item as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;

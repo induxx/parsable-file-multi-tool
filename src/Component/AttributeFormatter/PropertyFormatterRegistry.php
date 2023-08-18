@@ -2,7 +2,6 @@
 
 namespace Misery\Component\AttributeFormatter;
 
-
 use Misery\Component\Reader\ItemCollection;
 use Misery\Component\Reader\ItemReader;
 

@@ -80,7 +80,6 @@ class SimpleSelectAttributeFormatter implements PropertyFormatterInterface, Requ
         }
 
         $keys = explode($separator, $format);
-
         $value = $data;
         foreach ($keys as $key) {
             if (is_array($value) && array_key_exists($key, $value)) {
@@ -96,7 +95,9 @@ class SimpleSelectAttributeFormatter implements PropertyFormatterInterface, Requ
         foreach ($array as &$value) {
             if (is_array($value)) {
                 $this->recursiveReplace($value, $search, $replace);
-            } elseif (is_string($value) && is_string($replace)) {
+                continue;
+            }
+            if (is_string($value) && is_string($replace)) {
                 $value = str_replace($search, $replace, $value);
             }
         }

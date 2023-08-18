@@ -85,7 +85,7 @@ class AkeneoValueFormatterAction implements OptionsInterface, ConfigurationAware
         return $item;
     }
 
-    private function findMatchedValueData(array $item, string $field)
+    private function findMatchedValueData(array $item, string $field): int|string|null
     {
         foreach ($item as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;

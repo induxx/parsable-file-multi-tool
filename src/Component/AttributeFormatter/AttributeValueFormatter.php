@@ -2,8 +2,6 @@
 
 namespace Misery\Component\AttributeFormatter;
 
-use Misery\Component\Source\SourceAwareInterface;
-
 class AttributeValueFormatter
 {
     private array $attributeTypesAndCodes = [];

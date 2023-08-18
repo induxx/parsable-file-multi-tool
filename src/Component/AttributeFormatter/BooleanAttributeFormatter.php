@@ -16,9 +16,12 @@ class BooleanAttributeFormatter implements PropertyFormatterInterface, RequiresC
         if (true === $value || $value === '1' || $value === 1) {
             return $context['label']['Y'];
         }
+
         if (false === $value || $value === '0' || $value === 0) {
             return $context['label']['N'];
         }
+
+        return $value;
     }
 
     public function supports(string $type): bool

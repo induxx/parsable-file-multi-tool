@@ -29,6 +29,10 @@ class ConverterAction implements OptionsInterface, ConfigurationAwareInterface
     public function apply(array $item): array
     {
         $converterName = $this->getOption('name');
+        if (null === $converterName) {
+            return $item;
+        }
+
         $converter = $this->configuration->getConverter($converterName);
 
         return $converter ? $converter->convert($item): $item;
