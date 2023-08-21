@@ -31,7 +31,7 @@ class AS400ArticleAttributesCsvToStructuredDataConverter implements ConverterInt
 
     private $types = [];
 
-    /** @var ProductStructuredDataToAkeneoApiConverter */
+    /** @var AkeneoProductApiConverter */
     private $reverter;
     /** @var StandardValueCreator */
     private $valueCreator;
@@ -60,7 +60,7 @@ class AS400ArticleAttributesCsvToStructuredDataConverter implements ConverterInt
                 ->getCachedReader(['cache_size' => CachedCursor::EXTRA_LARGE_CACHE_SIZE])
             ;
 
-            $this->reverter = new ProductStructuredDataToAkeneoApiConverter();
+            $this->reverter = new AkeneoProductApiConverter();
             $this->reverter->setOption('attributes:list', $this->getOption('attributes:list'));
             $this->reverter->setOption('localizable_codes:list', $this->getOption('localizable_codes:list'));
 

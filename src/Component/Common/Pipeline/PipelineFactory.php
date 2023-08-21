@@ -49,7 +49,7 @@ class PipelineFactory implements RegisteredByNameInterface
                     // what about decode and revert
                     break;
                 case $key === 'converter':
-                    $converter = $configurationManager->getConfig()->getConverter($configuration['converter']);
+                    $converter = $configurationManager->createConverter($configuration['converter']);
                     $pipeline->line(new ConverterPipe($converter));
                     break;
                 case $key === 'actions';
@@ -84,7 +84,7 @@ class PipelineFactory implements RegisteredByNameInterface
         array $configuration
     ): Pipeline
     {
-        $pipeline = new Pipeline();
+        $pipeline = $configurationManager->getConfig()->getPipeline();
 
         $reader = (isset($configuration['input']['http'])) ? $configurationManager->createHTTPReader($configuration['input']['http']) : $configurationManager->createReader($configuration['input']['reader']);
         $pipeline->input(new PipeReader($reader));

@@ -48,6 +48,7 @@ class ConfigurationFactory
             'sources',
             'list',
             'mapping',
+            'converter',
             'blueprint',
         ];
 

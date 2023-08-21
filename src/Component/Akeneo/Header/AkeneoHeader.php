@@ -15,13 +15,14 @@ class AkeneoHeader
     {
         $this->context = array_merge([
             'locale_codes' => [],
+            'scope_codes' => [],
             'currencies' => [],
             'has_locale' => false,
             'has_scope' => false,
         ], $context);
     }
 
-    public function add($code, string $type, array $context = []): void
+    public function addValue($code, string $type, array $context = []): void
     {
         $this->list[$code] = array_merge($this->context, $context, [
             'code' => $code,

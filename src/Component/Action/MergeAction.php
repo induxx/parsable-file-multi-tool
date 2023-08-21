@@ -18,12 +18,13 @@ class MergeAction implements OptionsInterface, ConfigurationAwareInterface
     private $options = [
         'field' => null,
         'list' => null,
+        'values' => null,
     ];
 
     public function apply(array $item): array
     {
         $field = $this->getOption('field');
-        $list = $this->getOption('list');
+        $list = $this->getOption('list', $this->getOption('values'));
 
         // validation
         if (!is_array($item[$field])) {

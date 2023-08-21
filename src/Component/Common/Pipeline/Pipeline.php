@@ -11,6 +11,9 @@ class Pipeline
 {
     /** @var PipeReaderInterface */
     private $in;
+    private ?PipeInterface $prePipeProcess = null;
+    private ?PipeInterface $postPipeProcess = null;
+    private ?PipeInterface $debugPipeProcess = null;
     /** @var PipeWriterInterface */
     private $invalid;
     /** @var PipeInterface[] */
@@ -30,6 +33,22 @@ class Pipeline
 
     public function line(PipeInterface $pipe): self
     {
+        if ($pipe instanceof ConverterPipe) {
+            $this->prePipeProcess = $pipe;
+
+            return $this;
+        }
+        if ($pipe instanceof RevertPipe) {
+            $this->postPipeProcess = $pipe;
+
+            return $this;
+        }
+        if ($pipe instanceof LoggingPipe) {
+            $this->debugPipeProcess = $pipe;
+
+            return $this;
+        }
+
         $this->lines[] = $pipe;
 
         return $this;
@@ -66,7 +85,7 @@ class Pipeline
             }
             $this->debugger->log($item, 'original item');
             try {
-                foreach ($this->lines as $line) {
+                foreach (array_filter(['pre' => $this->prePipeProcess] + $this->lines + ['post' => $this->postPipeProcess, 'debug' => $this->debugPipeProcess]) as $line) {
                     $item = $line->pipe($item);
                 }
                 foreach ($this->out as $out) {

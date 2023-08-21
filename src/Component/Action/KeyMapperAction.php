@@ -11,7 +11,7 @@ class KeyMapperAction implements OptionsInterface
 {
     use OptionsTrait;
 
-    private $mapper;
+    private ColumnMapper $mapper;
 
     public const NAME = 'key_mapping';
 
@@ -22,17 +22,11 @@ class KeyMapperAction implements OptionsInterface
 
     /** @var array */
     private $options = [
-        'key' => null,
         'list' => [],
     ];
 
     public function apply(array $item): array
     {
-        if ($key = $this->getOption('key')) {
-            $item[$key] = $this->mapper->map($item[$key], $this->getOption('list'));
-            return $item;
-        }
-
         $list = $this->getOption('list');
         // when dealing with converted data we need the primary keys
         // we just need to replace these keys

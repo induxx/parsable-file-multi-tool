@@ -22,13 +22,20 @@ class ConcatAction implements OptionsInterface
     /** @var array */
     private $options = [
         'key' => null,
+        'field' => null,
         'format' => '%s',
     ];
 
     public function apply(array $item): array
     {
-        if (array_key_exists($this->options['key'], $item)) {
-            $item[$this->getOption('key')] = ValueFormatter::format($this->getOption('format'), $item);
+        $field = $this->getOption('field', $this->getOption('key'));
+
+        if (null == $field) {
+            return $item;
+        }
+
+        if (array_key_exists($field, $item)) {
+            $item[$field] = ValueFormatter::format($this->getOption('format'), $item);
         }
 
         return $item;

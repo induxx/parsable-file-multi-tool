@@ -2,14 +2,6 @@
 
 // formatters are reversable // Modifiers are NOT reversable
 
-use Misery\Component\Action\EmptyAction;
-use Misery\Component\Action\FilterAction;
-use Misery\Component\Action\UnsetAction;
-use Misery\Component\Akeneo\Client\HttpWriterFactory;
-use Misery\Component\Converter\Akeneo\Api\Attribute;
-use Misery\Component\Converter\AkeneoCsvHeaderContext;
-use Misery\Component\Converter\AkeneoCsvToStructuredDataConverter;
-
 $sourceRegistry = new Misery\Component\Common\Registry\Registry('source_command');
 $sourceRegistry->registerAllByName(
     new Misery\Component\Source\Command\SourceFilterCommand(),
@@ -35,6 +27,10 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Api\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
+    new Misery\Component\Converter\AkeneoProductApiConverter(),
+    new Misery\Component\Converter\AkeneoProductCsvConverter(),
+    new Misery\Component\Converter\AkeneoAttributeApiConverter(),
+    new Misery\Component\Converter\AkeneoAttributeCsvConverter(),
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
@@ -82,7 +78,7 @@ $actionRegistry
     ->register(Misery\Component\Action\CalculateAction::NAME, new Misery\Component\Action\CalculateAction())
     ->register(Misery\Component\Action\GetImageFromBynderAction::NAME, new Misery\Component\Action\GetImageFromBynderAction())
     ->register(Misery\Component\Action\SetValueAction::NAME, $setValueAction = new Misery\Component\Action\SetValueAction())
-    ->register(Misery\Component\Action\ReseatAction::NAME, new Misery\Component\Action\ReseatAction())
+    ->register(Misery\Component\Action\RepositionKeysAction::NAME, new Misery\Component\Action\RepositionKeysAction())
     ->register(Misery\Component\Action\ModifierAction::NAME, new Misery\Component\Action\ModifierAction($modifierRegistry))
     ->register(Misery\Component\Action\BindAction::NAME, new Misery\Component\Action\BindAction())
     ->register(Misery\Component\Action\KeyMapperAction::NAME, new Misery\Component\Action\KeyMapperAction())
@@ -90,7 +86,6 @@ $actionRegistry
     ->register(Misery\Component\Action\StatementAction::NAME, new Misery\Component\Action\StatementAction())
     ->register(Misery\Component\Action\MergeAction::NAME, new Misery\Component\Action\MergeAction())
     ->register(Misery\Component\Action\UnsetAction::NAME, new Misery\Component\Action\UnsetAction())
-    ->register(Misery\Component\Action\EmptyAction::NAME, new Misery\Component\Action\EmptyAction())
     ->register(Misery\Component\Action\ConcatAction::NAME, new Misery\Component\Action\ConcatAction())
     ->register(Misery\Component\Action\HashAction::NAME, new Misery\Component\Action\HashAction())
     ->register(Misery\Component\Action\ListMapperAction::NAME, new Misery\Component\Action\ListMapperAction())
@@ -101,9 +96,9 @@ $actionRegistry
     ->register(Misery\Component\Action\FilterAction::NAME, new Misery\Component\Action\FilterAction())
     ->register(Misery\Component\Action\PopAction::NAME, new Misery\Component\Action\PopAction())
     ->register(Misery\Component\Action\ColumnValueMapperAction::NAME, new Misery\Component\Action\ColumnValueMapperAction())
-    ->register(\Misery\Component\Action\AkeneoValueFormatterAction::NAME, new Misery\Component\Action\AkeneoValueFormatterAction())
-    ->register(\Misery\Component\Action\ConvergenceAction::NAME, new Misery\Component\Action\ConvergenceAction())
-    ->register(\Misery\Component\Action\ConverterAction::NAME, new Misery\Component\Action\ConverterAction())
+    ->register(Misery\Component\Action\AkeneoValueFormatterAction::NAME, new Misery\Component\Action\AkeneoValueFormatterAction())
+    ->register(Misery\Component\Action\ConvergenceAction::NAME, new Misery\Component\Action\ConvergenceAction())
+    ->register(Misery\Component\Action\ConverterAction::NAME, new Misery\Component\Action\ConverterAction())
 ;
 
 #$statementRegistry = new Misery\Component\Common\Registry\Registry('statement');

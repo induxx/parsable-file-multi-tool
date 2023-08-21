@@ -19,9 +19,14 @@ class PopAction implements OptionsInterface
 
     public function apply(array $item): array
     {
+        $field = $this->getOption('field');
+        if (false === array_key_exists($field, $item)) {
+            return $item;
+        }
+
         $value = $item[$this->options['field']];
         $value = explode($this->options['separator'], $value);
-        $item[$this->options['field']] = array_pop($value);
+        $item[$field] = array_pop($value);
 
         return $item;
     }

@@ -7,7 +7,7 @@ use Misery\Component\Source\Command\ExecuteSourceCommandInterface;
 
 class SourceFilter
 {
-    private $command;
+    private ExecuteSourceCommandInterface $command;
 
     public function __construct(ExecuteSourceCommandInterface $command)
     {
