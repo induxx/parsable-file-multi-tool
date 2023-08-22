@@ -3,22 +3,29 @@
 namespace Misery\Component\Common\Client;
 
 use Exception;
+use Misery\Component\Common\Generator\UrlGenerator;
 
-class BasicAuthApiClient {
-    private $baseUri;
-    private $username;
-    private $password;
+class BasicAuthApiClient implements ApiClientInterface
+{
+    private string $baseUri;
+    private string $username;
+    private string $password;
+    private mixed $status;
+    private mixed $response;
+    private UrlGenerator $urlGenerator;
 
-    public function __construct($baseUri, $username, $password) {
+    public function __construct($baseUri, $username, $password)
+    {
         $this->baseUri = rtrim($baseUri, '/');
+        $this->urlGenerator = new UrlGenerator($this->baseUri);
+
         $this->username = $username;
         $this->password = $password;
     }
 
-    public function sendRequest($method, $endpoint, $data = null, $headers = []) {
-        $url = $this->baseUri . '/' . ltrim($endpoint, '/');
-
-        $curl = curl_init($url);
+    public function sendRequest($method, $endpoint, $data = null, $headers = []): void
+    {
+        $curl = curl_init($endpoint);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
@@ -32,30 +39,85 @@ class BasicAuthApiClient {
             $headers[] = 'Content-Type: application/json';
         }
 
-        $response = curl_exec($curl);
+        $this->response = json_decode(curl_exec($curl), true);
+        $this->status = \curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         if (curl_errno($curl)) {
             throw new Exception('Curl error: ' . curl_error($curl));
         }
 
         curl_close($curl);
-
-        return $response;
     }
 
-    public function get($endpoint, $headers = []) {
-        return $this->sendRequest('GET', $endpoint, null, $headers);
+    public function getResponse(): ApiResponse
+    {
+        $response = null;
+
+        if (is_array($this->response)) {
+            $response = ApiResponse::create($this->response, $this->status);
+        }
+        if (is_string($this->response)) {
+            $response = new ApiResponse($this->status, null, $this->response);
+        }
+        if (in_array($this->status, [200, 204]) && !$this->response) {
+            $response = ApiResponse::create([], $this->status);
+        }
+
+        $this->response = null;
+        $this->status = null;
+
+        if ($response instanceof ApiResponse) {
+            return $response;
+        }
+
+        throw new \RuntimeException('Impossible NoApiResponse');
     }
 
-    public function post($endpoint, $data = null, $headers = []) {
-        return $this->sendRequest('POST', $endpoint, $data, $headers);
+    public function get($endpoint, $headers = []): self
+    {
+        $this->sendRequest('GET', $endpoint, null, $headers);
+
+        return $this;
     }
 
-    public function put($endpoint, $data = null, $headers = []) {
-        return $this->sendRequest('PUT', $endpoint, $data, $headers);
+    public function post($endpoint, $postData = null, $headers = []): self
+    {
+        $this->sendRequest('POST', $endpoint, $postData, $headers);
+
+        return $this;
     }
 
-    public function delete($endpoint, $headers = []) {
-        return $this->sendRequest('DELETE', $endpoint, null, $headers);
+    public function put($endpoint, $data = null, $headers = []): self
+    {
+        $this->sendRequest('PUT', $endpoint, $data, $headers);
+
+        return $this;
+    }
+
+    public function delete($endpoint, $headers = []): self
+    {
+        $this->sendRequest('DELETE', $endpoint, null, $headers);
+
+        return $this;
+    }
+
+    public function getUrlGenerator(): UrlGenerator
+    {
+        return $this->urlGenerator;
+    }
+
+    public function multiPatch(string $endpoint, array $dataSet): ApiClientInterface
+    {
+        // TODO: Implement multiPatch() method.
+    }
+
+    public function patch(string $endpoint, array $patchData): ApiClientInterface
+    {
+        // TODO: Implement patch() method.
+    }
+
+    public function log(string $message, int $statusCode = null, $content): void
+    {
+        // TODO: Implement log() method.
     }
 }

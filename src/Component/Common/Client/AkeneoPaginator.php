@@ -4,7 +4,7 @@ namespace Misery\Component\Common\Client;
 
 use Misery\Component\Reader\ItemCollection;
 
-class Paginator
+class AkeneoPaginator
 {
     private $client;
     private $first;
@@ -14,7 +14,7 @@ class Paginator
     private $items;
 
     public function __construct(
-        ApiClient $client,
+        ApiClientInterface $client,
         ItemCollection $items,
         string $first = null,
         string $previous = null,
@@ -29,7 +29,7 @@ class Paginator
         $this->items = $items;
     }
 
-    public static function create(ApiClient $client, array $data): self
+    public static function create(ApiClientInterface $client, array $data): self
     {
         return new self(
             $client,

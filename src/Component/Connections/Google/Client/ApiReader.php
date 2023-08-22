@@ -1,10 +1,11 @@
 <?php
 
-namespace Misery\Component\Akeneo\Client;
+namespace Misery\Component\Connections\Google\Client;
 
 use Misery\Component\Common\Client\ApiClient;
+use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
-use Misery\Component\Common\Client\Paginator;
+use Misery\Component\Common\Client\AkeneoPaginator;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Reader\ReaderInterface;
 
@@ -14,7 +15,7 @@ class ApiReader implements ReaderInterface
     private $page;
     private $endpoint;
 
-    public function __construct(ApiClient $client, ApiEndpointInterface  $endpoint)
+    public function __construct(ApiClientInterface $client, ApiEndpointInterface  $endpoint)
     {
         $this->client = $client;
         $this->endpoint = $endpoint;
@@ -32,7 +33,7 @@ class ApiReader implements ReaderInterface
     public function read()
     {
         if (null === $this->page) {
-            $this->page = Paginator::create($this->client, $this->all());
+            $this->page = AkeneoPaginator::create($this->client, $this->all());
         }
         $item = $this->page->getItems()->current();
 
