@@ -35,6 +35,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Api\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
+    new Misery\Component\Converter\AkeneoFlatProductToCsvConverter()
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
