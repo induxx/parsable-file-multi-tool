@@ -2,12 +2,10 @@
 
 namespace Misery\Component\Debugger;
 
-use Misery\Component\Item\TypeGuesser;
-
 class ItemDebugger
 {
     public function log($item, $message)
     {
-        dump($message, TypeGuesser::guess($item));
+        dump($message, $item);
     }
 }
