@@ -20,16 +20,17 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
     use ReaderAwareTrait;
 
     private $options = [
-        'attribute:list' => [],
+        'attributes:list' => [],
         'attribute_types:list' => [],
         'localizable_attribute_codes:list' => [],
         'scopable_attribute_codes:list' => [],
         'default_metrics:list' => [],
+        'attribute_option_label_codes:list' => [],
         'set_default_metrics' => false,
-        'locales' => [],
         'default_locale' => null,
         'default_scope' => null,
         'default_currency' => null,
+        'container' => 'values',
         'option_label' => 'label-nl_BE',
     ];
 
@@ -38,16 +39,18 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
     public function convert(array $item): array
     {
         $tmp = [];
+        $container = $this->getOption('container');
         // first we need to convert the values
-        foreach ($item['values'] ?? $this->getProductValues($item) ?? [] as $key => $value) {
+        foreach ($item[$container] ?? $this->getProductValues($item) ?? [] as $key => $value) {
             $value = $this->getAkeneoDataStructure($key, $value);
-            $matcher = Matcher::create('values|'.$key, $value['locale'], $value['scope']);
+            $matcher = Matcher::create($container.'|'.$key, $value['locale'], $value['scope']);
             $tmp[$key = $matcher->getMainKey()] = $value;
             $tmp[$key]['matcher'] = $matcher;
+            unset($item[$key]);
         }
-        unset($item['values']);
+        unset($item[$container]);
 
-        return $item;
+        return $item+$tmp;
     }
 
     public function getAkeneoDataStructure(string $attributeCode, $value): array
@@ -55,6 +58,15 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
         if (null === $type) {
             return $value;
+        }
+        if (is_array($value)) {
+            if (
+                array_key_exists('locale', $value) &&
+                array_key_exists('data', $value) &&
+                array_key_exists('scope', $value)
+            ) {
+                return $value;
+            }
         }
 
         $localizable = in_array(
@@ -74,14 +86,16 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 $value = $this->numberize($value);
                 break;
             case AkeneoHeaderTypes::SELECT:
-                $value = $this->findAttributeOptionCode($attributeCode, $value);
+                // TODO implement attributes reader
+                //$value = $this->findAttributeOptionCode($attributeCode, $value);
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
-                $value = [$this->findAttributeOptionCode($attributeCode, $value)];
+                // TODO implement attributes reader
+                //$value = [$this->findAttributeOptionCode($attributeCode, $value)];
                 break;
             case AkeneoHeaderTypes::METRIC:
                 $amount = null;
-                $unit = $this->getOption('default_metrics:list')[$attributeCode] ?? null;;
+                $unit = $this->getOption('default_metrics:list')[$attributeCode] ?? null;
                 if (is_numeric($value)) {
                     $amount = $this->numberize($value);
                 }
@@ -139,7 +153,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
      */
     public function getProductValues(array $item): \Generator
     {
-        foreach ($this->getOption('attribute:list') ?? [] as $attributeCode) {
+        foreach ($this->getOption('attributes:list') ?? [] as $attributeCode) {
             if (array_key_exists($attributeCode, $item)) {
                 yield $attributeCode => $item[$attributeCode];
             }
@@ -148,14 +162,16 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
 
     public function revert(array $item): array
     {
+        $container = $this->getOption('container');
+
         $output = [];
         foreach ($item as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;
             /** @var $matcher Matcher */
-            if ($matcher && $matcher->matches('values')) {
+            if ($matcher && $matcher->matches($container)) {
                 unset($itemValue['matcher']);
                 unset($item[$key]);
-                if (isset($itemValue['data']['unit'])) {
+                if (is_array($itemValue['data']) && array_key_exists('unit', $itemValue['data'])) {
                     $output[$matcher->getRowKey()] = $itemValue['data']['amount'];
                     $output[$matcher->getRowKey().'-unit'] = $itemValue['data']['unit'];
                 }
