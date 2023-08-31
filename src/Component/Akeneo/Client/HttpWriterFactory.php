@@ -14,7 +14,7 @@ class HttpWriterFactory implements RegisteredByNameInterface
         Assert::that(
             $configuration['type'],
             'type must be filled in.'
-        )->notEmpty()->string()->inArray(['rest_api' , '']);
+        )->notEmpty()->string()->inArray(['rest_api']);
 
         if ($configuration['type'] === 'rest_api') {
             Assert::that(

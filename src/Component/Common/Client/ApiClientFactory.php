@@ -20,7 +20,7 @@ class ApiClientFactory implements RegisteredByNameInterface
                     $account['password']
                 );
             } catch (\Exception $e) {
-                dd($e);
+                throw $e;
             }
         }
 

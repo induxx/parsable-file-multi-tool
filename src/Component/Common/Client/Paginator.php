@@ -4,7 +4,8 @@ namespace Misery\Component\Common\Client;
 
 use Misery\Component\Reader\ItemCollection;
 
-class AkeneoPaginator
+//TODO rename to akeneo Paginator
+class Paginator
 {
     private $client;
     private $first;

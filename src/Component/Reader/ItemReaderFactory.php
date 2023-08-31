@@ -46,21 +46,6 @@ class ItemReaderFactory implements RegisteredByNameInterface
                 return $itemCol;
             }));
         }
-        if (isset($configuration['x_filter']['type']) && $configuration['x_filter']['type'] === 'spread') {
-            return new ItemReader(new SubFunctionalCollectionCursor($cursor, function ($item) {
-                $itemCol = new ItemCollection();
-                $i = 0;
-                foreach ($item as $key => $value) {
-                    $i++;
-                    $itemCol->set($i, [
-                        'field' => $key,
-                        'field_value' => $value,
-                    ]);
-                }
-
-                return $itemCol;
-            }));
-        }
 
         if (isset($configuration['x_filter']['type']) && $configuration['x_filter']['type'] === 'funnel') {
             if (isset($configuration['x_filter']['list'])) {

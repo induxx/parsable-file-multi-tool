@@ -8,6 +8,6 @@ class ItemDebugger
 {
     public function log($item, $message)
     {
-        dump($message, $item);
+        dump($message, TypeGuesser::guess($item));
     }
 }

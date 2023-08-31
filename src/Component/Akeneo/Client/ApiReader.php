@@ -6,7 +6,7 @@ use Assert\Assert;
 use Misery\Component\Common\Client\ApiClient;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
-use Misery\Component\Common\Client\AkeneoPaginator;
+use Misery\Component\Common\Client\Paginator;
 use Misery\Component\Common\Client\InMemoryPaginator;
 use Misery\Component\Common\Utils\ValueFormatter;
 use Misery\Component\Reader\ItemReader;
@@ -90,6 +90,7 @@ class ApiReader implements ReaderInterface
             ->getResponse()
             ->getContent();
 
+        // when supplying a container we jump inside that container to find loopable items
         if ($this->context['container']) {
             if (array_key_exists($this->context['container'], $items)) {
                 $items['_embedded']['items'] = $items[$this->context['container']];
@@ -107,7 +108,7 @@ class ApiReader implements ReaderInterface
         }
 
         if (null === $this->page) {
-            $this->page = AkeneoPaginator::create($this->client, $this->request());
+            $this->page = Paginator::create($this->client, $this->request());
         }
 
         $item = $this->page->getItems()->current();
@@ -130,7 +131,7 @@ class ApiReader implements ReaderInterface
         foreach ($this->context['list'] as $key => $endpointItem) {
             if ($this->activeEndpoint !== $endpointItem || null === $this->page) {
                 $endpoint = sprintf($this->endpoint->getAll(), $endpointItem);
-                $this->page = AkeneoPaginator::create($this->client, $this->request($endpoint));
+                $this->page = Paginator::create($this->client, $this->request($endpoint));
                 $this->activeEndpoint = $endpointItem;
             }
 

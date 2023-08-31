@@ -5,7 +5,7 @@ namespace Misery\Component\Connections\Google\Client;
 use Misery\Component\Common\Client\ApiClient;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
-use Misery\Component\Common\Client\AkeneoPaginator;
+use Misery\Component\Common\Client\Paginator;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Reader\ReaderInterface;
 
@@ -33,7 +33,7 @@ class ApiReader implements ReaderInterface
     public function read()
     {
         if (null === $this->page) {
-            $this->page = AkeneoPaginator::create($this->client, $this->all());
+            $this->page = Paginator::create($this->client, $this->all());
         }
         $item = $this->page->getItems()->current();
 

@@ -83,4 +83,96 @@ class StatementActionTest extends TestCase
             'sku' => '1',
         ], $format->apply($item));
     }
+
+    public function test_it_should_do_a_statement_with_set_action_with_list(): void
+    {
+        $format = new StatementAction();
+
+        $item = [
+            'brand' => 'louis',
+            'description' => 'LV',
+            'sku' => '1',
+        ];
+
+        $format->setOptions([
+            'when' => [
+                'field' => 'brand',
+                'operator' => 'IN_LIST',
+                'context' => [
+                    'list' => [
+                        'louis',
+                        'nike',
+                        'reebok',
+                    ],
+                ],
+            ],
+            'then'  => [
+                'field' => 'brand',
+                'state' => 'Louis',
+            ],
+        ]);
+
+        $this->assertEquals([
+            'brand' => 'Louis',
+            'description' => 'LV',
+            'sku' => '1',
+        ], $format->apply($item));
+    }
+
+    public function test_it_should_do_a_statement_with_set_action(): void
+    {
+        $format = new StatementAction();
+
+        $item = [
+            'brand' => 'louis',
+            'description' => 'LV',
+            'sku' => '1',
+        ];
+
+        $format->setOptions([
+            'when' => [
+                'field' => 'brand',
+                'operator' => 'EQUALS',
+                'state' => 'louis',
+            ],
+            'then'  => [
+                'field' => 'brand',
+                'state' => 'Louis',
+            ],
+        ]);
+
+        $this->assertEquals([
+            'brand' => 'Louis',
+            'description' => 'LV',
+            'sku' => '1',
+        ], $format->apply($item));
+    }
+
+    public function test_it_should_do_a_statement_with_key_value_set_action(): void
+    {
+        $format = new StatementAction();
+
+        $item = [
+            'brand' => 'louis',
+            'description' => 'LV',
+            'sku' => '1',
+        ];
+
+        $format->setOptions([
+            'when' => [
+                'field' => 'brand',
+                'operator' => 'EQUALS',
+                'state' => 'louis',
+            ],
+            'then' => [
+                'brand' => 'Louis',
+            ],
+        ]);
+
+        $this->assertEquals([
+            'brand' => 'Louis',
+            'description' => 'LV',
+            'sku' => '1',
+        ], $format->apply($item));
+    }
 }
