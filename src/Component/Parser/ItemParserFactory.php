@@ -35,8 +35,8 @@ class ItemParserFactory implements RegisteredByNameInterface
             $mainParser = $this->createFromConfiguration($configuration, $manager);
 
             foreach ($joins as $join) {
-                $fetcher = clone new OldCachedZoneFetcher($this->createFromConfiguration($join, $manager), $join['link_join']);
-                #$fetcher = clone new ContinuousBufferFetcher($this->createFromConfiguration($join, $manager), $join['link_join']);
+                #$fetcher = clone new OldCachedZoneFetcher($this->createFromConfiguration($join, $manager), $join['link_join']);
+                $fetcher = clone new ContinuousBufferFetcher($this->createFromConfiguration($join, $manager), $join['link_join'], $join['allow_fileindex_removal'] ?? false);
                 $mainParser = new FunctionalCursor($mainParser, function ($row) use ($fetcher, $join) {
                     $masterID = $row[$join['link']];
                     $item = $fetcher->get($masterID) ?? [];
