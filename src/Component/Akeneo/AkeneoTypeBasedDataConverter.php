@@ -15,6 +15,7 @@ class AkeneoTypeBasedDataConverter
     private ?string $defaultLocale;
     private ?string $defaultScope;
     private ?string $attributeOptionLabel;
+    private ?string $defaultCurrency;
 
     public function __construct(
         array $attributeTypesList = [],
@@ -25,7 +26,8 @@ class AkeneoTypeBasedDataConverter
         private ?ReaderInterface $reader = null,
         string $attributeOptionLabel = null,
         string $defaultLocale = null,
-        string $defaultScope = null
+        string $defaultScope = null,
+        string $defaultCurrency = null
     ) {
         $this->attributeTypesList = $attributeTypesList;
         $this->attributesList = $attributesList;
@@ -35,6 +37,7 @@ class AkeneoTypeBasedDataConverter
         $this->scopableCodes = $scopableCodes;
         $this->defaultLocale = $defaultLocale;
         $this->defaultScope = $defaultScope;
+        $this->defaultCurrency = $defaultCurrency;
     }
 
     public function getAkeneoDataStructure(string $attributeCode, $value): array
@@ -100,7 +103,24 @@ class AkeneoTypeBasedDataConverter
                 ];
                 break;
             case AkeneoHeaderTypes::PRICE:
-                // no changes
+                $amount = null;
+                $unit = $this->defaultCurrency;
+                if (is_numeric($value)) {
+                    $amount = $this->numberize($value);
+                }
+                if (is_array($value)) {
+                    if (array_key_exists('amount', $value)) {
+                        $amount = $value['amount'];
+                    }
+                    if (array_key_exists('currency', $value)) {
+                        $unit = $value['currency'];
+                    }
+                }
+
+                $value = [
+                    'amount' => $amount,
+                    'currency' => $unit,
+                ];
                 break;
         }
 
@@ -114,6 +134,9 @@ class AkeneoTypeBasedDataConverter
     private function numberize($value)
     {
         if (is_integer($value)) {
+            return $value;
+        }
+        if (is_float($value)) {
             return $value;
         }
         if (is_string($value)) {

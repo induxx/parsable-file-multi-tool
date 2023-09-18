@@ -51,7 +51,8 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
                 $this->reader,
                 $this->getOption('option_label'),
                 $this->getOption('default_locale'),
-                $this->getOption('default_scope')
+                $this->getOption('default_scope'),
+                $this->getOption('default_currency'),
             );
         }
 
@@ -63,8 +64,14 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
         $expand = $this->getOption('expand');
 
         unset($item['@odata.etag']);
-
         $tmp['sku'] = $item['no'];
+
+        $this->processCharacteristics(
+            $item,
+            ['unitPrice', 'tariffNo', 'standard_delivery_time'],
+            '',
+            $tmp
+        );
 
         foreach ($expand as $expandOption) {
             foreach ($item[$expandOption] ?? [] as $itemProp) {
@@ -106,23 +113,26 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
         return $tmp;
     }
 
-    private function processCharacteristics(array $itemProp, array $characteristics, string $expandOption, &$tmp): void
+    private function processCharacteristics(array $itemProperty, array $characteristics, string $extendedOption, &$tmp): void
     {
         $container = $this->getOption('container');
         $mappings = $this->getOption('mappings:list');
         $localeMappings = $this->getOption('locales_mappings');
 
         foreach ($characteristics as $characteristic) {
-            $key = $mappings[$expandOption][$characteristic] ?? $mappings[$characteristic] ?? $characteristic;
-            $value = $itemProp[$characteristic] ?? null;
+            $key = $mappings[$extendedOption][$characteristic] ?? $mappings[$characteristic] ?? $characteristic;
+            $value = $itemProperty[$characteristic] ?? null;
             if ($value === null) {
                 continue;
             }
-            $value = $this->getAkeneoDataStructure($key, $value);
-            $locale = $this->getValue('languageCode', $itemProp, $localeMappings);
-            $scope = $this->getValue('variantCode', $itemProp);
 
-            $matcher = Matcher::create($container.'|'.$key, $locale, $scope);
+            $value = $this->getAkeneoDataStructure($key, $value);
+
+            $matcher = Matcher::create(
+                $container.'|'.$key,
+                $this->getValue('languageCode', $itemProperty, $localeMappings),
+                $this->getValue('variantCode', $itemProperty),
+            );
 
             $tmp[$key = $matcher->getMainKey()] = $value;
             $tmp[$key]['matcher'] = $matcher;
@@ -132,7 +142,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
     public function getValue(string $property, array $item, array $mappings = [], $default = null)
     {
         if (!empty($item[$property])) {
-            return $mappings[$item[$property]] ?? $item[$property] ?? $default;
+            return $mappings[$item[$property]] ?? $default;
         }
 
         return $default;
@@ -152,6 +162,9 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
                 if (is_array($itemValue['data']) && array_key_exists('unit', $itemValue['data'])) {
                     $output[$matcher->getRowKey()] = $itemValue['data']['amount'];
                     $output[$matcher->getRowKey().'-unit'] = $itemValue['data']['unit'];
+                }
+                if (is_array($itemValue['data']) && array_key_exists('currency', $itemValue['data'])) {
+                    $output[$matcher->getRowKey().'-'.$itemValue['data']['currency']] = $itemValue['data']['amount'];
                 }
                 if (is_string($itemValue['data'])) {
                     $output[$matcher->getRowKey()] = $itemValue['data'];
