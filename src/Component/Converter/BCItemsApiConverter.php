@@ -1,0 +1,170 @@
+<?php
+
+namespace Misery\Component\Converter;
+
+use Misery\Component\Akeneo\AkeneoTypeBasedDataConverter;
+use Misery\Component\Common\Options\OptionsInterface;
+use Misery\Component\Common\Options\OptionsTrait;
+use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Reader\ReaderAwareInterface;
+use Misery\Component\Reader\ReaderAwareTrait;
+
+/**
+ * This Converter converts flat product to std data
+ * We focus on correcting with minimal issues
+ * The better the input you give the better the output
+ */
+class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, RegisteredByNameInterface, OptionsInterface
+{
+    use OptionsTrait;
+    use ReaderAwareTrait;
+
+    private $options = [
+        'expand' => [],
+        'mappings:list' => [],
+        'attributes:list' => [],
+        'attribute_types:list' => [],
+        'localizable_attribute_codes:list' => [],
+        'scopable_attribute_codes:list' => [],
+        'default_metrics:list' => [],
+        'attribute_option_label_codes:list' => [],
+        'set_default_metrics' => false,
+        'default_locale' => null,
+        'default_scope' => null,
+        'default_currency' => null,
+        'container' => 'values',
+        'option_label' => 'label-nl_BE',
+    ];
+
+    private $decoder;
+    private ?AkeneoTypeBasedDataConverter $akeneoDataStructure = null;
+
+    public function getAkeneoDataStructure(string $attributeCode, $value): array
+    {
+        if (null === $this->akeneoDataStructure) {
+            $this->akeneoDataStructure = new AkeneoTypeBasedDataConverter(
+                $this->getOption('attribute_types:list'),
+                $this->getOption('attributes:list'),
+                $this->getOption('default_metrics:list'),
+                $this->getOption('localizable_attribute_codes:list'),
+                $this->getOption('scopable_attribute_codes:list'),
+                $this->reader,
+                $this->getOption('option_label'),
+                $this->getOption('default_locale'),
+                $this->getOption('default_scope')
+            );
+        }
+
+        return $this->akeneoDataStructure->getAkeneoDataStructure($attributeCode, $value);
+    }
+
+    public function convert(array $item): array
+    {
+        $expand = $this->getOption('expand');
+
+        unset($item['@odata.etag']);
+
+        $tmp['sku'] = $item['no'];
+
+        foreach ($expand as $expandOption) {
+            foreach ($item[$expandOption] ?? [] as $itemProp) {
+                if (in_array($expandOption, ['itemUnitOfMeasuresColli', 'itemUnitOfMeasuresPallet', 'itemUnitOfMeasuresPieces'])) {
+                    $this->processCharacteristics(
+                        $itemProp,
+                        ['length', 'width', 'height', 'qtyPerUnitOfMeasure'],
+                        $expandOption,
+                        $tmp
+                    );
+                }
+
+                if ($expandOption === 'itemtranslations') {
+                    $this->processCharacteristics(
+                        $itemProp,
+                        ['itemDescriptionERP', 'typeName'],
+                        $expandOption,
+                        $tmp
+                    );
+                }
+
+                if ($expandOption === 'itemreferences') {
+                    $this->processCharacteristics(
+                        $itemProp,
+                        ['referenceTypeNo'],
+                        $expandOption,
+                        $tmp
+                    );
+                }
+
+                if ($expandOption === 'itemCategories') {
+                    $tmp['categories'] = array_map(function ($cat) {
+                        return $cat['code'] ?? null;
+                    }, $item[$expandOption]);
+                }
+            }
+        }
+
+        return $tmp;
+    }
+
+    private function processCharacteristics(array $itemProp, array $characteristics, string $expandOption, &$tmp): void
+    {
+        $container = $this->getOption('container');
+        $mappings = $this->getOption('mappings:list');
+        $localeMappings = $this->getOption('locales_mappings');
+
+        foreach ($characteristics as $characteristic) {
+            $key = $mappings[$expandOption][$characteristic] ?? $mappings[$characteristic] ?? $characteristic;
+            $value = $itemProp[$characteristic] ?? null;
+            if ($value === null) {
+                continue;
+            }
+            $value = $this->getAkeneoDataStructure($key, $value);
+            $locale = $this->getValue('languageCode', $itemProp, $localeMappings);
+            $scope = $this->getValue('variantCode', $itemProp);
+
+            $matcher = Matcher::create($container.'|'.$key, $locale, $scope);
+
+            $tmp[$key = $matcher->getMainKey()] = $value;
+            $tmp[$key]['matcher'] = $matcher;
+        }
+    }
+
+    public function getValue(string $property, array $item, array $mappings = [], $default = null)
+    {
+        if (!empty($item[$property])) {
+            return $mappings[$item[$property]] ?? $item[$property] ?? $default;
+        }
+
+        return $default;
+    }
+
+    public function revert(array $item): array
+    {
+        $container = $this->getOption('container');
+
+        $output = [];
+        foreach ($item as $key => $itemValue) {
+            $matcher = $itemValue['matcher'] ?? null;
+            /** @var $matcher Matcher */
+            if ($matcher && $matcher->matches($container)) {
+                unset($itemValue['matcher']);
+                unset($item[$key]);
+                if (is_array($itemValue['data']) && array_key_exists('unit', $itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = $itemValue['data']['amount'];
+                    $output[$matcher->getRowKey().'-unit'] = $itemValue['data']['unit'];
+                }
+                if (is_string($itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = $itemValue['data'];
+                }
+            }
+        }
+        $item['categories'] = implode(',', $item['categories'] ?? []);
+
+        return $item+$output;
+    }
+
+    public function getName(): string
+    {
+        return 'bc/items/api';
+    }
+}
