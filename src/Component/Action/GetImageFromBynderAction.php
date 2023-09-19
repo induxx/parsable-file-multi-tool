@@ -20,7 +20,7 @@ class GetImageFromBynderAction implements OptionsInterface
         'bynder_cookieid' => 'xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx',
         'array_location' => [ 'original' ],
     ];
-    private ?LocalFilesystemCache $cachePool;
+    private ?LocalFilesystemCache $cachePool = null;
 
     public function init(): void
     {
