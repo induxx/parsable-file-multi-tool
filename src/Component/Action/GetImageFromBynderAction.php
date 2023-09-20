@@ -25,8 +25,10 @@ class GetImageFromBynderAction implements OptionsInterface
     public function init(): void
     {
         if (null === $this->cachePool) {
+            $cachePath = $_ENV['CACHE_PATH'] ?? sys_get_temp_dir();
+
             $this->cachePool = new LocalFilesystemCache(
-                sys_get_temp_dir() .
+                $cachePath .
                 DIRECTORY_SEPARATOR .
                 'bynder_cache' .
                 DIRECTORY_SEPARATOR .
@@ -43,7 +45,7 @@ class GetImageFromBynderAction implements OptionsInterface
         $cacheKey = md5(json_encode($item)); // You can modify this based on your data structure
 
         return $this->cachePool->retrieve($cacheKey, function (CacheSettings $settings) use ($item) {
-            $settings->setTtl(259200); # 3 day
+            $settings->setTtl(3600 * 24 * 7); # 1 week
             $fields = $this->options['fields'];
             $bynder_url = $this->options['bynder_url'];
             $bynder_token = $this->options['bynder_token'];
