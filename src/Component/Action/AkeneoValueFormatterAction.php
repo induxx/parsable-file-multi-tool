@@ -10,7 +10,7 @@ use Misery\Component\AttributeFormatter\MultiValuePresenterFormatter;
 use Misery\Component\AttributeFormatter\NumberAttributeFormatter;
 use Misery\Component\AttributeFormatter\PriceCollectionFormatter;
 use Misery\Component\AttributeFormatter\PropertyFormatterRegistry;
-use Misery\Component\AttributeFormatter\SelectAttributeFormatter;
+use Misery\Component\AttributeFormatter\ReplaceAttributeCodeFormatter;
 use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
@@ -48,15 +48,24 @@ class AkeneoValueFormatterAction implements OptionsInterface, ConfigurationAware
 
             // Single source allowed ATM, else giant refactor
             if (
-                isset($context['pim_catalog_select']['source']) ||
                 isset($context['pim_catalog_simpleselect']['source']) ||
                 isset($context['pim_catalog_multiselect']['source'])
             ) {
-                $sourceAlias = $context['pim_catalog_select']['source'] ?? $context['pim_catalog_simpleselect']['source'] ?? $context['pim_catalog_multiselect']['source'];
+                $sourceAlias = $context['pim_catalog_simpleselect']['source'] ?? $context['pim_catalog_multiselect']['source'];
                 $registry->addAll(
-                    new SelectAttributeFormatter($this->getConfiguration()->getSources()->get($sourceAlias))
+                    new ReplaceAttributeCodeFormatter($this->getConfiguration()->getSources()->get($sourceAlias), 'pim_catalog')
                 );
             }
+            // TBD reference data has only global labels
+//            if (
+//                isset($context['pim_reference_data_simpleselect']['source']) ||
+//                isset($context['pim_reference_data_multiselect']['source'])
+//            ) {
+//                $sourceAlias = $context['pim_reference_data_simpleselect']['source'] ?? $context['pim_reference_data_multiselect']['source'];
+//                $registry->addAll(
+//                    new ReplaceAttributeCodeFormatter($this->getConfiguration()->getSources()->get($sourceAlias), 'pim_reference_data')
+//                );
+//            }
 
             $registry->addAll(
                 new NumberAttributeFormatter(),
@@ -76,13 +85,6 @@ class AkeneoValueFormatterAction implements OptionsInterface, ConfigurationAware
             // converted data
             $key = $this->findMatchedValueData($item, $field);
             if ($key && $this->attributeValueFormatter->needsFormatting($field)) {
-                if ($field === 'fabric_cushion_cover') {
-                    dd(
-                        $item[$key],
-                        $key,
-                        $field
-                    );
-                }
                 $item[$key]['data'] = $this->attributeValueFormatter->format($field, $item[$key]['data'], $context);
                 continue;
             }

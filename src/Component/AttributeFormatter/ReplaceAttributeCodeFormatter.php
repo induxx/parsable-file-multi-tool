@@ -4,13 +4,27 @@ namespace Misery\Component\AttributeFormatter;
 
 use Misery\Component\Source\Source;
 
-class SelectAttributeFormatter implements PropertyFormatterInterface, RequiresContextInterface
+/**
+ * This formatter allows attribute code replacement
+ */
+class ReplaceAttributeCodeFormatter implements PropertyFormatterInterface, RequiresContextInterface
 {
     private Source $source;
+    private array $supportedTypes = [
+        'pim_reference_data' =>  [
+            'pim_reference_data_simpleselect',
+            'pim_reference_data_multiselect',
+        ],
+        'pim_catalog' => [
+            'pim_catalog_simpleselect',
+            'pim_catalog_multiselect',
+        ],
+    ];
 
-    public function __construct(Source $source)
+    public function __construct(Source $source, string $supportedType)
     {
         $this->source = $source;
+        $this->supportedTypes = $this->supportedTypes[$supportedType];
     }
 
     /**
@@ -73,11 +87,7 @@ class SelectAttributeFormatter implements PropertyFormatterInterface, RequiresCo
      */
     public function supports(string $type): bool
     {
-        return
-            $type === 'pim_catalog_simpleselect' ||
-            $type === 'pim_catalog_multiselect'  ||
-            $type === 'pim_catalog_select'
-        ;
+        return in_array($type, $this->supportedTypes);
     }
 
     public function requires(array $context): bool
