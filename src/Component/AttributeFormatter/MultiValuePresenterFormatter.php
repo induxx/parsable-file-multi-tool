@@ -15,12 +15,9 @@ class MultiValuePresenterFormatter implements PropertyFormatterInterface, Requir
      */
     public function format($value, array $context = [])
     {
+        $valueSeparator = $context['value-separator'] ?? ', '; # best fallback option
         if ($context['current-attribute-type'] === 'pim_catalog_multiselect' && empty($value)) {
             return '';
-        }
-
-        if ($context['current-attribute-type'] === 'pim_catalog_multiselect' && is_array($value)) {
-            return implode(',', $value);
         }
 
         if (empty($value)) {
@@ -31,8 +28,8 @@ class MultiValuePresenterFormatter implements PropertyFormatterInterface, Requir
             return ValueFormatter::format($value['format'], $value);
         }
 
-        if (is_array($value) && !isset($value['format']) && isset($context['value-separator'])) {
-            $value = implode($context['value-separator'], $value);
+        if (is_array($value) && !isset($value['format']) && isset($valueSeparator)) {
+            $value = implode($valueSeparator, $value);
         }
 
         if (is_string($value) && isset($context['format'])) {
