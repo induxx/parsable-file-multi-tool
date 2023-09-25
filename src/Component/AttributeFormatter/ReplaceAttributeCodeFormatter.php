@@ -21,7 +21,7 @@ class ReplaceAttributeCodeFormatter implements PropertyFormatterInterface, Requi
         ],
     ];
 
-    public function __construct(Source $source, string $supportedType)
+    public function __construct(Source $source, string $supportedType = 'pim_catalog')
     {
         $this->source = $source;
         $this->supportedTypes = $this->supportedTypes[$supportedType];
