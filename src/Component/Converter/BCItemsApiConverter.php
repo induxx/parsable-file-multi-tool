@@ -30,6 +30,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
         'attribute_option_label_codes:list' => [],
         'set_default_metrics' => false,
         'default_locale' => null,
+        'active_locales' => [],
         'default_scope' => null,
         'default_currency' => null,
         'container' => 'values',
@@ -118,6 +119,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
         $container = $this->getOption('container');
         $mappings = $this->getOption('mappings:list');
         $localeMappings = $this->getOption('locales_mappings');
+        $activeLocales = $this->getOption('active_locales');
 
         foreach ($characteristics as $characteristic) {
             $key = $mappings[$extendedOption][$characteristic] ?? $mappings[$characteristic] ?? $characteristic;
@@ -128,12 +130,19 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
 
             $value = $this->getAkeneoDataStructure($key, $value);
 
+            if (empty($value['data'])) {
+                continue;
+            }
+
             $matcher = Matcher::create(
                 $container.'|'.$key,
                 $this->getValue('languageCode', $itemProperty, $localeMappings),
                 $this->getValue('variantCode', $itemProperty),
             );
 
+            if ($matcher->isLocalizable() && !in_array($matcher->getLocale(), $activeLocales)) {
+                continue;
+            }
             $tmp[$key = $matcher->getMainKey()] = $value;
             $tmp[$key]['matcher'] = $matcher;
         }
