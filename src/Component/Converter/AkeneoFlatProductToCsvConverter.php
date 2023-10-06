@@ -91,7 +91,12 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
                 // TODO implement attributes reader
-                //$value = [$this->findAttributeOptionCode($attributeCode, $value)];
+                if ($value !== []) {
+                    dd($attributeCode, $value);
+                }
+                if (is_array($value)) {
+                    $value = $this->filterOptionCodes($attributeCode, $value);
+                }
                 break;
             case AkeneoHeaderTypes::METRIC:
                 $amount = null;
@@ -134,6 +139,14 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             $posNum = str_replace(',', '.', $value);
             return is_numeric($posNum) ? $posNum: $value;
         }
+    }
+
+    public function filterOptionCodes(string $attributeCode, string $optionLabel)
+    {
+        return $this->getReader()->find([
+                'attribute' => $attributeCode,
+                $this->getOption('option_label') => $optionLabel]
+        )->getIterator()->current()['code'];
     }
 
     /**
