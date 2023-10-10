@@ -14,7 +14,7 @@ use Misery\Component\Reader\ReaderAwareTrait;
  * We focus on correcting with minimal issues
  * The better the input you give the better the output
  */
-class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ReadableInterface, RegisteredByNameInterface, OptionsInterface
+class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ReadableConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
 
