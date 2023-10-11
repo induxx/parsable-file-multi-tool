@@ -3,9 +3,11 @@
 namespace Misery\Component\Converter;
 
 use Misery\Component\Akeneo\Header\AkeneoHeaderTypes;
+use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Reader\ItemCollection;
 use Misery\Component\Reader\ReaderAwareInterface;
 use Misery\Component\Reader\ReaderAwareTrait;
 
@@ -14,7 +16,7 @@ use Misery\Component\Reader\ReaderAwareTrait;
  * We focus on correcting with minimal issues
  * The better the input you give the better the output
  */
-class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ReadableConverterInterface, RegisteredByNameInterface, OptionsInterface
+class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollectionLoaderInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
 
@@ -26,13 +28,9 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ReadableCon
         'option_field' => 'code',
     ];
 
-    public function read(array $item): false|array
+    public function load(array $item): ItemCollection
     {
-        foreach ($this->convert($item) as $itemValue) {
-            return $itemValue;
-        }
-
-        return false;
+        return new ItemCollection($this->convert($item));
     }
 
     public function convert(array $item): array
@@ -41,7 +39,7 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ReadableCon
         foreach ($item as $attributeCode => $itemValue) {
             $value = $this->getAkeneoDataStructure($attributeCode, $itemValue);
             if (!empty($value)) {
-                $result[$attributeCode] = $value;
+                $result += $value;
             }
         }
 
@@ -98,18 +96,18 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ReadableCon
 
     private function generateOption(string $code, string $attributeCode, array $labels): array
     {
-        return [
+        return ArrayFunctions::flatten([
             'id' => "$code/$attributeCode",
             'code' => $code,
             'attribute' => $attributeCode,
             'sort_order' => count($this->index),
             'label' => $labels,
-        ];
+        ], '-');
     }
 
     public function revert(array $item): array
     {
-        return $item;
+        return  ArrayFunctions::flatten($item, '-');
     }
 
     public function getName(): string

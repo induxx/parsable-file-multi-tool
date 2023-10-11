@@ -11,9 +11,6 @@ class Pipeline
 {
     /** @var PipeReaderInterface */
     private $in;
-    private ?PipeInterface $prePipeProcess = null;
-    private ?PipeInterface $postPipeProcess = null;
-    private ?PipeInterface $debugPipeProcess = null;
     /** @var PipeWriterInterface */
     private $invalid;
     /** @var PipeInterface[] */
@@ -83,7 +80,7 @@ class Pipeline
             }
             $this->debugger->log($item, 'original item');
             try {
-                foreach (array_filter(['pre' => $this->prePipeProcess] + $this->lines + ['post' => $this->postPipeProcess, 'debug' => $this->debugPipeProcess]) as $line) {
+                foreach ($this->lines as $line) {
                     $item = $line->pipe($item);
                 }
                 foreach ($this->out as $out) {

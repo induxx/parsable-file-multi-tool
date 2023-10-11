@@ -2,10 +2,10 @@
 
 namespace Misery\Component\Common\Pipeline;
 
-use Misery\Component\Common\Cursor\FunctionalCursor;
+use Misery\Component\Common\Cursor\SubItemCursor;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Configurator\ConfigurationManager;
-use Misery\Component\Converter\ReadableConverterInterface;
+use Misery\Component\Converter\ItemCollectionLoaderInterface;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Writer\ItemWriterInterface;
 
@@ -96,13 +96,9 @@ class PipelineFactory implements RegisteredByNameInterface
         ;
         if (isset($configuration['reader']['converter'])) {
             $converter = $configurationManager->createConverter($configuration['reader']['converter']);
-            $reader = new ItemReader(new FunctionalCursor($reader->getCursor(), function ($item) use ($converter) {
-                if ($converter instanceof ReadableConverterInterface) {
-                    // if internal reader we need to keep reading untill false, the external reader moves up 1 item to continue the process
-                    return $converter->read($item);
-                }
-                return $converter->convert($item);
-            }));
+            if ($converter instanceof ItemCollectionLoaderInterface) {
+                $reader = new ItemReader(new SubItemCursor($reader->getCursor(), $converter));
+            }
         }
 
         $pipeline->input(new PipeReader($reader));

@@ -38,6 +38,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
 
     public function convert(array $item): array
     {
+        dd($item);
         $tmp = [];
         $container = $this->getOption('container');
         // first we need to convert the values
@@ -91,9 +92,6 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
                 // TODO implement attributes reader
-                if ($value !== []) {
-                    dd($attributeCode, $value);
-                }
                 if (is_array($value)) {
                     $value = $this->filterOptionCodes($attributeCode, $value);
                 }
@@ -143,10 +141,10 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
 
     public function filterOptionCodes(string $attributeCode, string $optionLabel)
     {
-        return $this->getReader()->find([
-                'attribute' => $attributeCode,
-                $this->getOption('option_label') => $optionLabel]
-        )->getIterator()->current()['code'];
+//        return $this->getReader()->find([
+//                'attribute' => $attributeCode,
+//                $this->getOption('option_label') => $optionLabel]
+//        )->getIterator()->current()['code'];
     }
 
     /**
