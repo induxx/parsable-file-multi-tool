@@ -37,9 +37,12 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollect
     {
         $result = [];
         foreach ($item as $attributeCode => $itemValue) {
-            $value = $this->getAkeneoDataStructure($attributeCode, $itemValue);
-            if (!empty($value)) {
-                $result += $value;
+            $valueSet = $this->getAkeneoDataStructure($attributeCode, $itemValue);
+            if (empty($valueSet)) {
+                continue;
+            }
+            foreach ($valueSet as $value) {
+                $result[] = $value;
             }
         }
 
@@ -61,10 +64,8 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollect
             case AkeneoHeaderTypes::SELECT:
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
-                //
                 if (is_array($value)) {
                     foreach ($value as $valueSet) {
-
                         $optionValue = $valueSet[$this->getOption('option_field')] ?? null;
                         if (!$optionValue) {
                             continue;
@@ -98,7 +99,7 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollect
     {
         return ArrayFunctions::flatten([
             'id' => "$code/$attributeCode",
-            'code' => $code,
+            'code' =>  str_replace('-', '_', str_replace(' ', '-', $code)),
             'attribute' => $attributeCode,
             'sort_order' => count($this->index),
             'label' => $labels,

@@ -30,21 +30,7 @@ class Pipeline
 
     public function line(PipeInterface $pipe): self
     {
-        if ($pipe instanceof ConverterPipe) {
-            $this->prePipeProcess = $pipe;
-
-            return $this;
-        }
-        if ($pipe instanceof RevertPipe) {
-            $this->postPipeProcess = $pipe;
-
-            return $this;
-        }
-        if ($pipe instanceof LoggingPipe) {
-            $this->debugPipeProcess = $pipe;
-
-            return $this;
-        }
+        $this->lines[] = $pipe;
 
         return $this;
     }

@@ -38,7 +38,6 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
 
     public function convert(array $item): array
     {
-        dd($item);
         $tmp = [];
         $container = $this->getOption('container');
         // first we need to convert the values
@@ -139,12 +138,11 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         }
     }
 
-    public function filterOptionCodes(string $attributeCode, string $optionLabel)
+    public function filterOptionCodes(string $attributeCode, $optionValues)
     {
-//        return $this->getReader()->find([
-//                'attribute' => $attributeCode,
-//                $this->getOption('option_label') => $optionLabel]
-//        )->getIterator()->current()['code'];
+        return array_map(function ($optionValue) {
+            return str_replace('-', '_', str_replace(' ', '-', $optionValue['code']));
+        }, $optionValues);
     }
 
     /**
@@ -176,6 +174,8 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         $container = $this->getOption('container');
 
         $output = [];
+        $output['sku'] = $item['sku'];
+        $output['family'] = $item['family'];
         foreach ($item as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;
             /** @var $matcher Matcher */
@@ -185,6 +185,11 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 if (is_array($itemValue['data']) && array_key_exists('unit', $itemValue['data'])) {
                     $output[$matcher->getRowKey()] = $itemValue['data']['amount'];
                     $output[$matcher->getRowKey().'-unit'] = $itemValue['data']['unit'];
+                    continue;
+                }
+                if (is_array($itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = implode(',', $itemValue['data']);
+                    continue;
                 }
                 if (is_string($itemValue['data'])) {
                     $output[$matcher->getRowKey()] = $itemValue['data'];
@@ -192,7 +197,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             }
         }
 
-        return $item+$output;
+        return $output;
     }
 
     public function getName(): string
