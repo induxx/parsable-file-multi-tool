@@ -52,8 +52,6 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollect
     public function getAkeneoDataStructure(string $attributeCode, $value): array
     {
         $options = [];
-        $locales = $this->getOption('option_label_locales');
-        $labelField = $this->getOption('option_label_field');
 
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
         if (null === $type) {
@@ -62,26 +60,16 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollect
 
         switch ($type) {
             case AkeneoHeaderTypes::SELECT:
+                if (!empty($value)) {
+                    $options[] = $this->assembleOptionValue($value, $attributeCode);
+                }
+
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
                 if (is_array($value)) {
                     foreach ($value as $valueSet) {
-                        $optionValue = $valueSet[$this->getOption('option_field')] ?? null;
-                        if (!$optionValue) {
-                            continue;
-                        }
-                        $labels = [];
-                        if (isset($valueSet[$labelField])) {
-                            foreach ($locales as $locale) {
-                                $labels[$locale] = $valueSet[$labelField];
-                            }
-                        }
-                        $option = $this->generateOption(
-                            $optionValue,
-                            $attributeCode,
-                            $labels
-                        );
-                        if (!in_array($option['id'], $this->index)) {
+                        $option = $this->assembleOptionValueFromOptionField($valueSet, $attributeCode);
+                        if ($option && !in_array($option['id'], $this->index)) {
                             $this->index[$option['id']] = null;
                             $options[] = $option;
                         }
@@ -93,6 +81,45 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollect
         }
 
         return $options;
+    }
+
+    private function assembleOptionValue(string $optionValue, string $attributeCode): null|array
+    {
+        $locales = $this->getOption('option_label_locales');
+
+        $labels = [];
+        foreach ($locales as $locale) {
+            $labels[$locale] = $optionValue;
+        }
+
+        return $this->generateOption(
+            $optionValue,
+            $attributeCode,
+            $labels
+        );
+    }
+
+    private function assembleOptionValueFromOptionField(array $valueSet, string $attributeCode): null|array
+    {
+        $locales = $this->getOption('option_label_locales');
+        $labelField = $this->getOption('option_label_field');
+
+        $optionValue = $valueSet[$this->getOption('option_field')] ?? null;
+        if (!$optionValue) {
+            return null;
+        }
+        $labels = [];
+        if (isset($valueSet[$labelField])) {
+            foreach ($locales as $locale) {
+                $labels[$locale] = $valueSet[$labelField];
+            }
+        }
+
+        return $this->generateOption(
+            $optionValue,
+            $attributeCode,
+            $labels
+        );
     }
 
     private function generateOption(string $code, string $attributeCode, array $labels): array
@@ -108,7 +135,7 @@ class AkeneoFlatAttributeOptionsToCsv implements ConverterInterface, ItemCollect
 
     public function revert(array $item): array
     {
-        return  ArrayFunctions::flatten($item, '-');
+        return ArrayFunctions::flatten($item, '-');
     }
 
     public function getName(): string
