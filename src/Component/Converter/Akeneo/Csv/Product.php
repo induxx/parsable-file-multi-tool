@@ -5,29 +5,66 @@ namespace Misery\Component\Converter\Akeneo\Csv;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Common\Registry\Registry;
 use Misery\Component\Converter\AkeneoCsvHeaderContext;
 use Misery\Component\Converter\ConverterInterface;
 use Misery\Component\Converter\Matcher;
+use Misery\Component\Encoder\ItemEncoder;
+use Misery\Component\Encoder\ItemEncoderFactory;
+use Misery\Component\Format\StringToBooleanFormat;
+use Misery\Component\Format\StringToListFormat;
 
 class Product implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
 
-    private $csvHeaderContext;
+    private AkeneoCsvHeaderContext $csvHeaderContext;
+    private ItemEncoder $encoder;
+
     private $options = [
         'attribute_types:list' => null,
-        'none_value_keys' => [
-            'sku',
-            'enabled',
-            'family',
-            'categories',
-            'parent'
-        ]
+        'properties' => [
+            'sku' => [
+                'text' => null,
+            ],
+            'enabled' => [
+                'boolean' => null,
+            ],
+            'family' => [
+                'text' => null,
+            ],
+            'categories'=> [
+                'list' => null,
+            ],
+            'parent' => [
+                'text' => null,
+            ],
+        ],
+        'parse' => [],
     ];
 
     public function __construct(AkeneoCsvHeaderContext $csvHeaderContext)
     {
         $this->csvHeaderContext = $csvHeaderContext;
+        $this->encoder = $this->ItemEncoderFactory()->createItemEncoder([
+            'encode' => $this->getOption('properties'),
+            'parse' => $this->getOption('parse'),
+        ]);
+    }
+
+    private function ItemEncoderFactory(): ItemEncoderFactory
+    {
+        $encoderFactory = new ItemEncoderFactory();
+
+        $formatRegistry = new Registry('format');
+        $formatRegistry
+            ->register(StringToListFormat::NAME, new StringToListFormat())
+            ->register(StringToBooleanFormat::NAME, new StringToBooleanFormat())
+        ;
+
+        $encoderFactory->addRegistry($formatRegistry);
+
+        return $encoderFactory;
     }
 
     public function convert(array $item): array
@@ -37,11 +74,13 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         $separator = '-';
         $output = [];
 
+        $item = $this->encoder->encode($item);
+
         foreach ($item as $key => $value) {
             $keys = explode($separator, $key);
             $masterKey = $keys[0];
 
-            if (in_array($masterKey, $this->getOption('none_value_keys'))) {
+            if (in_array($masterKey, array_keys($this->getOption('properties')))) {
                 continue;
             }
 

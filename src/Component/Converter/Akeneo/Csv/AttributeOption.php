@@ -19,6 +19,10 @@ class AttributeOption implements ConverterInterface, RegisteredByNameInterface
 
     public function revert(array $item): array
     {
+        $item['label'] = $item['labels'];
+        unset($item['labels']);
+        $item = ArrayFunctions::flatten($item, '-');
+
         return $item;
     }
 
