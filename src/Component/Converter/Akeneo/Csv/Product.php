@@ -22,6 +22,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
     private ItemEncoder $encoder;
 
     private $options = [
+        'container' => 'values',
         'attribute_types:list' => null,
         'properties' => [
             'sku' => [
@@ -122,7 +123,36 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
 
     public function revert(array $item): array
     {
-        return $item;
+        $container = $this->getOption('container');
+
+        $output = [];
+        $output['sku'] = $item['sku'] ?? $item['identifier'] ?? null;
+        if (array_key_exists('family', $output)) {
+            $output['family'] = $item['family'];
+        }
+
+        foreach ($item as $key => $itemValue) {
+            $matcher = $itemValue['matcher'] ?? null;
+            /** @var $matcher Matcher */
+            if ($matcher && $matcher->matches($container)) {
+                unset($itemValue['matcher']);
+                unset($item[$key]);
+                if (is_array($itemValue['data']) && array_key_exists('unit', $itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = $itemValue['data']['amount'];
+                    $output[$matcher->getRowKey().'-unit'] = $itemValue['data']['unit'];
+                    continue;
+                }
+                if (is_array($itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = implode(',', $itemValue['data']);
+                    continue;
+                }
+                if (isset($itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = $itemValue['data'];
+                }
+            }
+        }
+
+        return $output;
     }
 
     public function getName(): string
