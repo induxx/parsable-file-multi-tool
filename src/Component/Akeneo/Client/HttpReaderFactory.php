@@ -3,6 +3,7 @@
 namespace Misery\Component\Akeneo\Client;
 
 use Assert\Assert;
+use Misery\Component\Common\Client\Endpoint\BasicApiEndpoint;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Configurator\Configuration;
 use Misery\Component\Reader\ReaderInterface;
@@ -16,11 +17,6 @@ class HttpReaderFactory implements RegisteredByNameInterface
             $configuration['type'],
             'type must be filled in.'
         )->notEmpty()->string()->inArray(['rest_api']);
-
-        Assert::that(
-            $configuration['account'],
-            'account must be filled in.'
-        )->notEmpty()->string();
 
         if ($configuration['type'] === 'rest_api') {
             Assert::that(
@@ -38,22 +34,29 @@ class HttpReaderFactory implements RegisteredByNameInterface
             $endpoint = $configuration['endpoint'];
             $method = $configuration['method'];
             $context = ['filters' => []];
+            $context['container'] = $configuration['container'] ?? null;
+            $configContext = $config->getContext();
             $endpointSet = [
                 ApiOptionsEndpoint::NAME => ApiOptionsEndpoint::class,
                 ApiAttributesEndpoint::NAME => ApiAttributesEndpoint::class,
                 ApiProductsEndpoint::NAME => ApiProductsEndpoint::class,
+                ApiCategoriesEndpoint::NAME => ApiCategoriesEndpoint::class,
+                ApiReferenceEntitiesEndpoint::NAME => ApiReferenceEntitiesEndpoint::class,
             ];
 
             if (isset($configuration['identifier_filter_list'])) {
                 $context['multiple'] = true;
-                $context['list'] = $config->getList($configuration['identifier_filter_list']);
+                $context['list'] = is_array($configuration['identifier_filter_list']) ? $configuration['identifier_filter_list'] : $config->getList($configuration['identifier_filter_list']);
             }
 
-            $endpoint = $endpointSet[$endpoint] ?? null;
+            $endpoint = $endpointSet[$endpoint] ?? new BasicApiEndpoint($endpoint);
             Assert::that(
                 $endpoint,
                 'endpoint must be valid.'
             )->notNull();
+            if (is_string($endpoint)) {
+                $endpoint = new $endpoint();
+            }
 
             if (isset($configuration['filters'])) {
                 $filters = $configuration['filters'];
@@ -66,10 +69,28 @@ class HttpReaderFactory implements RegisteredByNameInterface
                 }
             }
 
+            $context['limiters'] = $configuration['limiters'] ?? [];
+            if (isset($configuration['akeneo-filter'])) {
+                $akeneoFilter = $configuration['akeneo-filter'];
+                if (!isset($configContext['akeneo_filters'][$akeneoFilter])) {
+                    throw new \Exception(sprintf('The configuration is using an Akeneo filter code (%s) wich is not linked to this job profile.', $configuration['akeneo-filter']));
+                }
+
+                // create query string
+                $context['limiters']['query_array'] = $configContext['akeneo_filters'][$akeneoFilter]['search'];
+            }
+
+            $accountCode = (isset($configuration['account'])) ? $configuration['account'] : 'source_resource';
+            $account = $config->getAccount($accountCode);
+
+            if (!$account) {
+                throw new \Exception(sprintf('Account "%s" not found.', $accountCode));
+            }
+
             return new ApiReader(
-                $config->getAccount($configuration['account']),
-                new $endpoint,
-                $context
+                $account,
+                $endpoint,
+                $context + $configContext
             );
         }
 

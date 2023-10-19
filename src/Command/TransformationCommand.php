@@ -61,8 +61,8 @@ class TransformationCommand extends Command
 
         $configurationFactory = initConfigurationFactory();
         $configurationFactory->init(
-            new LocalFileManager($source),
             new LocalFileManager($workpath),
+            $source ? new LocalFileManager($source): null,
             $addSource ? new LocalFileManager($addSource): null
         );
 
@@ -72,6 +72,9 @@ class TransformationCommand extends Command
         $configuration = $configurationFactory->parseDirectivesFromConfiguration(
             array_replace_recursive($transformationFile, [
                 'context' => [
+                    # emulated operation datetime stamps
+                    'operation_create_datetime' => (new \DateTime('NOW'))->format('Hd-m-Y-H-i-s'),
+                    'last_completed_operation_datetime' => (new \DateTime('NOW'))->modify('-2 hours')->format('Hd-m-Y-H-i-s'),
                     'transformation_file' => $file,
                     'sources' => $source,
                     'scripts' => __DIR__.'/../../scripts',

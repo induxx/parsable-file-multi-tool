@@ -10,6 +10,24 @@ use Misery\Component\Converter\Akeneo\Api\Attribute;
 use Misery\Component\Converter\AkeneoCsvHeaderContext;
 use Misery\Component\Converter\AkeneoCsvToStructuredDataConverter;
 
+// Path to your .env file (assuming it's in the project root)
+$envFilePath = __DIR__ . '/../.env';
+
+if (file_exists($envFilePath)) {
+    $lines = file($envFilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        // Skip comments and lines that don't contain an equals sign
+        if (str_starts_with(trim($line), '#') === 0 || strpos($line, '=') === false) {
+            continue;
+        }
+
+        list($key, $value) = explode('=', $line, 2);
+        $_ENV[trim($key)] = trim($value);
+        $_SERVER[trim($key)] = trim($value);
+    }
+}
+
 $sourceRegistry = new Misery\Component\Common\Registry\Registry('source_command');
 $sourceRegistry->registerAllByName(
     new Misery\Component\Source\Command\SourceFilterCommand(),
@@ -25,15 +43,23 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\AS400ArticleAttributesCsvToStructuredDataConverter(),
     new Misery\Component\Converter\RelatedProductsCsvToStructuredDataConverter(),
     new Misery\Component\Converter\OldAS400ArticleAttributesCsvToStructuredDataConverter(),
-    new Misery\Component\Converter\AkeneoCsvToStructuredDataConverter(
-        new Misery\Component\Converter\AkeneoCsvHeaderContext()
-    ),
+//    new Misery\Component\Converter\AkeneoCsvToStructuredDataConverter(
+//        new Misery\Component\Converter\AkeneoCsvHeaderContext()
+//    ),
+    new Misery\Component\Converter\AkeneoProductApiConverter(),
     new Misery\Component\Converter\Akeneo\Api\Attribute(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
     new Misery\Component\Converter\Akeneo\Api\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
+    new Misery\Component\Converter\AkeneoFlatProductToCsvConverter(),
+    new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
+
+    new Misery\Component\Converter\Akeneo\Csv\Product(
+        new Misery\Component\Converter\AkeneoCsvHeaderContext()
+    ),
+    new Misery\Component\Converter\Akeneo\Csv\AttributeOption()
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
@@ -55,6 +81,7 @@ $modifierRegistry
     ->register(Misery\Component\Modifier\StripSlashesModifier::NAME, new Misery\Component\Modifier\StripSlashesModifier())
     ->register(Misery\Component\Modifier\StringToUpperModifier::NAME, new Misery\Component\Modifier\StringToUpperModifier())
     ->register(Misery\Component\Modifier\StringToLowerModifier::NAME, new Misery\Component\Modifier\StringToLowerModifier())
+    ->register(Misery\Component\Modifier\UrlEncodeModifier::NAME, new Misery\Component\Modifier\UrlEncodeModifier())
 
     //->register(Misery\Component\Modifier\StructureModifier::NAME, new Misery\Component\Modifier\StructureModifier())
 ;
@@ -78,9 +105,10 @@ $actionRegistry
     ->register(Misery\Component\Action\ReplaceAction::NAME, new Misery\Component\Action\ReplaceAction())
     ->register(Misery\Component\Action\RetainAction::NAME, new Misery\Component\Action\RetainAction())
     ->register(Misery\Component\Action\CalculateAction::NAME, new Misery\Component\Action\CalculateAction())
+    ->register(Misery\Component\Action\GetImageFromBynderAction::NAME, new Misery\Component\Action\GetImageFromBynderAction())
     ->register(Misery\Component\Action\SetValueAction::NAME, $setValueAction = new Misery\Component\Action\SetValueAction())
-    ->register(Misery\Component\Action\ReseatAction::NAME, new Misery\Component\Action\ReseatAction())
-    ->register(Misery\Component\Action\ModifierAction::NAME, new Misery\Component\Action\ModifierAction($modifierRegistry))
+    ->register(Misery\Component\Action\RepositionKeysAction::NAME, new Misery\Component\Action\RepositionKeysAction())
+    ->register(Misery\Component\Action\ModifierAction::NAME, new Misery\Component\Action\ModifierAction($modifierRegistry, $formatRegistry))
     ->register(Misery\Component\Action\BindAction::NAME, new Misery\Component\Action\BindAction())
     ->register(Misery\Component\Action\KeyMapperAction::NAME, new Misery\Component\Action\KeyMapperAction())
     ->register(Misery\Component\Action\ExpandAction::NAME, new Misery\Component\Action\ExpandAction())
@@ -98,7 +126,11 @@ $actionRegistry
     ->register(Misery\Component\Action\FilterAction::NAME, new Misery\Component\Action\FilterAction())
     ->register(Misery\Component\Action\PopAction::NAME, new Misery\Component\Action\PopAction())
     ->register(Misery\Component\Action\ColumnValueMapperAction::NAME, new Misery\Component\Action\ColumnValueMapperAction())
-
+    ->register(\Misery\Component\Action\AkeneoValueFormatterAction::NAME, new Misery\Component\Action\AkeneoValueFormatterAction())
+    ->register(\Misery\Component\Action\ConvergenceAction::NAME, new Misery\Component\Action\ConvergenceAction())
+    ->register(\Misery\Component\Action\ConverterAction::NAME, new Misery\Component\Action\ConverterAction())
+    ->register(\Misery\Component\Action\ReverterAction::NAME, new Misery\Component\Action\ReverterAction())
+    ->register(\Misery\Component\Action\DateTimeAction::NAME, new Misery\Component\Action\DateTimeAction())
 ;
 
 #$statementRegistry = new Misery\Component\Common\Registry\Registry('statement');

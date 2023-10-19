@@ -7,6 +7,10 @@ use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
 use Misery\Component\Configurator\ConfigurationTrait;
 
+/**
+ * @deprecated
+ * This action needs improvement, it's hardcoded to akeneo data
+ */
 class EmptyAction implements OptionsInterface, ConfigurationAwareInterface
 {
     use OptionsTrait;
@@ -31,23 +35,25 @@ class EmptyAction implements OptionsInterface, ConfigurationAwareInterface
             return $item;
         }
 
-        if (!empty($list)) {
-            foreach ($list as $key) {
-                if (isset($item[$field][$key]) && is_array($item[$field][$key])) {
-                    foreach ($item[$field][$key] as $index => $value) {
-                        if (is_array($value) && isset($value['data'])) {
-                            $item[$field][$key][$index]['data'] = null;
-                        }
-                    }
-                }
-            }
-        }
-
         if (!empty($prefix) && isset($item[$field]) && is_array($item[$field])) {
             foreach ($item[$field] as $key => $values) {
                 if (is_array($values) && substr($key, 0, strlen($prefix)) === $prefix && ($list && !in_array($key, $list))) {
                     foreach ($values as $index => $value) {
                         if (isset($value['data'])) {
+                            $item[$field][$key][$index]['data'] = null;
+                        }
+                    }
+                }
+            }
+
+            return $item;
+        }
+
+        if (!empty($list)) {
+            foreach ($list as $key) {
+                if (isset($item[$field][$key]) && is_array($item[$field][$key])) {
+                    foreach ($item[$field][$key] as $index => $value) {
+                        if (is_array($value) && isset($value['data'])) {
                             $item[$field][$key][$index]['data'] = null;
                         }
                     }

@@ -2,9 +2,13 @@
 
 namespace Misery\Component\Akeneo\Client;
 
+use Assert\Assert;
 use Misery\Component\Common\Client\ApiClient;
+use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\Paginator;
+use Misery\Component\Common\Client\InMemoryPaginator;
+use Misery\Component\Common\Utils\ValueFormatter;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Reader\ReaderInterface;
 
@@ -17,11 +21,10 @@ class ApiReader implements ReaderInterface
     private $activeEndpoint;
 
     public function __construct(
-        ApiClient $client,
+        ApiClientInterface $client,
         ApiEndpointInterface $endpoint,
         array $context
-    )
-    {
+    ) {
         $this->client = $client;
         $this->endpoint = $endpoint;
         $this->context = $context;
@@ -31,6 +34,25 @@ class ApiReader implements ReaderInterface
     {
         if (!$endpoint) {
             $endpoint = $this->endpoint->getAll();
+        }
+
+        // todo - create function for this. Check how filtering must be applied.
+        if(isset($this->context['limiters']['query_array'])) {
+            $endpoint = $this->client->getUrlGenerator()->generate($endpoint);
+            $endpoint = sprintf('%s?search=%s', $endpoint, json_encode($this->context['limiters']['query_array']));
+            $endpoint = str_replace('"', '%22', $endpoint);
+
+            $items = $this->client
+                ->get($endpoint, [])
+                ->getResponse()
+                ->getContent();
+
+            return $items;
+        }
+
+        if(isset($this->context['limiters']['querystring'])) {
+            $querystring = ValueFormatter::format($this->context['limiters']['querystring'], $this->context);
+            $endpoint = sprintf($querystring, $endpoint);
         }
 
         $items = [];
@@ -68,6 +90,13 @@ class ApiReader implements ReaderInterface
             ->getResponse()
             ->getContent();
 
+        // when supplying a container we jump inside that container to find loopable items
+        if ($this->context['container']) {
+            if (array_key_exists($this->context['container'], $items)) {
+                $items['_embedded']['items'] = $items[$this->context['container']];
+                unset($items[$this->context['container']]);
+            }
+        }
 
         return $items;
     }
@@ -185,5 +214,10 @@ class ApiReader implements ReaderInterface
     public function getItems(): array
     {
         return iterator_to_array($this->getIterator());
+    }
+
+    public function clear(): void
+    {
+        // TODO: Implement clear() method.
     }
 }

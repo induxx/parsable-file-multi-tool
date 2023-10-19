@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Akeneo\Client;
 
-use Misery\Component\Common\Client\ApiClient;
+use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\ApiResponse;
 use Misery\Component\Common\Client\Exception\UnauthorizedException;
@@ -12,7 +12,7 @@ use Misery\Component\Writer\ItemWriterInterface;
 
 class ApiWriter implements ItemWriterInterface
 {
-    /** @var ApiClient */
+    /** @var ApiClientInterface */
     private $client;
     private $endpoint;
     /** @var string */
@@ -23,7 +23,7 @@ class ApiWriter implements ItemWriterInterface
     // TODO: add support for batching
     private $pack = [];
 
-    public function __construct(ApiClient $client, ApiEndpointInterface $endpoint, string $method = null)
+    public function __construct(ApiClientInterface $client, ApiEndpointInterface $endpoint, string $method = null)
     {
         $this->client = $client;
         $this->endpoint = $endpoint;
@@ -58,7 +58,7 @@ class ApiWriter implements ItemWriterInterface
 
     public function close(): void
     {
-        if (count($this->pack) < 100 && $this->pack !== []) {
+        if (count($this->pack) <= 100 && $this->pack !== []) {
             $this->doWrite($this->pack);
         }
     }
@@ -99,7 +99,7 @@ class ApiWriter implements ItemWriterInterface
             case 'PATCH':
             case 'patch':
                 return $this->client
-                    ->patch($this->client->getUrlGenerator()->generate($this->endpoint->getSingleEndPoint(), $data['identifier']), $data)
+                    ->patch($this->client->getUrlGenerator()->format($this->endpoint->getSingleEndPoint(), $data), $data)
                     ->getResponse()
                 ;
             case 'MULTI_PATCH':

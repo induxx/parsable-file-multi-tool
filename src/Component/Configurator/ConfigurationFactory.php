@@ -4,6 +4,7 @@ namespace Misery\Component\Configurator;
 
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Registry\Registry;
+use Misery\Component\Common\Utils\ContextFormatter;
 use Misery\Component\Common\Utils\ValueFormatter;
 
 class ConfigurationFactory
@@ -24,15 +25,16 @@ class ConfigurationFactory
         return $this->factoryRegistry->filterByAlias($alias);
     }
 
-    public function init(LocalFileManager $source, LocalFileManager $workpath, LocalFileManager $additionalSources = null)
+    public function init(LocalFileManager $workpath, LocalFileManager $source = null, LocalFileManager $additionalSources = null)
     {
         $this->config = new Configuration();
+        $sources = ($source) ? $this->getFactory('source')->createFromFileManager($source) : null;
         $this->manager = new ConfigurationManager(
             $this->config,
             $this,
-            $this->getFactory('source')->createFromFileManager($source),
-            $source,
             $workpath,
+            $sources,
+            $source,
             $additionalSources
         );
     }
@@ -43,17 +45,26 @@ class ConfigurationFactory
         $order = [
             'aliases',
             'context',
+            'account',
             'sources',
             'list',
             'mapping',
+            'converter',
             'blueprint',
         ];
+
+        $context = $configuration['context'];
+        $configuration = ContextFormatter::format($context, $configuration);
+        // we want to keep the original context data, it's the only part that should be excluded.
+        $configuration['context'] = array_merge($context, $configuration['context']);
 
         // remove unused keys
         $order = array_filter($order, function ($orderItem) use ($configuration) {
             return key_exists($orderItem, $configuration);
         });
         $configuration = array_merge(array_flip($order), $configuration);
+
+        $this->manager->getConfig()->clear();
 
         // level 0 directives only
         foreach ($configuration as $key => $valueConfiguration) {

@@ -2,7 +2,8 @@
 
 namespace Misery\Component\Common\Cursor;
 
-class ZoneIndexer
+/** @deprecated */
+class OldZoneIndexer
 {
     private const MEDIUM_CACHE_SIZE = 5000;
 

@@ -5,11 +5,12 @@ namespace Misery\Component\Filter;
 use Assert\Assert;
 use Misery\Component\Reader\ItemCollection;
 use Misery\Component\Reader\ItemReader;
+use Misery\Component\Reader\ItemReaderInterface;
 
 class ItemTreeSortFilter
 {
-    static $indexes = [];
-    static $config = [
+    static array $indexes = [];
+    static array $config = [
 
         'id_field' => null,
         'parent_field' => null,
@@ -17,7 +18,7 @@ class ItemTreeSortFilter
         'sort_children_on' => [],
     ];
 
-    public static function sort(ItemReader $main, array $configuration): ItemReader
+    public static function sort(ItemReaderInterface $main, array $configuration): ItemReaderInterface
     {
         $configuration = array_merge(static::$config, $configuration);
         Assert::that($configuration['id_field'])->string();
@@ -32,12 +33,15 @@ class ItemTreeSortFilter
 
         static::recursiveFind($main, $configuration);
 
+        $indexes = static::$indexes;
+        static::$indexes = []; # reset the indexes
+
         return $main->index(
-            array_merge(...static::$indexes)
+            array_merge(...$indexes)
         );
     }
 
-    private static function recursiveFind(ItemReader $main, array $configuration, int $level = 0): void
+    private static function recursiveFind(ItemReaderInterface $main, array $configuration, int $level = 0): void
     {
         $level++;
         $idField = $configuration['id_field'];
@@ -49,7 +53,7 @@ class ItemTreeSortFilter
         $items = new ItemCollection($sub->getItems());
 
         if ($items->count() > 0) {
-            $sortedReader = ItemSortFilter::sort(new ItemReader($items), $sortChildrenOn);
+            $sortedReader = ItemSortFilter::sort(new ItemReader($items), $sortChildrenOn, $configuration);
             $items = $sortedReader->getItems();
             static::$indexes[$level] = array_merge(static::$indexes[$level] ?? [], array_keys($items));
             $sortedItems = new ItemCollection($items);

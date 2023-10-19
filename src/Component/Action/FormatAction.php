@@ -4,13 +4,10 @@ namespace Misery\Component\Action;
 
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
-use Misery\Component\Reader\ItemReaderAwareInterface;
-use Misery\Component\Reader\ItemReaderAwareTrait;
 
-class FormatAction implements OptionsInterface, ItemReaderAwareInterface
+class FormatAction implements OptionsInterface
 {
     use OptionsTrait;
-    use ItemReaderAwareTrait;
 
     private $mapper;
 
@@ -21,6 +18,7 @@ class FormatAction implements OptionsInterface, ItemReaderAwareInterface
         'field' => null,
         'functions' => [],
         'decimals' => 4,
+        'index' => null,
         'decimal_sep' => '.',
         'mille_sep' => ',',
     ];
@@ -63,24 +61,31 @@ class FormatAction implements OptionsInterface, ItemReaderAwareInterface
                     $value = str_replace($this->getOption('search'), $this->getOption('replace'), $value);
                     break;
                 case 'number':
-                    $value = number_format(
-                        $value,
-                        $this->getOption('decimals'),
-                        $this->getOption('decimal_sep'),
-                        $this->getOption('mille_sep')
-                    );
+                    if (is_numeric($value)) {
+                        $value = number_format(
+                            $value,
+                            $this->getOption('decimals'),
+                            $this->getOption('decimal_sep'),
+                            $this->getOption('mille_sep')
+                        );
+                    }
                     break;
                 case 'explode':
                     $value = explode($this->getOption('separator'), $value);
                     break;
                 case 'select_index':
-                    $value = $value[$this->getOption('index')];
+                    if (null !== $this->getOption('index')) {
+                        $value = $value[$this->getOption('index')] ?? $value;
+                    }
                     break;
                 case 'sprintf':
                     $value = sprintf($this->getOption('format'), $value);
                     break;
                 case 'prefix':
                     $value = $this->getOption('prefix'). ltrim($value, $this->getOption('prefix'));
+                    break;
+                case 'suffix':
+                    $value = rtrim($value, $this->getOption('suffix')).$this->getOption('suffix');
                     break;
                 case 'substr':
                     $value = substr($value, $this->getOption('offset'), $this->getOption('length'));

@@ -2,8 +2,13 @@
 
 namespace Misery\Component\Common\Pipeline;
 
+use Misery\Component\Common\Cursor\FunctionalCursor;
+use Misery\Component\Common\Cursor\SubItemCursor;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Configurator\ConfigurationManager;
+use Misery\Component\Converter\ConverterInterface;
+use Misery\Component\Converter\ItemCollectionLoaderInterface;
+use Misery\Component\Reader\ItemReader;
 use Misery\Component\Writer\ItemWriterInterface;
 
 class PipelineFactory implements RegisteredByNameInterface
@@ -21,6 +26,12 @@ class PipelineFactory implements RegisteredByNameInterface
             switch (true) {
                 case $key === 'output' && isset($configuration['output']['http']):
                     $writer = $configurationManager->createHTTPWriter($configuration['output']['http']);
+
+                    if (isset($configuration['output']['http']['converter'])) {
+                        $converter = $configurationManager->createConverter($configuration['output']['http']['converter']);
+                        $pipeline->line(new RevertPipe($converter));
+                    }
+
                     $pipeline->output(new PipeWriter($writer));
 
                     $pipeline->invalid(
@@ -28,18 +39,13 @@ class PipelineFactory implements RegisteredByNameInterface
                     );
                     break;
 
-                case isset($configuration[$key]['writer']);
+                case $key === 'output' && isset($configuration['output']['writer']):
                     $writer = $configurationManager->createWriter($configuration['output']['writer']);
                     $pipeline->output(new PipeWriter($writer));
 
                     $pipeline->invalid(
                         new PipeWriter($this->createInvalid($configurationManager, $configuration))
                     );
-                    break;
-
-                case $key === 'encoder';
-                    $encoder = $configurationManager->createEncoder($configuration['encoder']);
-                    $pipeline->line(new EncodingPipe($encoder));
                     break;
 
                 case $key === 'blueprint';
@@ -54,7 +60,7 @@ class PipelineFactory implements RegisteredByNameInterface
                     // what about decode and revert
                     break;
                 case $key === 'converter':
-                    $converter = $configurationManager->getConfig()->getConverter($configuration['converter']);
+                    $converter = $configurationManager->createConverter($configuration['converter']);
                     $pipeline->line(new ConverterPipe($converter));
                     break;
                 case $key === 'actions';
@@ -64,6 +70,10 @@ class PipelineFactory implements RegisteredByNameInterface
                 case $key === 'decoder';
                     $decoder = $configurationManager->createDecoder($configuration['decoder']);
                     $pipeline->line(new DecodingPipe($decoder));
+                    break;
+                case $key === 'encoder';
+                    $encoder = $configurationManager->createEncoder($configuration['encoder']);
+                    $pipeline->line(new EncodingPipe($encoder));
                     break;
             }
         }
@@ -85,9 +95,24 @@ class PipelineFactory implements RegisteredByNameInterface
         array $configuration
     ): Pipeline
     {
+        $configuration = $configuration['input'];
         $pipeline = new Pipeline();
 
-        $reader = (isset($configuration['input']['http'])) ? $configurationManager->createHTTPReader($configuration['input']['http']) : $configurationManager->createReader($configuration['input']['reader']);
+        $reader = (isset($configuration['http'])) ?
+            $configurationManager->createHTTPReader($configuration['http']) :
+            $configurationManager->createReader($configuration['reader'])
+        ;
+        if (isset($configuration['reader']['converter'])) {
+            $converter = $configurationManager->createConverter($configuration['reader']['converter']);
+            if ($converter instanceof ItemCollectionLoaderInterface) {
+                $reader = new ItemReader(new SubItemCursor($reader->getCursor(), $converter));
+            } else {
+                $reader = new ItemReader(new FunctionalCursor($reader->getCursor(), function ($item) use ($converter)  {
+                    return $converter->convert($item);
+                }));
+            }
+        }
+
         $pipeline->input(new PipeReader($reader));
 
         return $pipeline;

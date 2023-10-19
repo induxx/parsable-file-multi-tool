@@ -3,18 +3,13 @@
 namespace Misery\Component\Parser;
 
 use Assert\Assert;
-use Misery\Component\Combine\ItemCombine;
-use Misery\Component\Common\Collection\ArrayCollection;
-use Misery\Component\Common\Cursor\CachedCursor;
-use Misery\Component\Common\Cursor\CachedZoneFetcher;
+use Misery\Component\Common\Cursor\ContinuousBufferFetcher;
 use Misery\Component\Common\Cursor\CursorInterface;
 use Misery\Component\Common\Cursor\FunctionalCursor;
 use Misery\Component\Common\FileManager\InMemoryFileManager;
-use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Filter\ColumnReducer;
 use Misery\Component\Reader\ItemCollection;
-use Misery\Component\Writer\CsvWriter;
 
 class ItemParserFactory implements RegisteredByNameInterface
 {
@@ -26,7 +21,7 @@ class ItemParserFactory implements RegisteredByNameInterface
         Assert::that(
             $type,
             'type must be filled in.'
-        )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed']);
+        )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed', 'yaml', 'buffer', 'json']);
 
         if (isset($configuration['join'])) {
             $joins = $configuration['join'];
@@ -34,7 +29,7 @@ class ItemParserFactory implements RegisteredByNameInterface
             $mainParser = $this->createFromConfiguration($configuration, $manager);
 
             foreach ($joins as $join) {
-                $fetcher = clone new CachedZoneFetcher($this->createFromConfiguration($join, $manager), $join['link_join']);
+                $fetcher = clone new ContinuousBufferFetcher($this->createFromConfiguration($join, $manager), $join['link_join'], $join['allow_fileindex_removal'] ?? false);
                 $mainParser = new FunctionalCursor($mainParser, function ($row) use ($fetcher, $join) {
                     $masterID = $row[$join['link']];
                     $item = $fetcher->get($masterID) ?? [];
@@ -54,6 +49,12 @@ class ItemParserFactory implements RegisteredByNameInterface
             }
 
             return $mainParser;
+        }
+
+        if ($type === 'json' || $type === 'buffer') {
+            return JsonFileParser::create(
+                $manager->getFile($configuration['filename'])
+            );
         }
 
         if ($type === 'xml') {
@@ -79,6 +80,11 @@ class ItemParserFactory implements RegisteredByNameInterface
                 $configuration['enclosure'] ?? CsvParser::ENCLOSURE,
                 $configuration['escape'] ?? CsvParser::ESCAPE,
                 $configuration['invalid_lines'] ?? CsvParser::INVALID_STOP
+            );
+        }
+        if ($type === 'yaml') {
+            return YamlParser::create(
+                $manager->getFile($configuration['filename']),
             );
         }
         if ($type === 'xlsx') {

@@ -7,67 +7,83 @@ use PHPUnit\Framework\TestCase;
 
 class CalculateActionTest extends TestCase
 {
-    public function test_it_should_retain_action_with_keys(): void
+    public function testApplyWithAddOperator()
     {
-        $format = new CalculateAction();
+        $item = ['field1' => 5, 'field2' => 10];
 
-        $item = [
-            'brand' => 'louis',
-            'description' => 'LV',
-            'sku' => '1',
-        ];
-
-        $format->setOptions([
-            'keys' => ['brand', 'description'],
+        $action = new CalculateAction();
+        $action->setOptions([
+            'fields' => ['field1', 'field2'],
+            'operator' => 'ADD',
+            'result' => 'sum'
         ]);
 
-        $this->assertEquals([
-            'brand' => 'louis',
-            'description' => 'LV',
-        ], $format->apply($item));
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field1' => 5, 'field2' => 10, 'sum' => 15], $result);
     }
 
-    public function test_it_should_not_retain_action_with_keys(): void
+    public function testApplyWithMultiplyOperator()
     {
-        $format = new RetainAction();
+        $item = ['field1' => 5, 'field2' => 10];
 
-        $item = [
-            'brand' => 'louis',
-            'description' => 'LV',
-            'sku' => '1',
-        ];
-
-        $format->setOptions([
-            'keys' => [],
+        $action = new CalculateAction();
+        $action->setOptions([
+            'fields' => ['field1', 'field2'],
+            'operator' => 'MULTIPLY',
+            'result' => 'product'
         ]);
 
-        $this->assertEquals([
-            'brand' => 'louis',
-            'description' => 'LV',
-            'sku' => '1',
-        ], $format->apply($item));
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field1' => 5, 'field2' => 10, 'product' => 50], $result);
     }
 
-
-    public function test_it_should_do_a_retain_action_with_bad_keys(): void
+    public function testApplyWithDivideOperator()
     {
-        $format = new RetainAction();
+        $item = ['field1' => 10, 'field2' => 2];
 
-        $item = [
-            'brand' => 'louis',
-            'description' => 'LV',
-            'sku' => '1',
-            0 => [false],
-        ];
-
-        $format->setOptions([
-            'keys' => ['brand', 'description', 0, false, true, '', -1, 'the-unknown'],
+        $action = new CalculateAction();
+        $action->setOptions([
+            'fields' => ['field1', 'field2'],
+            'operator' => 'DIVIDE',
+            'result' => 'quotient'
         ]);
 
-        $this->assertEquals([
-            'brand' => 'louis',
-            'description' => 'LV',
-            0 => [false],
-        ], $format->apply($item));
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field1' => 10, 'field2' => 2, 'quotient' => 5], $result);
+    }
+
+    public function testApplyWithSubtractOperator()
+    {
+        $item = ['field1' => 20, 'field2' => 5];
+
+        $action = new CalculateAction();
+        $action->setOptions([
+            'fields' => ['field1', 'field2'],
+            'operator' => 'SUBTRACT',
+            'result' => 'difference'
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field1' => 20, 'field2' => 5, 'difference' => 15], $result);
+    }
+
+    public function testApplyWithInvalidFields()
+    {
+        $item = ['field1' => 'text', 'field2' => 'invalid'];
+
+        $action = new CalculateAction();
+        $action->setOptions([
+            'fields' => ['field1', 'field2'],
+            'operator' => 'ADD',
+            'result' => 'sum'
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field1' => 'text', 'field2' => 'invalid'], $result);
     }
 }

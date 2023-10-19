@@ -2,19 +2,20 @@
 
 namespace Misery\Component\Common\Cursor;
 
-class CachedZoneFetcher
+/** @deprecated */
+class OldCachedZoneFetcher
 {
     /** @var CursorInterface */
     private $cursor;
 
     /** @var array */
     private $ranges = [];
-    /** @var ZoneIndexer */
+    /** @var ZoneFileIndexer */
     private $indexes;
 
     public function __construct(CursorInterface $cursor, string $reference)
     {
-        $this->indexes = new ZoneIndexer($cursor, $reference);
+        $this->indexes = new OldZoneIndexer($cursor, $reference);
         $this->cursor = $cursor;
     }
 
@@ -43,7 +44,7 @@ class CachedZoneFetcher
             }
         }
 
-        $i = $this->indexes->getIndexByReference($reference);
+        $i = $this->indexes->getFileIndexByReference($reference);
 
         return $this->ranges[$zone][$i] ?? false;
     }
