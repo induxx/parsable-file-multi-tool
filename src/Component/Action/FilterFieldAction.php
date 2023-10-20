@@ -19,16 +19,26 @@ class FilterFieldAction implements OptionsInterface
         'ends_with' => null,
         'contains' => null,
         'reverse' => false,
+        'clear_value' => false,
     ];
 
     public function apply($item)
     {
         $excludes = $this->getOption('excludes');
         $fields = $this->getOption('fields');
+        $clearValue = $this->getOption('clear_value');
+        // we want a reverse functionality when clearing values
+        if ($clearValue) {
+            $this->setOption('reverse', true);
+        }
+
         if ($fields !== []) {
             foreach ($fields as $field) {
                 if (false === in_array($field, $excludes)) {
-                    unset($item[$field]);
+                    $item[$field] = null;
+                    if (false === $clearValue) {
+                        unset($item[$field]);
+                    }
                 }
             }
             return $item;
