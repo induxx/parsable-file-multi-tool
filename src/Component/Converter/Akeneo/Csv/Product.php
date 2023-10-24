@@ -23,7 +23,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
 
     private $options = [
         'container' => 'values',
-        'attribute_types:list' => null,
+        'attribute_types:list' => null, # this key value list is optional, improves type matching for options, metrics, prices
         'properties' => [
             'sku' => [
                 'text' => null,
@@ -98,16 +98,18 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
             $prep = $this->csvHeaderContext->create($item)[$key];
             $prep['data'] = $value;
 
-            # metrics
-            if ($codes[$masterKey] === 'pim_catalog_metric') {
-                $prep['data'] = [
-                    'amount' => $value,
-                    'unit' => $item[str_replace($masterKey, $masterKey.'-unit', $key)] ?? null,
-                ];
-            }
-            # multiselect
-            if ($codes[$masterKey] === 'pim_catalog_multiselect') {
-                $prep['data'] = array_filter(explode(',', $prep['data']));
+            if (is_array($codes)) {
+                # metrics
+                if ($codes[$masterKey] === 'pim_catalog_metric') {
+                    $prep['data'] = [
+                        'amount' => $value,
+                        'unit' => $item[str_replace($masterKey, $masterKey.'-unit', $key)] ?? null,
+                    ];
+                }
+                # multiselect
+                if ($codes[$masterKey] === 'pim_catalog_multiselect') {
+                    $prep['data'] = array_filter(explode(',', $prep['data']));
+                }
             }
 
             $matcher = Matcher::create('values|'.$masterKey, $prep['locale'], $prep['scope']);
