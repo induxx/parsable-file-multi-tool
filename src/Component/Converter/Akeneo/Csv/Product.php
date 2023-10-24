@@ -9,6 +9,8 @@ use Misery\Component\Common\Registry\Registry;
 use Misery\Component\Converter\AkeneoCsvHeaderContext;
 use Misery\Component\Converter\ConverterInterface;
 use Misery\Component\Converter\Matcher;
+use Misery\Component\Decoder\ItemDecoder;
+use Misery\Component\Decoder\ItemDecoderFactory;
 use Misery\Component\Encoder\ItemEncoder;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Format\StringToBooleanFormat;
@@ -20,6 +22,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
 
     private AkeneoCsvHeaderContext $csvHeaderContext;
     private ItemEncoder $encoder;
+    private ItemDecoder $decoder;
 
     private $options = [
         'container' => 'values',
@@ -47,15 +50,21 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
     public function __construct(AkeneoCsvHeaderContext $csvHeaderContext)
     {
         $this->csvHeaderContext = $csvHeaderContext;
-        $this->encoder = $this->ItemEncoderFactory()->createItemEncoder([
+        list($encoder, $decoder) = $this->ItemEncoderDecoderFactory();
+        $this->encoder = $encoder->createItemEncoder([
             'encode' => $this->getOption('properties'),
+            'parse' => $this->getOption('parse'),
+        ]);
+        $this->decoder = $decoder->createItemDecoder([
+            'decode' => $this->getOption('properties'),
             'parse' => $this->getOption('parse'),
         ]);
     }
 
-    private function ItemEncoderFactory(): ItemEncoderFactory
+    private function ItemEncoderDecoderFactory(): array
     {
         $encoderFactory = new ItemEncoderFactory();
+        $decoderFactory = new ItemDecoderFactory();
 
         $formatRegistry = new Registry('format');
         $formatRegistry
@@ -64,8 +73,9 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         ;
 
         $encoderFactory->addRegistry($formatRegistry);
+        $decoderFactory->addRegistry($formatRegistry);
 
-        return $encoderFactory;
+        return [$encoderFactory, $decoderFactory];
     }
 
     public function convert(array $item): array
@@ -129,9 +139,11 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
 
         $output = [];
         $output['sku'] = $item['sku'] ?? $item['identifier'] ?? null;
-        if (array_key_exists('family', $output)) {
-            $output['family'] = $item['family'];
-        }
+        $output['enabled'] = $item['enabled'];
+        $output['family'] = $item['family'];
+        $output['categories'] = $item['categories'];
+        $output['parent'] = $item['parent'];
+        $output = $this->decoder->decode($output);
 
         foreach ($item as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;
