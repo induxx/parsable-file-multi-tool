@@ -178,12 +178,12 @@ class DateTimeActionTest extends TestCase
 
         $item = [
             'sku' => '12',
-            'dateTime' => '18:30:00'
+            'dateTime' => '2023-10-18 18:30:00'
         ];
 
         $dateTimeAction->setOptions([
             'field' => 'dateTime',
-            'inputFormat' => 'H:i:s',
+            'inputFormat' => 'Y-m-d H:i:s',
             'outputFormat' => 'COOKIE',
         ]);
 
