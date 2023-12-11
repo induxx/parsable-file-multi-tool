@@ -97,7 +97,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
                 if ($expandOption === 'itemreferences') {
                     $this->processCharacteristics(
                         $itemProp,
-                        ['referenceTypeNo'],
+                        ['referenceNo'],
                         $expandOption,
                         $tmp
                     );
