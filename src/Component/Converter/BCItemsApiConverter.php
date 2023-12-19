@@ -30,6 +30,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
         'attribute_option_label_codes:list' => [],
         'set_default_metrics' => false,
         'default_locale' => null,
+        'locales_mappings' => [],
         'active_locales' => [],
         'default_scope' => null,
         'default_currency' => null,
@@ -69,7 +70,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
 
         $this->processCharacteristics(
             $item,
-            ['unitPrice', 'tariffNo', 'standard_delivery_time'],
+            ['unitPrice', 'tariffNo', 'standard_delivery_time', 'gtin'],
             '',
             $tmp
         );
@@ -128,7 +129,11 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
                 continue;
             }
 
-            $value = $this->getAkeneoDataStructure($key, $value);
+            try {
+                $value = $this->getAkeneoDataStructure($key, $value);
+            } catch (\Exception) {
+                continue;
+            }
 
             if (empty($value['data'])) {
                 continue;

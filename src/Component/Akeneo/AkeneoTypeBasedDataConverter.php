@@ -4,6 +4,7 @@ namespace Misery\Component\Akeneo;
 
 use Misery\Component\Akeneo\Header\AkeneoHeaderTypes;
 use Misery\Component\Reader\ReaderInterface;
+use function PHPUnit\Framework\throwException;
 
 class AkeneoTypeBasedDataConverter
 {
@@ -45,8 +46,9 @@ class AkeneoTypeBasedDataConverter
         $type = $this->attributeTypesList[$attributeCode] ?? null;
 
         if (null === $type) {
-            return $value;
+            throw new \Exception(sprintf('Unknown attribute Type for code %s', $attributeCode));
         }
+
         if (is_array($value)) {
             if (
                 array_key_exists('locale', $value) &&
