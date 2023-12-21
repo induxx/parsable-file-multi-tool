@@ -195,7 +195,7 @@ class ConfigurationManager
         return $actions;
     }
 
-    public function createConverter($configuration): ConverterInterface
+    public function createConverter(array $configuration): ConverterInterface
     {
         $converter = null;
         /** @var ConverterFactory $factory */
