@@ -63,14 +63,6 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         ]);
     }
 
-    /**
-     * this method is only called ones before
-     */
-    private function init(): void
-    {
-        $this->csvHeaderContext->unsetHeader();
-    }
-
     private function ItemEncoderDecoderFactory(): array
     {
         $encoderFactory = new ItemEncoderFactory();
