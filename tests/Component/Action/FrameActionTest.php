@@ -55,7 +55,7 @@ class FrameActionTest extends TestCase
         ];
 
         $format->setOptions([
-            'fields' => ['brand', 'description',],
+            'fields' => ['brand', 'description'],
         ]);
 
         $this->assertEquals([
