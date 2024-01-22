@@ -28,7 +28,7 @@ class ItemParserFactory implements RegisteredByNameInterface
             'continuous' => ContinuousBufferFetcher::class,
             'zone' => OldCachedZoneFetcher::class
         ];
-        $classFetcher = $fetchers[strtolower($configuration['fetcher'] ?? 'zone')];
+        $classFetcher = $fetchers[strtolower($configuration['join_fetcher'] ?? 'zone')];
 
         if (isset($configuration['join'])) {
             $joins = $configuration['join'];
@@ -36,7 +36,13 @@ class ItemParserFactory implements RegisteredByNameInterface
             $mainParser = $this->createFromConfiguration($configuration, $manager);
 
             foreach ($joins as $join) {
-                $fetcher = clone new $classFetcher($this->createFromConfiguration($join, $manager), $join['link_join'], $join['allow_fileindex_removal'] ?? false);
+                $fetcher = clone new $classFetcher(
+                    $this->createFromConfiguration($join, $manager),
+                    $join['link_join'],
+                    $configuration['join_allow_fileindex_removal'] ?? $join['allow_fileindex_removal'] ?? false,
+                    $configuration['join_filter_empty_values'] ?? $join['filter_empty_values'] ?? false,
+                    $configuration['join_cache_size'] ?? $join['cache_size'] ?? null
+                );
                 $mainParser = new FunctionalCursor($mainParser, function ($row) use ($fetcher, $join) {
                     $masterID = $row[$join['link']];
                     $item = $fetcher->get($masterID) ?? [];

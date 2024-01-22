@@ -9,13 +9,20 @@ class ContinuousBufferFetcher
     private CursorInterface $cursor;
     private ZoneFileIndexer $indexer;
     private bool $allowFileIndexRemoval;
+    private bool $filterEmptyValues;
 
-    public function __construct(CursorInterface $cursor, string $indexReference, bool $allowFileIndexRemoval = false)
-    {
-        $this->indexer = new ZoneFileIndexer();
+    public function __construct(
+        CursorInterface $cursor,
+        string $indexReference,
+        bool $allowFileIndexRemoval = false,
+        bool $filterEmptyValues = false,
+        ?int $indexerCacheSize = ZoneFileIndexer::MEDIUM_CACHE_SIZE
+    ) {
+        $this->indexer = new ZoneFileIndexer($indexerCacheSize);
         $this->cursor = $cursor;
         $this->indexReference = $indexReference;
         $this->allowFileIndexRemoval = $allowFileIndexRemoval;
+        $this->filterEmptyValues = $filterEmptyValues;
     }
 
     public function get(string $reference)
@@ -29,7 +36,7 @@ class ContinuousBufferFetcher
 
         $zone = $this->indexer->getZoneByFileIndex($fileIndex);
         if (false === $this->itemInBuffer($fileIndex, $zone)) {
-            // new item to load in
+            // new zone to load in
             $this->loadBufferFromZone($zone);
 
             // only keep 3 ranges, unset the first one
@@ -60,6 +67,11 @@ class ContinuousBufferFetcher
 
         $this->cursor->seek(current($range)); # reset line number
         while ($row = $this->cursor->current()) {
+            if ($this->filterEmptyValues) {
+                $row = array_filter($row, function ($var) {
+                    return ($var !== NULL && $var !== "");
+                });
+            }
             $this->buffer[$zone][$this->cursor->key()] = $row;
             if (\count($this->buffer[$zone]) === \count($range)) {
                 break;

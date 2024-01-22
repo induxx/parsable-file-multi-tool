@@ -20,6 +20,7 @@ class FilterFieldAction implements OptionsInterface
         'contains' => null,
         'reverse' => false,
         'clear_value' => false,
+        'remove_empty' => false,
     ];
 
     public function apply($item)
@@ -59,6 +60,12 @@ class FilterFieldAction implements OptionsInterface
         if ($fields !== []) {
             $this->setOptions(['fields' => $fields]);
             return $this->apply($item);
+        }
+
+        if ($this->getOption('remove_empty')) {
+            $item = array_filter($item, function ($var) {
+                return ($var !== NULL && $var !== "");
+            });
         }
 
         return $item;
