@@ -184,6 +184,15 @@ class ConfigurationManager
         }
     }
 
+    public function configureAction(array $configuration): void
+    {
+        foreach ($configuration as $action) {
+            $this->config->setNamedActions(
+                $action['name'],
+                $this->createActions($action['actions'])
+            );
+        }
+    }
     public function createActions(array $configuration): ItemActionProcessor
     {
         /** @var ItemActionProcessorFactory $factory */

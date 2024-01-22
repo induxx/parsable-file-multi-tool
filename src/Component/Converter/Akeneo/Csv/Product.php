@@ -29,6 +29,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         'default_currency' => 'EUR',
         'single_currency' => true,
         'attribute_types:list' => null, # this key value list is optional, improves type matching for options, metrics, prices
+        'identifier' => 'sku',
         'properties' => [
             'sku' => [
                 'text' => null,
@@ -83,6 +84,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
     public function convert(array $item): array
     {
         $this->csvHeaderContext->unsetHeader();
+        $identifier = $this->getOption('identifier');
         $codes = $this->getOption('attribute_types:list');
         $keyCodes = is_array($codes) ? array_keys($codes): null;
         $separator = '-';
@@ -99,6 +101,10 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
             }
 
             if ($keyCodes && false === in_array($masterKey, $keyCodes)) {
+                continue;
+            }
+
+            if ($identifier === $key) {
                 continue;
             }
 
@@ -151,9 +157,10 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
     public function revert(array $item): array
     {
         $container = $this->getOption('container');
+        $identifier = $this->getOption('identifier');
 
         $output = [];
-        $output['sku'] = $item['sku'] ?? $item['identifier'] ?? null;
+        $output[$identifier] = $item[$identifier] ?? $item['identifier'] ?? null;
         if (isset($item['enabled'])) {
             $output['enabled'] = $item['enabled'];
         }

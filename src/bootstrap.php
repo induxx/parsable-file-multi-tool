@@ -47,6 +47,7 @@ $converterRegistry->registerAllByName(
 //        new Misery\Component\Converter\AkeneoCsvHeaderContext()
 //    ),
     new Misery\Component\Converter\AkeneoProductApiConverter(),
+    new Misery\Component\Converter\Akeneo\Api\ProductModel(),
     new Misery\Component\Converter\BCItemsApiConverter(),
     new Misery\Component\Converter\BCCategoriesApiConverter(),
     new Misery\Component\Converter\Akeneo\Api\Attribute(
@@ -59,6 +60,9 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
 
     new Misery\Component\Converter\Akeneo\Csv\Product(
+        new Misery\Component\Converter\AkeneoCsvHeaderContext()
+    ),
+    new Misery\Component\Converter\Akeneo\Csv\ProductModel(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption()
@@ -138,6 +142,7 @@ $actionRegistry
     ->register(\Misery\Component\Action\ReverterAction::NAME, new Misery\Component\Action\ReverterAction())
     ->register(\Misery\Component\Action\DateTimeAction::NAME, new Misery\Component\Action\DateTimeAction())
     ->register(Misery\Component\Action\FrameAction::NAME, new Misery\Component\Action\FrameAction())
+    ->register(Misery\Component\Action\GroupAction::NAME, new Misery\Component\Action\GroupAction())
 ;
 
 #$statementRegistry = new Misery\Component\Common\Registry\Registry('statement');
