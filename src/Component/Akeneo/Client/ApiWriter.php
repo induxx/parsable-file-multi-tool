@@ -65,20 +65,11 @@ class ApiWriter implements ItemWriterInterface
 
     private function doWrite(array $data)
     {
-        $response = null;
         try {
             $response = $this->execute($data);
         } catch (\RuntimeException $e) {
             // do nothing
-
-            $msg = $e->getMessage();
-            $msg = (isset($response)) ? $response->getMessage() ?? $e->getMessage(): null;
-            dd(
-                $data,
-                $response,
-                $msg
-            );
-            throw new InvalidItemException('API Runtime exception : '.$e::class,  ['message' => $msg], $data);
+            throw new InvalidItemException('API Runtime exception', [], $data);
         } catch (UnauthorizedException $e) {
             $this->client->refreshToken();
             $response = $this->execute($data);
