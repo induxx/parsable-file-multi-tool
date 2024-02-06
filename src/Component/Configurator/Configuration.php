@@ -24,7 +24,7 @@ class Configuration
 {
     private $pipeline = null;
     private $actions = null;
-    private $namedActions = null;
+    private $groupedActions = null;
     private $blueprints;
     private $encoders;
     private $decoders;
@@ -138,14 +138,14 @@ class Configuration
         $this->actions = $actionProcessor;
     }
 
-    public function setNamedActions(string $name, ItemActionProcessor $actionProcessor): void
+    public function setGroupedActions(string $name, ItemActionProcessor $actionProcessor): void
     {
-        $this->namedActions[$name] = $actionProcessor;
+        $this->groupedActions[$name] = $actionProcessor;
     }
 
-    public function getNamedAction(string $name): ?ItemActionProcessor
+    public function getGroupedActions(string $name): ?ItemActionProcessor
     {
-        return $this->namedActions[$name] ?? null;
+        return $this->groupedActions[$name] ?? null;
     }
 
     public function getActions(): ?ItemActionProcessor

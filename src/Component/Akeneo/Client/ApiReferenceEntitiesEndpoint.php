@@ -9,7 +9,7 @@ class ApiReferenceEntitiesEndpoint implements ApiEndpointInterface
     public const NAME = 'reference-entities';
 
     private const ALL = 'reference-entities/%s/records';
-    private const ONE = 'reference-entities/%s/records/%s';
+    private const ONE = 'reference-entities/%reference-code%/records/%code%';
 
     public function getAll(): string
     {

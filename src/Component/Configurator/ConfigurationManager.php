@@ -187,12 +187,13 @@ class ConfigurationManager
     public function configureAction(array $configuration): void
     {
         foreach ($configuration as $action) {
-            $this->config->setNamedActions(
+            $this->config->setGroupedActions(
                 $action['name'],
                 $this->createActions($action['actions'])
             );
         }
     }
+
     public function createActions(array $configuration): ItemActionProcessor
     {
         /** @var ItemActionProcessorFactory $factory */
@@ -220,7 +221,6 @@ class ConfigurationManager
         $converter = null;
         /** @var ConverterFactory $factory */
         $factory = $this->factory->getFactory('converter');
-
 
         // stop creation if it was already created
         if (is_array($configuration) && isset($configuration['name'])) {

@@ -25,7 +25,7 @@ class GroupAction implements OptionsInterface, ConfigurationAwareInterface
         if ($this->getOption('name') && !$this->getOption('actionProcessor')) {
             $this->setOption(
                 'actionProcessor',
-                $this->getConfiguration()->getNamedAction($this->getOption('name'))
+                $this->getConfiguration()->getGroupedActions($this->getOption('name'))
             );
         }
 

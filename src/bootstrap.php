@@ -65,7 +65,9 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Csv\ProductModel(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
-    new Misery\Component\Converter\Akeneo\Csv\AttributeOption()
+    new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
+    new Misery\Component\Converter\Akeneo\Csv\FamilyVariant(),
+    new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities()
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
