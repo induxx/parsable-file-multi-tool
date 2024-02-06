@@ -13,7 +13,7 @@ class ProductModel extends Product
         'attribute_types:list' => null, # this key value list is optional, improves type matching for options, metrics, prices
         'identifier' => 'code',
         'properties' => [
-            'sku' => [
+            'code' => [
                 'text' => null,
             ],
             'enabled' => [
