@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Misery\Component\Converter\Akeneo\Csv;
+namespace Misery\Component\Converter\Akeneo\Api;
 
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Converter\ConverterInterface;
@@ -25,6 +25,6 @@ class FamilyVariant implements ConverterInterface, RegisteredByNameInterface
 
     public function getName(): string
     {
-        return 'akeneo/family_variant/csv';
+        return 'akeneo/family_variant/api';
     }
 }
