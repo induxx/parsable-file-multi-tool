@@ -92,10 +92,12 @@ class ApiReader implements ReaderInterface
 
         $url = $this->client->getUrlGenerator()->generate($endpoint);
         if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
-            if(isset($this->context['limiters']['querystring'])) {
-                $url = sprintf('%s&pagination_type=search_after', $url);
-            } else {
-                $url = sprintf('%s?pagination_type=search_after', $url);
+            if(!strpos($url, 'pagination_type')) {
+                if(isset($this->context['limiters']['querystring'])) {
+                    $url = sprintf('%s&pagination_type=search_after', $url);
+                } else {
+                    $url = sprintf('%s?pagination_type=search_after', $url);
+                }
             }
         }
 
