@@ -58,7 +58,11 @@ class ApiReader implements ReaderInterface
 
         $items = [];
         if (isset($this->context['filters']) && !empty($this->context['filters'])) {
-            $endpoint = sprintf('%s?search=', $endpoint);
+            if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
+                $endpoint = sprintf('%s?pagination_type=search_after&search=', $endpoint);
+            } else {
+                $endpoint = sprintf('%s?search=', $endpoint);
+            }
             foreach ($this->context['filters'] as $attrCode => $filterValues) {
                 $valueChunks = array_chunk(array_values($filterValues),100);
                 foreach ($valueChunks as $filterChunk) {
@@ -86,8 +90,20 @@ class ApiReader implements ReaderInterface
             return $items;
         }
 
+        $url = $this->client->getUrlGenerator()->generate($endpoint);
+        if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
+            if(isset($this->context['limiters']['querystring'])) {
+                $url = sprintf('%s&pagination_type=search_after', $url);
+            } else {
+                $url = sprintf('%s?pagination_type=search_after', $url);
+            }
+        }
+
+        //dd($url, $endpoint, $this->context['limiters']);
+
         $items = $this->client
-            ->get($this->client->getUrlGenerator()->generate($endpoint))
+            //->get($this->client->getUrlGenerator()->generate($endpoint))
+            ->get($url)
             ->getResponse()
             ->getContent();
 
