@@ -99,10 +99,7 @@ class ApiReader implements ReaderInterface
             }
         }
 
-        //dd($url, $endpoint, $this->context['limiters']);
-
         $items = $this->client
-            //->get($this->client->getUrlGenerator()->generate($endpoint))
             ->get($url)
             ->getResponse()
             ->getContent();
