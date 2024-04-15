@@ -9,6 +9,7 @@ class AttributeValueFormatter
 {
     private array $attributeTypesAndCodes = [];
     private PropertyFormatterRegistry $formatterRegistry;
+    private array $focusGroup = [];
 
     public function __construct(PropertyFormatterRegistry $formatterRegistry)
     {
@@ -20,6 +21,11 @@ class AttributeValueFormatter
         $this->attributeTypesAndCodes = $attributeTypesAndCodes;
     }
 
+    public function setFocusGroup(array $focusGroup): void
+    {
+        $this->focusGroup = $focusGroup;
+    }
+
     private function getAttributeTypeFromCode(string $code): ?string
     {
         return $this->attributeTypesAndCodes[$code] ?? null;
@@ -27,7 +33,10 @@ class AttributeValueFormatter
 
     public function needsFormatting(string $code): bool
     {
-        return null !== $this->getAttributeTypeFromCode($code);
+        return null !== $this->getAttributeTypeFromCode($code) && in_array(
+                $this->getAttributeTypeFromCode($code),
+                $this->focusGroup,
+            );
     }
 
     public function format(string $code, $value, array $context = [])

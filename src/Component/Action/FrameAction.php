@@ -13,12 +13,13 @@ class FrameAction implements OptionsInterface
 
     /** @var array */
     private $options = [
-        'fields' => [],
+        'fields' => null,
+        'list' => [],
     ];
 
     public function apply(array $item): array
     {
-        $fields = $this->getOption('fields');
+        $fields = $this->getOption('fields', $this->getOption('list'));
         // array keys listed
         if (isset($fields[0])) {
             $fields = array_fill_keys($fields, null);

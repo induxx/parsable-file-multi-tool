@@ -78,6 +78,7 @@ class AkeneoValueFormatterAction implements OptionsInterface, ConfigurationAware
 
             $this->attributeValueFormatter = new AttributeValueFormatter($registry);
             $this->attributeValueFormatter->setAttributeTypesAndCodes($this->getOption('filter_list'));
+            $this->attributeValueFormatter->setFocusGroup(array_keys($context));
         }
 
         // key represents the references that could match item keys
