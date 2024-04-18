@@ -73,6 +73,9 @@ class ConfigurationManager
 
         if ($additionalSources) {
             $this->inMemoryFileManager->addFromFileManager($additionalSources);
+            $this->addSources(
+                iterator_to_array($this->getInMemoryFileManager()->listFiles())
+            );
         }
 
         if ($extensions) {
