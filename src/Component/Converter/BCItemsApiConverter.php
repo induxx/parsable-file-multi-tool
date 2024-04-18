@@ -80,7 +80,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
                 if (in_array($expandOption, ['itemUnitOfMeasuresColli', 'itemUnitOfMeasuresPallet', 'itemUnitOfMeasuresPieces'])) {
                     $this->processCharacteristics(
                         $itemProp,
-                        ['length', 'width', 'height', 'qtyPerUnitOfMeasure'],
+                        ['length', 'width', 'height', 'weight', 'qtyPerUnitOfMeasure'],
                         $expandOption,
                         $tmp
                     );
@@ -180,7 +180,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
                 if (is_array($itemValue['data']) && array_key_exists('currency', $itemValue['data'])) {
                     $output[$matcher->getRowKey().'-'.$itemValue['data']['currency']] = $itemValue['data']['amount'];
                 }
-                if (is_string($itemValue['data'])) {
+                if (is_string($itemValue['data']) || is_int($itemValue['data']) || is_float($itemValue['data'])) {
                     $output[$matcher->getRowKey()] = $itemValue['data'];
                 }
             }

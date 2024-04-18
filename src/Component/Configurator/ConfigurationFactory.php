@@ -126,6 +126,7 @@ class ConfigurationFactory
                 case $key === 'blueprint';
                     $this->manager->configureBlueprints($configuration['blueprint']);
                     break;
+
                 case $key === 'group_action';
                 case $key === 'action';
                 case $key === 'actions';
