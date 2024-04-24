@@ -10,6 +10,8 @@ class ProductModel extends AkeneoProductApiConverter
         'identifier' => 'sku',
         'structure' => 'matcher', # matcher OR flat
         'container' => 'values',
+        'render_associations' => true,
+        'render_values' => true,
         'allow_empty_string_values' => true,
     ];
 

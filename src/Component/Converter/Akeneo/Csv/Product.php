@@ -98,7 +98,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
             $masterKey = $keys[0];
 
             if (in_array($masterKey, $this->getOption('associations'))) {
-                $output['associations'][$masterKey][$keys[1]] = explode(',', $value);
+                $output['associations'][$masterKey][$keys[1]] = array_filter(explode(',', $value));
                 unset($item[$key]);
                 continue;
             }

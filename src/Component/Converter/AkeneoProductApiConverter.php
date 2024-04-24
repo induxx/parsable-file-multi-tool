@@ -14,6 +14,8 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
         'identifier' => 'sku',
         'structure' => 'matcher', # matcher OR flat
         'container' => 'values',
+        'render_associations' => true,
+        'render_values' => true,
         'allow_empty_string_values' => true,
     ];
 
@@ -67,6 +69,13 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
                 unset($item[$key]);
                 $item[$container][$matcher->getPrimaryKey()][] = $itemValue;
             }
+        }
+
+        if (!$this->getOption('render_associations')) {
+            unset($item['associations']);
+        }
+        if (!$this->getOption('render_values')) {
+            unset($item['values']);
         }
 
         return $item;
