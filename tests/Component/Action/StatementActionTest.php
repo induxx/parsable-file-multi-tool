@@ -232,4 +232,121 @@ class StatementActionTest extends TestCase
 
         $this->assertEquals($item, $format->apply($item));
     }
+
+    public function test_it_should_compare_with_different_operators(): void
+    {
+        $format = new StatementAction();
+
+        $item = [
+            'correct' => 'FALSE',
+            'number_high' => '10',
+            'number_low' => '1',
+            'number_calc' => '10',
+            'sku' => '1',
+        ];
+
+        $format->setOptions([
+            'when' => '{number_high} GREATER_THAN {number_low}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_low} GREATER_THAN {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('FALSE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_high} GREATER_THAN_OR_EQUAL_TO {number_calc}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_high} <= {number_calc}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_low} < {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_high} > {number_low}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_low} > {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('FALSE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_calc} >= {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_low} <= {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_calc} == {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_low} < {number_high} AND {number_calc} == {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_low} != {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+
+        $format->setOptions([
+            'when' => '{number_low} == {number_high}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('FALSE', $format->apply($item)['correct']);
+    }
 }

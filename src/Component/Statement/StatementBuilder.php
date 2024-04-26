@@ -30,6 +30,18 @@ class StatementBuilder
             case 'GREATER_THAN_OR_EQUAL_TO':
                 $statement = GreaterThanOrEqualStatement::prepare(new SetValueAction());
                 break;
+            case '>':
+            case 'GREATER_THAN':
+                $statement = GreaterThanStatement::prepare(new SetValueAction());
+                break;
+            case '<=':
+            case 'SMALLER_THAN_OR_EQUAL_TO':
+                $statement = SmallerThanOrEqualStatement::prepare(new SetValueAction());
+                break;
+            case '<':
+            case 'SMALLER_THAN':
+                $statement = SmallerThanStatement::prepare(new SetValueAction());
+                break;
             case '!=':
             case 'NOT_EQUAL':
                 $statement = NotEqualStatement::prepare(new SetValueAction());
@@ -113,6 +125,14 @@ class StatementBuilder
         if (count($containsFields) === 2) {
             $statement = ContainsStatement::prepare(new SetValueAction());
             $statement->when($containsFields[0], $containsFields[1]);
+
+            return $statement;
+        }
+
+        if (count($andFields) === 1) {
+            $fields = explode(' ', $whenString);
+            $statement = self::buildFromOperator($fields[1], $context);
+            $statement->when($fields[0], $fields[2] ?? null);
         }
 
         return $statement;
