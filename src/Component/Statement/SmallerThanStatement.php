@@ -2,9 +2,9 @@
 
 namespace Misery\Component\Statement;
 
-class NotEqualStatement implements PredeterminedStatementInterface
+class SmallerThanStatement implements PredeterminedStatementInterface
 {
-    public const NAME = 'NOT_EQUAL';
+    public const NAME = 'SMALLER_THAN';
 
     use StatementTrait;
 
@@ -14,8 +14,8 @@ class NotEqualStatement implements PredeterminedStatementInterface
 
         return
             isset($item[$field->getField()]) &&
-            is_string($item[$field->getField()]) &&
-            $item[$field->getField()] !== $field->getValue()
+            is_numeric($item[$field->getField()]) &&
+            $item[$field->getField()] < $field->getValue()
         ;
     }
 }

@@ -9,8 +9,15 @@ class Field
 
     public function __construct(string $field, string $value = null)
     {
-        $this->field = $field;
+        $this->field = str_replace(['{','}'], '', $field); # for legacy reasons we can't replace this value here yet
         $this->value = $value;
+    }
+
+    public function repopulateFromItem(array $item): void
+    {
+        if ($this->value !== str_replace(['{','}'], '', $this->value)) {
+            $this->value = ItemPlaceholder::replace($this->value, $item);
+        }
     }
 
     public function getField(): string

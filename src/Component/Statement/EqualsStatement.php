@@ -10,6 +10,8 @@ class EqualsStatement implements PredeterminedStatementInterface
 
     private function whenField(Field $field, array $item): bool
     {
+        $field->repopulateFromItem($item);
+
         return
             isset($item[$field->getField()]) &&
             is_string($item[$field->getField()]) &&
