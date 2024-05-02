@@ -15,7 +15,7 @@ class Field
 
     public function repopulateFromItem(array $item): void
     {
-        if ($this->value !== str_replace(['{','}'], '', $this->value)) {
+        if (ItemPlaceholder::matches($this->value)) {
             $this->value = ItemPlaceholder::replace($this->value, $item);
         }
     }

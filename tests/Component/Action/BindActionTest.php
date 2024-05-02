@@ -45,4 +45,39 @@ class BindActionTest extends TestCase
             'color' => $colorItem,
         ], $result);
     }
+
+    public function testApplyWithValuesWithMustaches()
+    {
+        $item = [
+            'identifier' => '1234',
+            'color' => 'red',
+        ];
+        $colorSet = new ItemCollection([
+            $colorItem = ['code' => 'red', 'type' => 'select', 'labels' => ['nl_BE' => 'rood', 'fr_BE' => 'rouge']],
+            ['code' => 'green', 'type' => 'select', 'labels' => ['nl_BE' => 'groen', 'fr_BE' => 'ver']],
+        ]);
+
+        $cmd = new SourceFilterCommand();
+        $cmd->setSource(Source::createSimple($colorSet, 'colors'));
+        $cmd->setOptions([
+            'filter' => [
+                'code' => '{color}',
+            ],
+        ]);
+
+        $sourceFilter = new SourceFilter($cmd);
+
+        $action = new BindAction();
+        $action->setOptions([
+            'field' => 'color',
+            'filter' => $sourceFilter,
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals([
+            'identifier' => '1234',
+            'color' => $colorItem,
+        ], $result);
+    }
 }

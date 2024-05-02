@@ -19,6 +19,7 @@ class BindAction implements OptionsInterface
     /** @var array */
     private $options = [
         'list' => [],
+        'field' => null,
         'filter' => null,
     ];
 
@@ -29,8 +30,13 @@ class BindAction implements OptionsInterface
         /** @var SourceFilter $filter */
         $filter = $this->getOption('filter');
 
+        $list = $this->getOption('list');
+        if ($field =$this->getOption('field')) {
+            $list = [$field];
+        }
+
         // don't hardcode values // auto level into the array
-        foreach ($this->getOption('list') as $columnKey) {
+        foreach($list as $columnKey) {
             if (array_key_exists($columnKey, $item)) {
                 $item[$columnKey] = $filter->filter($item);
                 if (count($item[$columnKey]) <= 1) {
