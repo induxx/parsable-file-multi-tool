@@ -349,4 +349,25 @@ class StatementActionTest extends TestCase
         ]);
         $this->assertSame('FALSE', $format->apply($item)['correct']);
     }
+
+    public function test_it_should_compare_with_different_operators_with_weird_chars(): void
+    {
+        $format = new StatementAction();
+
+        $item = [
+            'correct' => 'FALSE',
+            'Number-high.A_*' => '10',
+            'Number-low.A_*' => '1',
+            'number_calc' => '10',
+            'sku' => '1',
+        ];
+
+        $format->setOptions([
+            'when' => '{Number-high.A_*} GREATER_THAN {Number-low.A_*}',
+            'then' => [
+                'correct' => 'TRUE',
+            ],
+        ]);
+        $this->assertSame('TRUE', $format->apply($item)['correct']);
+    }
 }

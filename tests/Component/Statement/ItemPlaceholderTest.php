@@ -24,20 +24,20 @@ class ItemPlaceholderTest extends TestCase
         $this->assertFalse(ItemPlaceholder::matches('value}'), 'Returns false if the value matches after extraction.');
     }
 
-    public function testReplace()
+    public function testTextReplace()
     {
         $text = 'Hello, {name}!';
         $item = ['name' => 'John'];
-        $this->assertEquals('Hello, John!', ItemPlaceholder::replace($text, $item), 'Replaces placeholder with value from array.');
+        $this->assertEquals('Hello, John!', ItemPlaceholder::textReplace($text, $item), 'Replaces placeholder with value from array.');
 
         $textWithNoReplacement = 'Hello, {user}!';
-        $this->assertEquals('Hello, {user}!', ItemPlaceholder::replace($textWithNoReplacement, $item), 'Leaves placeholder if no matching key in array.');
+        $this->assertEquals('Hello, {user}!', ItemPlaceholder::textReplace($textWithNoReplacement, $item), 'Leaves placeholder if no matching key in array.');
 
         $emptyText = '';
-        $this->assertEquals('', ItemPlaceholder::replace($emptyText, $item), 'Handles empty string correctly.');
+        $this->assertEquals('', ItemPlaceholder::textReplace($emptyText, $item), 'Handles empty string correctly.');
 
         $textWithMultiplePlaceholders = '{greeting}, {name}!';
         $itemMulti = ['greeting' => 'Hello', 'name' => 'John'];
-        $this->assertEquals('Hello, John!', ItemPlaceholder::replace($textWithMultiplePlaceholders, $itemMulti), 'Correctly replaces multiple placeholders.');
+        $this->assertEquals('Hello, John!', ItemPlaceholder::textReplace($textWithMultiplePlaceholders, $itemMulti), 'Correctly replaces multiple placeholders.');
     }
 }
