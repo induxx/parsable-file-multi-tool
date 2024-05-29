@@ -33,7 +33,7 @@ class KeyMapperAction implements OptionsInterface
             return $item;
         }
 
-        $list = $this->getOption('list');
+        $list = array_filter($this->getOption('list'));
         // when dealing with converted data we need the primary keys
         // we just need to replace these keys
         $newList = [];
