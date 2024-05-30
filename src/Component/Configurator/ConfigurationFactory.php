@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use _PHPStan_b8e553790\Psr\Log\LoggerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Pipeline\ActionPipe;
 use Misery\Component\Common\Registry\Registry;
@@ -31,8 +32,10 @@ class ConfigurationFactory
         LocalFileManager $source = null,
         LocalFileManager $additionalSources = null,
         LocalFileManager $extensions = null,
+        LoggerInterface $logger = null
     ) {
         $this->config = new Configuration();
+        $this->config->setLogger($logger);
         $sources = ($source) ? $this->getFactory('source')->createFromFileManager($source) : null;
         $this->manager = new ConfigurationManager(
             $this->config,
@@ -98,8 +101,7 @@ class ConfigurationFactory
                     break;
                 case $key === 'transformation_steps';
                     $this->config->setAsMultiStep();
-                    // @todo move this to a dedicated logger
-                    echo sprintf("Multi Step [%s]", basename($this->config->getContext('transformation_file'))). PHP_EOL;
+                    $this->config->getLogger()->info(sprintf("Multi Step [%s]", basename($this->config->getContext('transformation_file'))));
                     $this->manager->addTransformationSteps($configuration['transformation_steps'], $configuration);
                     break;
                 case $key === 'pipeline';

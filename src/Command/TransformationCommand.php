@@ -2,11 +2,15 @@
 
 namespace Misery\Command;
 
+use _PHPStan_b8e553790\Symfony\Component\Console\Logger\ConsoleLogger;
+use _PHPStan_b8e553790\Symfony\Component\Console\Output\ConsoleOutput;
 use Ahc\Cli\Input\Command;
 use Assert\Assertion;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
+use Misery\Component\Logger\OutputLogger;
 use Misery\Component\Process\ProcessManager;
+use PHPStan\Command\Output;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -70,6 +74,7 @@ class TransformationCommand extends Command
             $source ? new LocalFileManager($source): null,
             $addSource ? new LocalFileManager($addSource): null,
             $extensions ? new LocalFileManager($extensions): null,
+            new OutputLogger()
         );
 
         $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {

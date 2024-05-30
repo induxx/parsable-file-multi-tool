@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use _PHPStan_b8e553790\Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\Common\Client\ApiClient;
@@ -30,6 +31,7 @@ class Configuration
     private $decoders;
     private $reader;
     private $writer;
+    private $logger;
     private $lists = [];
     private $mappings = [];
     private $filters = [];
@@ -251,6 +253,16 @@ class Configuration
         return $this->writer;
     }
 
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    public function getLogger(): ?LoggerInterface
+    {
+        return $this->logger;
+    }
+
     public function setReader($reader): void
     {
         if ($reader instanceof ReaderInterface) {
@@ -303,6 +315,7 @@ class Configuration
         }
 
         $this->writer = null;
+        //$this->logger = null;
         $this->pipeline = null;
         $this->shellCommands = null;
         $this->converters = new ArrayCollection();

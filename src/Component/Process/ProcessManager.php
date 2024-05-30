@@ -17,7 +17,7 @@ class ProcessManager
 
     private function log(string $message)
     {
-        echo $message . PHP_EOL;
+        $this->configuration->getLogger()->info($message);
     }
 
     public function startProcess(): void
@@ -35,6 +35,7 @@ class ProcessManager
         }
 
         if ($pipeline = $this->configuration->getPipeline()) {
+            $pipeline->setLogger($this->configuration->getLogger());
             if ($debug === true) {
                 if ($mappings === true) {
                     dump($this->configuration->getMappings());
