@@ -9,6 +9,7 @@ class ProcessManager
 {
     private Configuration $configuration;
     private ?int $startTimeStamp = null;
+    private ?int $invalidItems = 0;
 
     public function __construct(Configuration $configuration)
     {
@@ -33,6 +34,9 @@ class ProcessManager
             $debug = true;
             $amount = -1;
         }
+
+        $path = $this->configuration->getContext('workpath').'/invalid_items.csv';
+        $this->invalidItems = $this->getLines($path);
 
         if ($pipeline = $this->configuration->getPipeline()) {
             $pipeline->setLogger($this->configuration->getLogger());
@@ -68,11 +72,27 @@ class ProcessManager
         $executionTime = round($stopTimeStamp - $this->startTimeStamp, 1);
         $executionTime = "Execution Time: {$executionTime}s";
 
+        $path = $this->configuration->getContext('workpath').'/invalid_items.csv';
+        $this->invalidItems = $this->getLines($path) - $this->invalidItems;
+        $invalidItems = "Invalid Items: $this->invalidItems";
+
         $this->log(sprintf(
-            "Finished Step :: %s (%s, %s)",
+            "Finished Step :: %s (%s, %s, %s)",
             basename($this->configuration->getContext('transformation_file')),
             $usage,
-            $executionTime
+            $executionTime,
+            $invalidItems
         ));
+    }
+
+    private function getLines($file): int
+    {
+        $f = fopen($file, 'rb');
+        $lines = 0;
+        while (!feof($f)) {
+            $lines += substr_count(fread($f, 8192), "\n");
+        }
+        fclose($f);
+        return $lines;
     }
 }
