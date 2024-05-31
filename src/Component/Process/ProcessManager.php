@@ -21,6 +21,11 @@ class ProcessManager
         $this->configuration->getLogger()->info($message);
     }
 
+    private function warning(string $message)
+    {
+        $this->configuration->getLogger()->warning($message);
+    }
+
     public function startProcess(): void
     {
         $this->startTimeStamp = microtime(true);
@@ -76,13 +81,23 @@ class ProcessManager
         $this->invalidItems = $this->getLines($path) - $this->invalidItems;
         $invalidItems = "Invalid Items: $this->invalidItems";
 
-        $this->log(sprintf(
-            "Finished Step :: %s (%s, %s, %s)",
-            basename($this->configuration->getContext('transformation_file')),
-            $usage,
-            $executionTime,
-            $invalidItems
-        ));
+        if ($this->invalidItems > 0) {
+            $this->warning(sprintf(
+                "Finished Step :: %s (%s, %s, %s)",
+                basename($this->configuration->getContext('transformation_file')),
+                $usage,
+                $executionTime,
+                $invalidItems
+            ));
+        } else {
+            $this->log(sprintf(
+                "Finished Step :: %s (%s, %s, %s)",
+                basename($this->configuration->getContext('transformation_file')),
+                $usage,
+                $executionTime,
+                $invalidItems
+            ));
+        }
     }
 
     private function getLines($file): int
