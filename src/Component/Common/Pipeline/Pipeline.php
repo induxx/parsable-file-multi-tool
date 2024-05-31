@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Common\Pipeline;
 
-use _PHPStan_b8e553790\Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerAwareTrait;
 use Misery\Component\Common\Pipeline\Exception\InvalidItemException;
 use Misery\Component\Common\Pipeline\Exception\SkipPipeLineException;
 use Misery\Component\Debugger\ItemDebugger;

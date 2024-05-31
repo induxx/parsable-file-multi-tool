@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Logger;
 
-use _PHPStan_b8e553790\Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 
 class OutputLogger implements LoggerInterface
 {

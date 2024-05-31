@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
-use _PHPStan_b8e553790\Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\Common\Client\ApiClient;
