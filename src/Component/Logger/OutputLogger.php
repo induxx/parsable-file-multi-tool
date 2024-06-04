@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 
 class OutputLogger implements LoggerInterface
 {
-
     public function emergency($message, array $context = []): void
     {
         $this->log('emergency', $message, $context);
