@@ -22,7 +22,7 @@ class ProcessManager
     public function startProcess(): void
     {
         $this->startTimeStamp = microtime(true);
-        $this->log(sprintf("Running Step :: %s ", basename($this->configuration->getContext('transformation_file'))));
+        $this->logger->info(sprintf("Running Step :: %s ", basename($this->configuration->getContext('transformation_file'))));
 
         $debug = $this->configuration->getContext('debug');
         $line = $this->configuration->getContext('line') ?? -1;
