@@ -32,7 +32,7 @@ class ConfigurationFactory
         LocalFileManager $source = null,
         LocalFileManager $additionalSources = null,
         LocalFileManager $extensions = null,
-        LoggerInterface $logger = null
+        LoggerInterface $logger
     ) {
         $this->config = new Configuration();
         $this->config->setLogger($logger);

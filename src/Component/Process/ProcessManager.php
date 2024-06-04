@@ -4,26 +4,19 @@ namespace Misery\Component\Process;
 
 use Misery\Component\Common\Pipeline\LoggingPipe;
 use Misery\Component\Configurator\Configuration;
+use Psr\Log\LoggerInterface;
 
 class ProcessManager
 {
     private Configuration $configuration;
     private ?int $startTimeStamp = null;
     private ?int $invalidItems = 0;
+    private LoggerInterface $logger;
 
     public function __construct(Configuration $configuration)
     {
         $this->configuration = $configuration;
-    }
-
-    private function log(string $message)
-    {
-        $this->configuration->getLogger()->info($message);
-    }
-
-    private function warning(string $message)
-    {
-        $this->configuration->getLogger()->warning($message);
+        $this->logger = $this->configuration->getLogger();
     }
 
     public function startProcess(): void
@@ -44,7 +37,7 @@ class ProcessManager
         $this->invalidItems = $this->getLines($path);
 
         if ($pipeline = $this->configuration->getPipeline()) {
-            $pipeline->setLogger($this->configuration->getLogger());
+            $pipeline->setLogger($this->logger);
             if ($debug === true) {
                 if ($mappings === true) {
                     dump($this->configuration->getMappings());
@@ -82,7 +75,7 @@ class ProcessManager
         $invalidItems = "Invalid Items: $this->invalidItems";
 
         if ($this->invalidItems > 0) {
-            $this->warning(sprintf(
+            $this->logger->warning(sprintf(
                 "Finished Step :: %s (%s, %s, %s)",
                 basename($this->configuration->getContext('transformation_file')),
                 $usage,
@@ -90,7 +83,7 @@ class ProcessManager
                 $invalidItems
             ));
         } else {
-            $this->log(sprintf(
+            $this->logger->info(sprintf(
                 "Finished Step :: %s (%s, %s, %s)",
                 basename($this->configuration->getContext('transformation_file')),
                 $usage,
