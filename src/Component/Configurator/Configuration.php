@@ -2,6 +2,8 @@
 
 namespace Misery\Component\Configurator;
 
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\Common\Client\ApiClient;
@@ -22,6 +24,7 @@ use Misery\Component\Writer\ItemWriterInterface;
 
 class Configuration
 {
+    use LoggerAwareTrait;
     private $pipeline = null;
     private $actions = null;
     private $groupedActions = null;
@@ -249,6 +252,11 @@ class Configuration
     public function getWriter(): ?ItemWriterInterface
     {
         return $this->writer;
+    }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 
     public function setReader($reader): void

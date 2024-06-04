@@ -4,20 +4,19 @@ namespace Misery\Component\Process;
 
 use Misery\Component\Common\Pipeline\LoggingPipe;
 use Misery\Component\Configurator\Configuration;
+use Psr\Log\LoggerInterface;
 
 class ProcessManager
 {
     private Configuration $configuration;
     private ?int $startTimeStamp = null;
+    private ?int $invalidItems = 0;
+    private LoggerInterface $logger;
 
     public function __construct(Configuration $configuration)
     {
         $this->configuration = $configuration;
-    }
-
-    private function log(string $message)
-    {
-        echo $message . PHP_EOL;
+        $this->logger = $this->configuration->getLogger();
     }
 
     public function startProcess(): void
@@ -34,7 +33,11 @@ class ProcessManager
             $amount = -1;
         }
 
+        $path = $this->configuration->getContext('workpath').'/invalid_items.csv';
+        $this->invalidItems = $this->getLines($path);
+
         if ($pipeline = $this->configuration->getPipeline()) {
+            $pipeline->setLogger($this->logger);
             if ($debug === true) {
                 if ($mappings === true) {
                     dump($this->configuration->getMappings());
@@ -67,11 +70,37 @@ class ProcessManager
         $executionTime = round($stopTimeStamp - $this->startTimeStamp, 1);
         $executionTime = "Execution Time: {$executionTime}s";
 
-        $this->log(sprintf(
-            "Finished Step :: %s (%s, %s)",
-            basename($this->configuration->getContext('transformation_file')),
-            $usage,
-            $executionTime
-        ));
+        $path = $this->configuration->getContext('workpath').'/invalid_items.csv';
+        $this->invalidItems = $this->getLines($path) - $this->invalidItems;
+        $invalidItems = "Invalid Items: $this->invalidItems";
+
+        if ($this->invalidItems > 0) {
+            $this->logger->warning(sprintf(
+                "Finished Step :: %s (%s, %s, %s)",
+                basename($this->configuration->getContext('transformation_file')),
+                $usage,
+                $executionTime,
+                $invalidItems
+            ));
+        } else {
+            $this->logger->info(sprintf(
+                "Finished Step :: %s (%s, %s, %s)",
+                basename($this->configuration->getContext('transformation_file')),
+                $usage,
+                $executionTime,
+                $invalidItems
+            ));
+        }
+    }
+
+    private function getLines($file): int
+    {
+        $f = fopen($file, 'rb');
+        $lines = 0;
+        while (!feof($f)) {
+            $lines += substr_count(fread($f, 8192), "\n");
+        }
+        fclose($f);
+        return $lines;
     }
 }

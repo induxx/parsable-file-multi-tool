@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Common\Pipeline;
 
+use Psr\Log\LoggerAwareTrait;
 use Misery\Component\Common\Pipeline\Exception\InvalidItemException;
 use Misery\Component\Common\Pipeline\Exception\SkipPipeLineException;
 use Misery\Component\Debugger\ItemDebugger;
@@ -9,6 +10,8 @@ use Misery\Component\Debugger\NullItemDebugger;
 
 class Pipeline
 {
+    use LoggerAwareTrait;
+
     /** @var PipeReaderInterface */
     private $in;
     /** @var PipeWriterInterface */
@@ -74,7 +77,7 @@ class Pipeline
                 }
             } catch (SkipPipeLineException $exception) {
                 if (!empty($exception->getMessage())) {
-                    echo sprintf('Skipped: %s', $exception->getMessage()) . PHP_EOL;
+                    $this->logger->info(sprintf('Skipped: %s', $exception->getMessage()));
                 }
                 continue;
             } catch (InvalidItemException $exception) {
@@ -83,6 +86,7 @@ class Pipeline
                     'msg' => $exception->getMessage(),
                     'item' => json_encode($exception->getInvalidItem()),
                 ]);
+                $this->logger->error($exception->getMessage());
                 continue;
             }
             if ($i === $lineNumber) {
@@ -105,6 +109,7 @@ class Pipeline
                     'msg' => $exception->getMessage(),
                     'item' => json_encode($exception->getInvalidItem()),
                 ]);
+                $this->logger->error($exception->getMessage());
                 continue;
             }
         }
