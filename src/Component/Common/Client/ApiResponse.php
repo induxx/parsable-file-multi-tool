@@ -7,12 +7,16 @@ class ApiResponse
     private $code;
     private $message;
     private $content;
+    private array $headers;
 
-    public function __construct(int $code = null, string $message = null, $content)
+    public function __construct(int $code = null, string $message = null, $content, array $headers)
     {
         $this->code = $code;
         $this->message = $message;
         $this->content = $content;
+        foreach ($headers as $key => $header) {
+            $this->headers[strtolower($key)] = $header;
+        }
     }
 
     public static function createFromMulti(array $data): self
@@ -32,12 +36,13 @@ class ApiResponse
         return new self(204, null, $data);
     }
 
-    public static function create(array $data = [], string $code = null): self
+    public static function create(array $data = [], string $code = null, array $headers = []): self
     {
         return new self(
             $data['status_code'] ?? $code,
             $data['message'] ?? null,
-            $data
+            $data,
+            $headers
         );
     }
 
@@ -59,5 +64,11 @@ class ApiResponse
     public function getContent(string $key = null)
     {
         return $key ? $this->content[$key] ?? null: $this->content;
+    }
+
+    public function getHeaders($key = null)
+    {
+        $key = strtolower($key);
+        return $key ? $this->headers[$key] ?? null: $this->headers;
     }
 }

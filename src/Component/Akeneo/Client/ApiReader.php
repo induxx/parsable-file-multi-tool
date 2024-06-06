@@ -9,6 +9,8 @@ use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\Paginator;
 use Misery\Component\Common\Client\InMemoryPaginator;
 use Misery\Component\Common\Utils\ValueFormatter;
+use Misery\Component\Connections\Dal\Client\PaginationCursor;
+use Misery\Component\Reader\ItemCollection;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Reader\ReaderInterface;
 
@@ -123,6 +125,14 @@ class ApiReader implements ReaderInterface
         if (isset($this->context['multiple'])) {
            return $this->readMultiple();
         }
+
+        // new Paginator
+        if (null === $this->page) {
+            $this->page = $this->client->getPaginator($this->endpoint->getAll());
+        }
+        $item = $this->page->current();
+        $this->page->next();
+        return $item;
 
         if (null === $this->page) {
             $this->page = Paginator::create($this->client, $this->request());

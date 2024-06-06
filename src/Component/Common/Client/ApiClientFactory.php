@@ -3,8 +3,9 @@
 namespace Misery\Component\Common\Client;
 
 use Misery\Component\Akeneo\Client\AkeneoApiClientAccount;
-use Misery\Component\BusinessCentral\Client\MicrosoftDynamicsOauthAccount;
+use Misery\Component\Connections\BusinessCentral\Client\MicrosoftDynamicsOauthAccount;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Connections\Dal\Client\E5DalAPITokenAccount;
 
 class ApiClientFactory implements RegisteredByNameInterface
 {
@@ -36,6 +37,20 @@ class ApiClientFactory implements RegisteredByNameInterface
                     $account['scope'],
                     $account['environment']
                 );
+                $client->authorize($account);
+
+                return $client;
+            } catch (\Exception $e) {
+                throw $e;
+            }
+        }
+
+        if ($type === 'e5_dal_token') {
+            try {
+                // no need to authorize token is fixed
+                $client = new ApiClient($account['domain']);
+
+                $account = new E5DalAPITokenAccount($account['token']);
                 $client->authorize($account);
 
                 return $client;
