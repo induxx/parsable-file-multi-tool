@@ -3,26 +3,30 @@ declare(strict_types=1);
 
 namespace Misery\Component\Converter\Akeneo\Csv;
 
-use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Common\Registry\Registry;
 use Misery\Component\Converter\ConverterInterface;
+use Misery\Component\Converter\InitConverterInterface;
+use Misery\Component\Decoder\ItemDecoder;
 use Misery\Component\Decoder\ItemDecoderFactory;
+use Misery\Component\Encoder\ItemEncoder;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Format\StringToBooleanFormat;
 use Misery\Component\Format\StringToListFormat;
 use Misery\Component\Mapping\ColumnMapper;
+use Misery\Component\Modifier\ArrayFlattenModifier;
 use Misery\Component\Modifier\ArrayUnflattenModifier;
 use Misery\Component\Modifier\NullifyEmptyStringModifier;
 
-class ReferenceEntities implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
+class ReferenceEntities implements ConverterInterface, InitConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
 
-    private $encoder;
-    private $decoder;
+    private ?ItemEncoder $encoder = null;
+    private ItemDecoder $decoder;
+    private ColumnMapper $mapper;
 
     private $options = [
         'identifier' => 'code',
@@ -40,7 +44,6 @@ class ReferenceEntities implements ConverterInterface, RegisteredByNameInterface
             'nullify' => null,
         ],
     ];
-    private ColumnMapper $mapper;
 
     public function init(): void
     {
@@ -95,6 +98,7 @@ class ReferenceEntities implements ConverterInterface, RegisteredByNameInterface
         $modifierRegistry
             ->register(NullifyEmptyStringModifier::NAME, new NullifyEmptyStringModifier())
             ->register(ArrayUnflattenModifier::NAME, new ArrayUnflattenModifier())
+            ->register(ArrayFlattenModifier::NAME, new ArrayFlattenModifier())
         ;
 
         $encoderFactory->addRegistry($formatRegistry);

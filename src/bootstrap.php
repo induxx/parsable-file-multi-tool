@@ -58,8 +58,9 @@ $converterRegistry->registerAllByName(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
-    new \Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
-    new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities()
+    new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
+    new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
+    new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator()
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
@@ -71,6 +72,7 @@ $modifierRegistry = new Misery\Component\Common\Registry\Registry('modifier');
 $modifierRegistry
     ->register(Misery\Component\Modifier\StripSlashesModifier::NAME, new Misery\Component\Modifier\StripSlashesModifier())
     ->register(Misery\Component\Modifier\ArrayUnflattenModifier::NAME, new Misery\Component\Modifier\ArrayUnflattenModifier())
+    ->register(Misery\Component\Modifier\ArrayFlattenModifier::NAME, new Misery\Component\Modifier\ArrayFlattenModifier())
     ->register(Misery\Component\Modifier\NullifyEmptyStringModifier::NAME, new Misery\Component\Modifier\NullifyEmptyStringModifier())
     ->register(Misery\Component\Modifier\ReplaceCharacterModifier::NAME, new Misery\Component\Modifier\ReplaceCharacterModifier())
     ->register(Misery\Component\Modifier\FilterEmptyStringModifier::NAME, new Misery\Component\Modifier\FilterEmptyStringModifier())
@@ -83,6 +85,7 @@ $modifierRegistry
     ->register(Misery\Component\Modifier\StringToLowerModifier::NAME, new Misery\Component\Modifier\StringToLowerModifier())
     ->register(Misery\Component\Modifier\UrlEncodeModifier::NAME, new Misery\Component\Modifier\UrlEncodeModifier())
     ->register(Misery\Component\Modifier\StripTagsModifier::NAME, new Misery\Component\Modifier\StripTagsModifier())
+    ->register(Misery\Component\Modifier\CapitalizeModifier::NAME, new Misery\Component\Modifier\CapitalizeModifier())
 
     //->register(Misery\Component\Modifier\StructureModifier::NAME, new Misery\Component\Modifier\StructureModifier())
 ;
