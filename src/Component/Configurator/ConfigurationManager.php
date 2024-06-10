@@ -130,16 +130,28 @@ class ConfigurationManager
         # list of transformations
         foreach ($transformationSteps as $transformationFile) {
 
-            # this code detect the run | with option
-            # and creates virtual steps, so you don't need to repeat yourself
+            // this code detects the run | with option
+            // and creates virtual steps, so you don't need to repeat yourself
             if (isset($transformationFile['run'])) {
                 $file = $transformationFile['run'];
-                $keys = array_keys($transformationFile['with']);
-                foreach ($transformationFile['with'][$key = current($keys)] as $i => $context) {
-                    // make virtual steps
+                $withArray = $transformationFile['with'];
 
-                    // @TODO make a context from all keys and pass it through
-                    $masterConfiguration['context'][$key] = $context;
+                // Get the number of iterations needed
+                $iterationCount = count(current($withArray));
+
+                // Iterate over each index
+                for ($i = 0; $i < $iterationCount; $i++) {
+                    $context = [];
+
+                    // Build the context for the current index
+                    foreach ($withArray as $key => $values) {
+                        if (isset($values[$i])) {
+                            $context[$key] = $values[$i];
+
+                            // Save the context in the master configuration
+                            $masterConfiguration['context'][$key] = $values[$i];
+                        }
+                    }
 
                     $this->addTransformationSteps([$file], $masterConfiguration);
                 }

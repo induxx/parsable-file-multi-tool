@@ -15,15 +15,16 @@ class SkipAction implements OptionsInterface, ActionInterface
     /** @var array */
     private $options = [
         'field' => null,
-        'state' => 'EMPTY',
+        'state' => ['EMPTY'],
         'skip_message' => ''
     ];
+    private array $values = [];
 
     public function apply(array $item): array
     {
         $field = $this->getOption('field');
         $state = $this->getOption('state');
-        $message = $this->getOption('skip_message', '');
+        $states = is_string($state) ? [$state]: $state;
 
         $message = $this->getOption('skip_message', '');
         $forceSkip = $this->getOption('force_skip', false);
@@ -38,14 +39,28 @@ class SkipAction implements OptionsInterface, ActionInterface
             $value = $item[$field] ?? null;
         }
 
-        if (empty($value) && $state === 'EMPTY') {
-            throw new SkipPipeLineException($message);
-        }
+        foreach ($states as $state) {
+            if ($state === 'EMPTY' && empty($value)) {
+                throw new SkipPipeLineException($message);
+            }
 
-        if ($value === $state) {
-            throw new SkipPipeLineException($message);
+            if ($state === 'UNIQUE') {
+                if (in_array($value, $this->values)) {
+                    throw new SkipPipeLineException($message);
+                }
+                $this->values[] = $value;
+            }
+
+            if ($value === $state) {
+                throw new SkipPipeLineException($message);
+            }
         }
 
         return $item;
+    }
+
+    public function __destruct()
+    {
+        $this->values = [];
     }
 }
