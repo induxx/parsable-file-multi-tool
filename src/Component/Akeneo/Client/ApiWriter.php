@@ -9,6 +9,7 @@ use Misery\Component\Common\Client\Exception\UnauthorizedException;
 use Misery\Component\Common\Pipeline\Exception\InvalidItemException;
 use Misery\Component\Common\Processor\BatchSizeProcessor;
 use Misery\Component\Writer\ItemWriterInterface;
+use Psr\Log\LoggerInterface;
 
 class ApiWriter implements ItemWriterInterface
 {
@@ -19,16 +20,19 @@ class ApiWriter implements ItemWriterInterface
     private $method;
     /** @var BatchSizeProcessor */
     private $batch;
+    /** @var LoggerInterface */
+    private $logger;
 
     // TODO: add support for batching
     private $pack = [];
 
-    public function __construct(ApiClientInterface $client, ApiEndpointInterface $endpoint, string $method = null)
+    public function __construct(ApiClientInterface $client, ApiEndpointInterface $endpoint, string $method = null, LoggerInterface $logger = null)
     {
         $this->client = $client;
         $this->endpoint = $endpoint;
         $this->method = $method;
         $this->batch = new BatchSizeProcessor(10);
+        $this->logger = $logger;
     }
 
     public function write(array $data): void
@@ -46,7 +50,11 @@ class ApiWriter implements ItemWriterInterface
             if (count($this->pack) === 100) {
                 $item = $data;
                 $this->batch->next();
-                echo $this->batch->hasNewBatchPart() ? $this->batch->getBatchPart().'k':'.';
+                if($this->logger !== null) {
+                    $this->logger->info('ApiWriter Progress : '.$this->batch->getBatchPart().'k');
+                } else {
+                    echo $this->batch->hasNewBatchPart() ? $this->batch->getBatchPart().'k':'.';
+                }
                 $data = $this->pack;
                 $this->pack = [];
                 $this->pack[] = $item;

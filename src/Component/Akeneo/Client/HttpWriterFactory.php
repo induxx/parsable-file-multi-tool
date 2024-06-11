@@ -59,7 +59,8 @@ class HttpWriterFactory implements RegisteredByNameInterface
             return new ApiWriter(
                 $account,
                 new $endpoint,
-                $method
+                $method,
+                $config->getLogger()
             );
         }
 
