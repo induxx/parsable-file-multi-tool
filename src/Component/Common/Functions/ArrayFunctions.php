@@ -43,17 +43,17 @@ class ArrayFunctions
      * @param array $array
      * @param string $prefix
      * @param mixed $separator
-     * @param array $whitelist
+     * @param array $targetList
      * @param bool $preserveIntKeys
      *
      * @return array
      */
-    public static function flatten(array $array, string $separator = '.', string $prefix = '', array $whitelist = [], bool $preserveIntKeys = false)
+    public static function flatten(array $array, string $separator = '.', string $prefix = '', array $targetList = [], bool $preserveIntKeys = false)
     {
         $result = [];
         foreach ($array as $key => $value) {
             // If whitelist is not empty and key is not in whitelist, skip this key
-            if (!empty($whitelist) && !in_array($key, $whitelist, true)) {
+            if (!empty($targetList) && !in_array($key, $targetList, true)) {
                 $result[$key] = $value;
                 continue;
             }

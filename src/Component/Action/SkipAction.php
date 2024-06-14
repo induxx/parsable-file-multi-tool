@@ -45,10 +45,10 @@ class SkipAction implements OptionsInterface, ActionInterface
             }
 
             if ($state === 'UNIQUE') {
-                if (isset($valueSet[$value])) {
+                if (isset($this->values[$value])) {
                     throw new SkipPipeLineException($message);
                 }
-                $this->values[$value] = true;
+                $this->values[$value] = '';
                 continue;
             }
 

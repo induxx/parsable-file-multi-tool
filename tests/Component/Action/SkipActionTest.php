@@ -72,4 +72,25 @@ class SkipActionTest extends TestCase
         $this->expectExceptionMessage('Field is empty');
         $action->apply($item);
     }
+
+    public function testSkipOnDuplicate()
+    {
+        $item = ['id' => '1'];
+
+        $action = new SkipAction();
+        $action->setOptions([
+            'field' => 'id',
+            'state' => ['UNIQUE'],
+            'skip_message' => 'id is a duplicate',
+        ]);
+
+        // add the item for the first time
+        $action->apply($item);
+
+        $this->expectException(SkipPipeLineException::class);
+        $this->expectExceptionMessage('id is a duplicate');
+
+        // add the item for the second time
+        $action->apply($item);
+    }
 }

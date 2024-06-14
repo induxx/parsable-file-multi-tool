@@ -35,8 +35,9 @@ class KeyMapperAction implements OptionsInterface
 
             $keys = [];
             foreach ($list as $key => $value) {
+                $newKey = $this->findMatchedValueData($item, $key) ?? $key;
                 if (array_key_exists($value, $item)) {
-                    $item[$key] = $item[$value];
+                    $item[$newKey] = $item[$value];
                     $keys[] = $value;
                 }
             }
