@@ -48,6 +48,6 @@ class OutputLogger implements LoggerInterface
 
     public function log($level, $message, array $context = []): void
     {
-        echo $message . PHP_EOL;
+        echo $message  . ' : ' . json_encode($context). PHP_EOL;
     }
 }

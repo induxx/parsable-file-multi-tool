@@ -126,6 +126,75 @@ class ArrayFunctionsTest extends TestCase
     }
 
 
+    public function test_it_should_flatten_with_a_target_list(): void
+    {
+        $item = [
+            'brand' => [
+                'nl_BE' => [],
+                'fr_BE' => [],
+                'en_US' => [],
+            ],
+            'supplier_brand' => [
+                'nl_BE' => [],
+                'fr_BE' => [],
+                'en_US' => [],
+            ],
+            'description' => 'LV',
+            'sku' => '1',
+        ];
+
+        $result = ArrayFunctions::flatten($item, '.', '', ['supplier_brand']);
+
+        $this->assertSame([
+            'brand' => [
+                'nl_BE' => [],
+                'fr_BE' => [],
+                'en_US' => [],
+            ],
+            'supplier_brand.nl_BE' => [],
+            'supplier_brand.fr_BE' => [],
+            'supplier_brand.en_US' => [],
+            'description' => 'LV',
+            'sku' => '1',
+        ], $result);
+    }
+
+    public function test_it_should_flatten_with_preserve_integer_keys_on(): void
+    {
+        $item = [
+            'product' => [
+                'values' => [
+                    [
+                        'brand' => 'my_value',
+                    ]
+                ],
+                'brand_labels' => [
+                    'nl_BE' => [],
+                    'fr_BE' => [],
+                    'en_US' => [],
+                ],
+                'description' => 'LV',
+                'sku' => '1',
+            ]
+        ];
+
+        $result = ArrayFunctions::flatten($item, '.', '', [], $preserveIntKeys = true);
+
+        $this->assertSame([
+            'product.values' => [
+                [
+                    'brand' => 'my_value',
+                ]
+            ],
+            'product.values.0.brand' =>  'my_value',
+            'product.brand_labels.nl_BE' => [],
+            'product.brand_labels.fr_BE' => [],
+            'product.brand_labels.en_US' => [],
+            'product.description' => 'LV',
+            'product.sku' => '1',
+        ], $result);
+    }
+
     public function test_it_should_strpos_any_elem_from_an_array(): void
     {
         $needles = ['burger', 'town'];

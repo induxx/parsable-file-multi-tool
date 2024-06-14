@@ -49,6 +49,9 @@ class StatementBuilder
             case 'CONTAINS':
                 $statement = ContainsStatement::prepare(new SetValueAction());
                 break;
+            case StartsWithStatement::NAME:
+                $statement = StartsWithStatement::prepare(new SetValueAction());
+                break;
             case 'EMPTY':
                 $statement = EmptyStatement::prepare(new SetValueAction());
                 break;

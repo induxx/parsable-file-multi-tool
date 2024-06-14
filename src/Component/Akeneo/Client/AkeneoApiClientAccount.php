@@ -2,10 +2,10 @@
 
 namespace Misery\Component\Akeneo\Client;
 
-use Misery\Component\Common\Client\ApiClient;
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\AuthenticatedAccount;
+use Misery\Component\Common\Client\PaginationCursor;
 
 class AkeneoApiClientAccount implements ApiClientAccountInterface
 {
@@ -61,6 +61,11 @@ class AkeneoApiClientAccount implements ApiClientAccountInterface
             $response->getContent('refresh_token'),
             $response->getContent('expires_in')
         );
+    }
+
+    public function getPaginator(ApiClientInterface $client, string $endpoint): PaginationCursor
+    {
+        return new AkeneoPaginationCursor($client, $endpoint);
     }
 
     public function refresh(ApiClientInterface $client, AuthenticatedAccount $account): AuthenticatedAccount

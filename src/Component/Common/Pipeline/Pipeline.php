@@ -86,7 +86,8 @@ class Pipeline
                     'msg' => $exception->getMessage(),
                     'item' => json_encode($exception->getInvalidItem()),
                 ]);
-                $this->logger->error($exception->getMessage());
+                // WE need a silent LOGGER here
+                //$this->logger->error($exception->getMessage(), $exception->getInvalidItem());
                 continue;
             }
             if ($i === $lineNumber) {

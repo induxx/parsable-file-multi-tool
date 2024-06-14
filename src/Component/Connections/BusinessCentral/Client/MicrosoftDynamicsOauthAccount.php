@@ -1,6 +1,6 @@
 <?php
 
-namespace Misery\Component\BusinessCentral\Client;
+namespace Misery\Component\Connections\BusinessCentral\Client;
 
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiClientInterface;

@@ -7,6 +7,7 @@ use Misery\Component\Common\Cursor\SubItemCursor;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Configurator\ConfigurationManager;
 use Misery\Component\Converter\ConverterInterface;
+use Misery\Component\Converter\InitConverterInterface;
 use Misery\Component\Converter\ItemCollectionLoaderInterface;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Writer\ItemWriterInterface;
@@ -116,6 +117,9 @@ class PipelineFactory implements RegisteredByNameInterface
         ;
         if (isset($configuration['reader']['converter'])) {
             $converter = $configurationManager->createConverter($configuration['reader']['converter']);
+            if ($converter instanceof InitConverterInterface) {
+                $converter->init();
+            }
             if ($converter instanceof ItemCollectionLoaderInterface) {
                 $reader = new ItemReader(new SubItemCursor($reader->getCursor(), $converter));
             } else {

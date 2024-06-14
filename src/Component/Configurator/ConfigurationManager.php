@@ -129,6 +129,35 @@ class ConfigurationManager
 
         # list of transformations
         foreach ($transformationSteps as $transformationFile) {
+
+            // this code detects the run | with option
+            // and creates virtual steps, so you don't need to repeat yourself
+            if (isset($transformationFile['run'])) {
+                $file = $transformationFile['run'];
+                $withArray = $transformationFile['with'];
+
+                // Get the number of iterations needed
+                $iterationCount = count(current($withArray));
+
+                // Iterate over each index
+                for ($i = 0; $i < $iterationCount; $i++) {
+                    $context = [];
+
+                    // Build the context for the current index
+                    foreach ($withArray as $key => $values) {
+                        if (isset($values[$i])) {
+                            $context[$key] = $values[$i];
+
+                            // Save the context in the master configuration
+                            $masterConfiguration['context'][$key] = $values[$i];
+                        }
+                    }
+
+                    $this->addTransformationSteps([$file], $masterConfiguration);
+                }
+                continue;
+            }
+
             $file = $dirName . DIRECTORY_SEPARATOR . $transformationFile;
             Assertion::file($file);
 

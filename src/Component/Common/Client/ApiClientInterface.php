@@ -32,4 +32,6 @@ interface ApiClientInterface
     public function log(string $message, int $statusCode = null, $content): void;
 
     public function getUrlGenerator(): UrlGenerator;
+
+    public function getPaginator(string $startUrl): PaginationCursor;
 }
