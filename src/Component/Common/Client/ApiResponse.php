@@ -30,10 +30,12 @@ class ApiResponse
             return new self(
                 $line['status_code'],
                 $line['message'] ?? null,
-                $data);
+                $data,
+                []
+            );
         }
 
-        return new self(204, null, $data);
+        return new self(204, null, $data, []);
     }
 
     public static function create(array $data = [], string $code = null, array $headers = []): self

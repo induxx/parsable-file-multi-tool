@@ -48,6 +48,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Api\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
+    new Misery\Component\Converter\AkeneoFlatProductModelToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatProductToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
 
@@ -60,7 +61,8 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
     new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
-    new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator()
+    new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator(),
+    new Misery\Component\Converter\DistilledLoadCollectionConverter(),
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
@@ -121,6 +123,7 @@ $actionRegistry
     ->register(Misery\Component\Action\UnsetAction::NAME, new Misery\Component\Action\UnsetAction())
     ->register(Misery\Component\Action\EmptyAction::NAME, new Misery\Component\Action\EmptyAction())
     ->register(Misery\Component\Action\ConcatAction::NAME, new Misery\Component\Action\ConcatAction())
+    ->register(Misery\Component\Action\DebugAction::NAME, new Misery\Component\Action\DebugAction())
     ->register(Misery\Component\Action\HashAction::NAME, new Misery\Component\Action\HashAction())
     ->register(Misery\Component\Action\ArrayValueAction::NAME, new Misery\Component\Action\ArrayValueAction())
     ->register(Misery\Component\Action\ListMapperAction::NAME, new Misery\Component\Action\ListMapperAction())
