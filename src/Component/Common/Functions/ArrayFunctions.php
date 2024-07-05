@@ -63,7 +63,7 @@ class ArrayFunctions
                 $result[rtrim($prefix, $separator)][$key] = $value;
             }
 
-            if (is_array($value) && !empty($value)) {
+            if (is_array($value) && $value !== []) {
                 $result += static::flatten($value, $separator, $prefix . $key . $separator, [], $preserveIntKeys);
                 continue;
             }

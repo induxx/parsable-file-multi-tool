@@ -62,7 +62,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
     new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator(),
-    new Misery\Component\Converter\DistilledLoadCollectionConverter(),
+    new Misery\Component\Converter\ReadLoopItemCollectionConverter(),
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');

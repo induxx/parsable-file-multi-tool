@@ -129,6 +129,26 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                     $value = [$value];
                 }
                 break;
+            case AkeneoHeaderTypes::PRICE:
+                $amount = null;
+                $unit = $this->getOption('default_currency');
+                if (is_numeric($value)) {
+                    $amount = $this->numberize($value);
+                }
+                if (is_array($value)) {
+                    if (array_key_exists('amount', $value)) {
+                        $amount = $value['amount'];
+                    }
+                    if (array_key_exists('currency', $value)) {
+                        $unit = $value['currency'];
+                    }
+                }
+
+                $value = [[
+                    'amount' => $amount,
+                    'currency' => $unit,
+                ]];
+                break;
             case AkeneoHeaderTypes::METRIC:
                 $amount = null;
                 $unit = $this->getOption('default_metrics:list')[$attributeCode] ?? null;
@@ -155,7 +175,6 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 }
                 break;
             case AkeneoHeaderTypes::REFDATA_SELECT:
-            case AkeneoHeaderTypes::PRICE:
                 // no changes
                 break;
         }

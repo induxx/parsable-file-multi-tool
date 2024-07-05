@@ -16,7 +16,7 @@ use Misery\Component\Modifier\ArrayUnflattenModifier;
 use Misery\Component\Modifier\NullifyEmptyStringModifier;
 use Misery\Component\Reader\ItemCollection;
 
-class DistilledLoadCollectionConverter implements InitConverterInterface, ConverterInterface, ItemCollectionLoaderInterface, RegisteredByNameInterface, OptionsInterface
+class ReadLoopItemCollectionConverter implements InitConverterInterface, ConverterInterface, ItemCollectionLoaderInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
 
@@ -93,11 +93,11 @@ class DistilledLoadCollectionConverter implements InitConverterInterface, Conver
 
     public function getName(): string
     {
-        return 'distill/loop/items';
+        return 'read/loop/items';
     }
 
     public function revert(array $item): array
     {
-        throw new \Exception(DistilledLoadCollectionConverter::class . ' is not revert-able.');
+        throw new \Exception(ReadLoopItemCollectionConverter::class . ' is not revert-able.');
     }
 }
