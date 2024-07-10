@@ -4,14 +4,13 @@ namespace Misery\Component\Connections\Dal\Client;
 
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiClientInterface;
+use Misery\Component\Common\Client\ApiEndPointsInterface;
 use Misery\Component\Common\Client\AuthenticatedAccount;
 use Misery\Component\Common\Client\PaginationCursor;
+use Misery\Component\Connections\Dal\Client\Endpoints\DalApiEndpoints;
 
-
-class E5DalAPITokenAccount implements ApiClientAccountInterface
+class E5DalAPIAccount implements ApiClientAccountInterface
 {
-    private const ROOT_URI = '/api/v3';
-
     public function __construct(private string $token) {}
 
     public function getToken(): string
@@ -25,9 +24,12 @@ class E5DalAPITokenAccount implements ApiClientAccountInterface
             'Authorization' => $this->token,
         ]);
 
-        $client->getUrlGenerator()->append(self::ROOT_URI);
-
         return new AuthenticatedAccount($this, 'e5_dal', $this->token);
+    }
+
+    public function getSupporterEndPoints(): ApiEndPointsInterface
+    {
+        return new DalApiEndpoints();
     }
 
     public function getPaginator(ApiClientInterface $client, string $endpoint): PaginationCursor

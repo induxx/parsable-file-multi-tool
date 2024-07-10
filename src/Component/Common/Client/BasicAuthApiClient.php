@@ -3,6 +3,7 @@
 namespace Misery\Component\Common\Client;
 
 use Exception;
+use Misery\Component\Common\Client\Endpoint\BasicApiEndpoints;
 use Misery\Component\Common\Generator\UrlGenerator;
 
 class BasicAuthApiClient implements ApiClientInterface
@@ -13,14 +14,21 @@ class BasicAuthApiClient implements ApiClientInterface
     private mixed $status;
     private mixed $response;
     private UrlGenerator $urlGenerator;
+    private BasicApiEndpoints $endpoints;
 
     public function __construct($baseUri, $username, $password)
     {
         $this->baseUri = rtrim($baseUri, '/');
         $this->urlGenerator = new UrlGenerator($this->baseUri);
+        $this->endpoints = new BasicApiEndpoints();
 
         $this->username = $username;
         $this->password = $password;
+    }
+
+    public function getApiEndpoint(string $apiEndpoint): ApiEndpointInterface
+    {
+        return $this->endpoints->getEndPoint($apiEndpoint);
     }
 
     public function sendRequest($method, $endpoint, $data = null, $headers = []): void
@@ -121,5 +129,10 @@ class BasicAuthApiClient implements ApiClientInterface
     public function log(string $message, int $statusCode = null, $content): void
     {
         // TODO: Implement log() method.
+    }
+
+    public function getPaginator(string $startUrl): PaginationCursor
+    {
+        // TODO: Implement getPaginator() method.
     }
 }

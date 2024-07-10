@@ -34,4 +34,6 @@ interface ApiClientInterface
     public function getUrlGenerator(): UrlGenerator;
 
     public function getPaginator(string $startUrl): PaginationCursor;
+
+    public function getApiEndpoint(string $apiEndpoint): ApiEndpointInterface;
 }

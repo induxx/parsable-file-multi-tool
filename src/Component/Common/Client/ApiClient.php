@@ -13,6 +13,7 @@ class ApiClient implements ApiClientInterface
     private $authenticatedAccount;
     /** @var array */
     private $headers = [];
+    private ?ApiEndPointsInterface $endpoints = null;
 
     public function __construct(string $domain)
     {
@@ -23,8 +24,14 @@ class ApiClient implements ApiClientInterface
     {
         if (null === $this->handle) {
             $this->handle = \curl_init();
+            $this->endpoints = $account->getSupporterEndPoints();
             $this->authenticatedAccount = $account->authorize($this);
         }
+    }
+
+    public function getApiEndpoint(string $apiEndpoint): ApiEndpointInterface
+    {
+        return $this->endpoints->getEndPoint($apiEndpoint);
     }
 
     public function refreshToken(): void

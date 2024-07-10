@@ -33,32 +33,19 @@ class HttpReaderFactory implements RegisteredByNameInterface
 
             $endpoint = $configuration['endpoint'];
             $method = $configuration['method'];
+
+            Assert::that(
+                $endpoint,
+                'endpoint must be valid.'
+            )->notNull()->notEmpty();
+
             $context = ['filters' => []];
             $context['container'] = $configuration['container'] ?? null;
             $configContext = $config->getContext();
-            $endpointSet = [
-                ApiOptionsEndpoint::NAME => ApiOptionsEndpoint::class,
-                ApiAttributesEndpoint::NAME => ApiAttributesEndpoint::class,
-                ApiProductsEndpoint::NAME => ApiProductsEndpoint::class,
-                ApiProductModelsEndpoint::NAME => ApiProductModelsEndpoint::class,
-                ApiCategoriesEndpoint::NAME => ApiCategoriesEndpoint::class,
-                ApiReferenceEntitiesEndpoint::NAME => ApiReferenceEntitiesEndpoint::class,
-                ApiFamiliesEndpoint::NAME => ApiFamiliesEndpoint::class,
-                ApiFamilyVariantsEndpoint::NAME => ApiFamilyVariantsEndpoint::class,
-            ];
 
             if (isset($configuration['identifier_filter_list'])) {
                 $context['multiple'] = true;
                 $context['list'] = is_array($configuration['identifier_filter_list']) ? $configuration['identifier_filter_list'] : $config->getList($configuration['identifier_filter_list']);
-            }
-
-            $endpoint = $endpointSet[$endpoint] ?? new BasicApiEndpoint($endpoint);
-            Assert::that(
-                $endpoint,
-                'endpoint must be valid.'
-            )->notNull();
-            if (is_string($endpoint)) {
-                $endpoint = new $endpoint();
             }
 
             if (isset($configuration['filters'])) {
@@ -92,7 +79,7 @@ class HttpReaderFactory implements RegisteredByNameInterface
 
             return new ApiReader(
                 $account,
-                $endpoint,
+                $account->getApiEndpoint($endpoint),
                 $context + $configContext
             );
         }
