@@ -55,6 +55,9 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
             $item['identifier'] = $item[$identifier];
             unset($item[$identifier]);
         }
+        if (isset($item['categories']) && [] === $item['categories'] && false === $allowEmptyStringValues) {
+            unset($item['categories']);
+        }
 
         foreach ($item ?? [] as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;
