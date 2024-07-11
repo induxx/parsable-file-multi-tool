@@ -58,6 +58,9 @@ class StatementBuilder
             case 'DATE':
                 $statement = DateStatement::prepare(new SetValueAction());
                 break;
+            case 'REGEX':
+                $statement = RegexStatement::prepare(new SetValueAction());
+                break;
             case 'CHARLEN_GT':
                 $context['condition'] = 'greater_than';
                 $statement = CharlenStatement::prepare(new SetValueAction(), $context);
