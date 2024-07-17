@@ -13,8 +13,9 @@ class GenerateLineageCategoriesConverter implements ConverterInterface, ItemColl
     private array $collectedIds = [];
 
     private $options = [
-        'prefix_' => null,
+        'prefix' => null,
         'master' => null,
+        'lineage_separator' => '|',
     ];
 
     public function load(array $item): ItemCollection
@@ -31,7 +32,9 @@ class GenerateLineageCategoriesConverter implements ConverterInterface, ItemColl
      * it will create hierarchical categories and sort them from the most
      * general category to the most specific one.
      *
-     * Example Input JSON:
+     * option.prefix: purchase_
+     *
+     * Example Input JSON: (we build this from our product DataSet)
      * {"code":"purchase_women_clothing_bottoms_leggings_legging_long","parent":"purchase_women_clothing_bottoms_leggings","lineage":"women|clothing|bottoms|leggings"}
      *
      * Example Output:
@@ -42,7 +45,7 @@ class GenerateLineageCategoriesConverter implements ConverterInterface, ItemColl
      * code: purchase_women_clothing_bottoms_leggings_legging_long, parent: purchase_women_clothing_bottoms_leggings
      *
      * Define a ROOT category and changing your root
-     * master: purchase
+     * option.master: purchase
      * code: purchase_women, parent: purchase | NEW_ROOT
      *
      */
@@ -52,6 +55,7 @@ class GenerateLineageCategoriesConverter implements ConverterInterface, ItemColl
         $code = $item['code'];
         $parent = $item['parent'];
         $lineage = $item['lineage'];
+        $lineageSeparator = $this->getOption('lineage_separator');
 
         // Add the 'purchase_' prefix
         $prefix = $this->getOption('prefix');
@@ -59,7 +63,7 @@ class GenerateLineageCategoriesConverter implements ConverterInterface, ItemColl
         $master = $this->getOption('master');
 
         // Explode the lineage into an array
-        $lineageArray = explode('|', $lineage);
+        $lineageArray = explode($lineageSeparator, $lineage);
 
         // Initialize an empty array to store the results
         $categories = [];
