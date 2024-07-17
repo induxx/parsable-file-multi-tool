@@ -44,7 +44,7 @@ class GenerateLineageCategoriesConverter implements ConverterInterface, ItemColl
      * code: purchase_women_clothing_bottoms_leggings, parent: purchase_women_clothing_bottoms
      * code: purchase_women_clothing_bottoms_leggings_legging_long, parent: purchase_women_clothing_bottoms_leggings
      *
-     * Define a ROOT category and changing your root
+     * Define another ROOT category
      * option.master: purchase
      * code: purchase_women, parent: purchase | NEW_ROOT
      *
@@ -79,6 +79,7 @@ class GenerateLineageCategoriesConverter implements ConverterInterface, ItemColl
             // Create the parent category code
             $parentCode = $i > 0 ? $prefix . implode('_', array_slice($lineageArray, 0, $i)) : null;
 
+            // Define another ROOT category
             if ($parentCode === null && $master) {
                 $parentCode = $master;
             }
