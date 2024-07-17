@@ -41,6 +41,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\AkeneoProductApiConverter(),
     new Misery\Component\Converter\Akeneo\Api\ProductModel(),
     new Misery\Component\Converter\BCItemsApiConverter(),
+    new Misery\Component\Converter\GenerateLineageCategoriesConverter(),
     new Misery\Component\Converter\BCCategoriesApiConverter(),
     new Misery\Component\Converter\Akeneo\Api\Attribute(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
