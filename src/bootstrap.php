@@ -138,6 +138,7 @@ $actionRegistry
     ->register(Misery\Component\Action\FilterFieldAction::NAME, new Misery\Component\Action\FilterFieldAction())
     ->register(Misery\Component\Action\ExtensionAction::NAME, new Misery\Component\Action\ExtensionAction())
     ->register(\Misery\Component\Action\AkeneoValueFormatterAction::NAME, new Misery\Component\Action\AkeneoValueFormatterAction())
+    ->register(\Misery\Component\Action\AkeneoStructureFormatterAction::NAME, new Misery\Component\Action\AkeneoStructureFormatterAction())
     ->register(\Misery\Component\Action\ConvergenceAction::NAME, new Misery\Component\Action\ConvergenceAction())
     ->register(\Misery\Component\Action\ConverterAction::NAME, new Misery\Component\Action\ConverterAction())
     ->register(\Misery\Component\Action\ReverterAction::NAME, new Misery\Component\Action\ReverterAction())

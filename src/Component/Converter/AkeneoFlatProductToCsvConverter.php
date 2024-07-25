@@ -81,6 +81,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             'scope' => $explodedKeys[2] ?? null,
         ]];
     }
+
     public function getAkeneoDataStructure(string $attributeCode, $value, array $context)
     {
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
