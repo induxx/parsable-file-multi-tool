@@ -25,6 +25,7 @@ class AkeneoStructureFormatterAction implements OptionsInterface, ConfigurationA
         'context' => [
             'active_scopes' => [],
             'active_locales' => [],
+            'active_locales_per_channel' => [],
             'locale_mapping' => [],
             'scope_mapping' => [],
         ],
@@ -35,15 +36,16 @@ class AkeneoStructureFormatterAction implements OptionsInterface, ConfigurationA
     public function apply(array $item): array
     {
         $context = $this->getOption('context');
-        $activeLocales = $context['active_locales'];
-        $activeScopes = $context['active_scopes'];
+        $activeLocales = $context['active_locales'] ?? [];
+        $activeLocalesPerChannel = $context['active_locales_per_channel'] ?? [];
+        $activeScopes = $context['active_scopes'] ?? [];
         $restructures = $this->getOption('restructure');
-        $attributesList = $this->getOption('attributes_source');
+        $attributesSource = $this->getOption('attributes_source');
+        if (null === $attributesSource) {
+            return $item;
+        }
         /** @var ItemReader $attributes */
-        $attributes = $attributesList ?
-            $this->getConfiguration()->getSources()->get($attributesList)->getCachedReader():
-            null
-        ;
+        $attributes = $this->getConfiguration()->getSources()->get($attributesSource)->getCachedReader();
 
         foreach ($restructures as $restructure) {
             $output = [];
@@ -70,8 +72,7 @@ class AkeneoStructureFormatterAction implements OptionsInterface, ConfigurationA
                     ];
 
                     // TODO locale_mapping
-
-                    if ($value['locale'] && !in_array($value['locale'], $activeLocales)) {
+                    if ($value['locale'] && $activeLocales !== [] && !in_array($value['locale'], $activeLocales)) {
                         continue;
                     }
 
@@ -82,19 +83,23 @@ class AkeneoStructureFormatterAction implements OptionsInterface, ConfigurationA
                     // TODO scope_mapping
 
                     // scopable loop
-                    if ($scopable && !$value['scope']) {
+                    if ($scopable && null === $value['scope']) {
+                        //dump($value['locale']);
                         foreach ($activeScopes as $activeScope) {
-                            $value['scope'] = $activeScope;
-                            $matcher = Matcher::create('values|'.$fieldName, $value['locale'], $activeScope);
-                            $item[$matcher->getRowKey()] = $value['data'];
-                            unset($item[$fieldName]);
-                            if ($this->getOption('matcher_structure')) {
-                                $output[$k = $matcher->getRowKey()] = $value;
-                                $output[$k]['matcher'] = $matcher;
+                            $activeScopeLocales = $activeLocalesPerChannel[$activeScope] ?? [];
+                            //dump($activeLocales);
+                            if ($activeScopeLocales !== [] && in_array($value['locale'], $activeScopeLocales)) {
+                                $matcher = Matcher::create('values|'.$fieldName, $value['locale'], $activeScope);
+                                $item[$matcher->getRowKey()] = $value['data'];
+                                unset($item[$fieldName]);
+                                if ($this->getOption('matcher_structure')) {
+                                    $value['scope'] = $activeScope;
+                                    $output[$k = $matcher->getMainKey()] = $value;
+                                    $output[$k]['matcher'] = $matcher;
+                                }
                             }
                         }
                     }
-
                 }
             }
             if ($output !== []) {
