@@ -27,11 +27,13 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         'default_metrics:list' => [],
         'attribute_option_label_codes:list' => [],
         'set_default_metrics' => false,
+        'filter_option_codes' => true,
         'default_locale' => null,
         'default_scope' => null,
         'default_currency' => null,
         'container' => 'values',
         'option_label' => 'label-nl_BE',
+        'properties' => ['sku', 'family', 'parent'],
     ];
 
     private $decoder;
@@ -49,7 +51,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             }
 
             $value = $this->getAkeneoDataStructure($masterKey, $value, $context);
-            if (isset($value['data'])) {
+            if (is_array($value) && array_key_exists('data', $value)) {
                 $matcher = Matcher::create($container.'|'.$masterKey, $value['locale'], $value['scope']);
                 $tmp[$k = $matcher->getMainKey()] = $value;
                 $tmp[$k]['matcher'] = $matcher;
@@ -79,6 +81,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             'scope' => $explodedKeys[2] ?? null,
         ]];
     }
+
     public function getAkeneoDataStructure(string $attributeCode, $value, array $context)
     {
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
@@ -114,13 +117,38 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 break;
             case AkeneoHeaderTypes::SELECT:
                 // TODO implement attributes reader
-                $value = $this->filterOptionCode($attributeCode, $value);
+                if ($this->getOption('filter_option_codes')) {
+                    $value = $this->filterOptionCode($attributeCode, $value);
+                }
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
                 // TODO implement attributes reader
-                if (is_array($value)) {
+                if (is_array($value) && $this->getOption('filter_option_codes')) {
                     $value = $this->filterOptionCodes($attributeCode, $value);
                 }
+                if (is_string($value)) {
+                    $value = [$value];
+                }
+                break;
+            case AkeneoHeaderTypes::PRICE:
+                $amount = null;
+                $unit = $this->getOption('default_currency');
+                if (is_numeric($value)) {
+                    $amount = $this->numberize($value);
+                }
+                if (is_array($value)) {
+                    if (array_key_exists('amount', $value)) {
+                        $amount = $value['amount'];
+                    }
+                    if (array_key_exists('currency', $value)) {
+                        $unit = $value['currency'];
+                    }
+                }
+
+                $value = [[
+                    'amount' => $amount,
+                    'currency' => $unit,
+                ]];
                 break;
             case AkeneoHeaderTypes::METRIC:
                 $amount = null;
@@ -142,7 +170,12 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                     'unit' => $unit,
                 ];
                 break;
-            case AkeneoHeaderTypes::PRICE:
+            case AkeneoHeaderTypes::REFDATA_MULTISELECT:
+                if (is_string($value)) {
+                    $value = [$value];
+                }
+                break;
+            case AkeneoHeaderTypes::REFDATA_SELECT:
                 // no changes
                 break;
         }

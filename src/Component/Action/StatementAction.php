@@ -53,6 +53,9 @@ class StatementAction implements OptionsInterface, ConfigurationAwareInterface
                 $action = new CopyAction();
                 $action->setOptions($then);
             }
+            if ($then['action'] === 'debug') {
+                $action = new DebugAction();
+            }
 
             if ($then['action'] === 'combine') {
                 $action = new CombineAction();

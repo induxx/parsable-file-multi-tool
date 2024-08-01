@@ -14,6 +14,7 @@ class ListMapperAction implements ActionInterface, OptionsInterface
     /** @var array */
     private $options = [
         'field' => null,
+        'store_field' => null,
         'list' => [],
     ];
 
@@ -21,7 +22,7 @@ class ListMapperAction implements ActionInterface, OptionsInterface
     {
         $value = $item[$this->options['field']] ?? null;
         if ($value && array_key_exists($value, $this->options['list'])) {
-            $item[$this->options['field']] = $this->options['list'][$value];
+            $item[$this->getOption('store_field', $this->getOption('field'))] = $this->options['list'][$value];
         }
 
         return $item;

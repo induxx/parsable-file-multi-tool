@@ -13,6 +13,7 @@ class ApiClient implements ApiClientInterface
     private $authenticatedAccount;
     /** @var array */
     private $headers = [];
+    private ?ApiEndPointsInterface $endpoints = null;
 
     public function __construct(string $domain)
     {
@@ -23,8 +24,14 @@ class ApiClient implements ApiClientInterface
     {
         if (null === $this->handle) {
             $this->handle = \curl_init();
+            $this->endpoints = $account->getSupporterEndPoints();
             $this->authenticatedAccount = $account->authorize($this);
         }
+    }
+
+    public function getApiEndpoint(string $apiEndpoint): ApiEndpointInterface
+    {
+        return $this->endpoints->getEndPoint($apiEndpoint);
     }
 
     public function refreshToken(): void
@@ -189,7 +196,7 @@ class ApiClient implements ApiClientInterface
     {
         $this->generateHeaders();
 
-        \curl_setopt($this->handle, CURLOPT_HEADER, false);
+        \curl_setopt($this->handle, CURLOPT_HEADER, true);
         \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
 
         // obtain response
@@ -198,6 +205,13 @@ class ApiClient implements ApiClientInterface
         if (in_array($status, [200, 204]) && !$content) {
             return ApiResponse::create([], $status);
         }
+
+        // extract body
+        $headerSize = curl_getinfo($this->handle, CURLINFO_HEADER_SIZE);
+        $headers = substr($content, 0, $headerSize);
+        $content = substr($content, $headerSize);
+        $headers = $this->getResponseHeaders($headers);
+
         $multi = [];
         foreach (explode("\n", $content) as $c) {
             $multi[] = \json_decode($c, true);
@@ -219,10 +233,33 @@ class ApiClient implements ApiClientInterface
             return ApiResponse::createFromMulti($multi);
         }
         if (count($multi) === 1) {
-            return ApiResponse::create($multi[0], $status);
+            return ApiResponse::create($multi[0], $status, $headers);
         }
 
         return ApiResponse::create([], $status);
+    }
+
+    public function getPaginator(string $startUrl): PaginationCursor
+    {
+        return $this->authenticatedAccount->getAccount()->getPaginator($this, $startUrl);
+    }
+
+    private function getResponseHeaders($respHeaders): array
+    {
+        $headers = [];
+        $headerText = substr($respHeaders, 0, strpos($respHeaders, "\r\n\r\n"));
+
+        foreach (explode("\r\n", $headerText) as $i => $line) {
+            if ($i === 0) {
+                continue;
+            } else {
+                list ($key, $value) = explode(': ', $line);
+
+                $headers[$key] = $value;
+            }
+        }
+
+        return $headers;
     }
 
     private function setAuthenticationHeaders(): void

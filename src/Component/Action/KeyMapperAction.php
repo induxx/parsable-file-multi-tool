@@ -24,10 +24,30 @@ class KeyMapperAction implements OptionsInterface
     private $options = [
         'key' => null,
         'list' => [],
+        'reverse' => false,
     ];
 
     public function apply(array $item): array
     {
+        $reverse = $this->getOption('reverse');
+        if ($reverse) {
+            $list = array_filter($this->getOption('list'));
+
+            $keys = [];
+            foreach ($list as $key => $value) {
+                $newKey = $this->findMatchedValueData($item, $key) ?? $key;
+                if (array_key_exists($value, $item)) {
+                    $item[$newKey] = $item[$value];
+                    $keys[] = $value;
+                }
+            }
+            // Unset the collected keys
+            foreach ($keys as $keyToUnset) {
+                unset($item[$keyToUnset]);
+            }
+            return $item;
+        }
+
         if ($key = $this->getOption('key')) {
             $item[$key] = $this->map($item[$key], $this->getOption('list'));
             return $item;

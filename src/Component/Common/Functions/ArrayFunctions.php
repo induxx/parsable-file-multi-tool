@@ -43,19 +43,33 @@ class ArrayFunctions
      * @param array $array
      * @param string $prefix
      * @param mixed $separator
+     * @param array $targetList
+     * @param bool $preserveIntKeys
      *
      * @return array
      */
-    public static function flatten(array $array, $separator = '.', $prefix = '')
+    public static function flatten(array $array, string $separator = '.', string $prefix = '', array $targetList = [], bool $preserveIntKeys = false)
     {
         $result = [];
         foreach ($array as $key => $value) {
-            if (\is_array($value) && !empty($value)) {
-                $result += static::flatten($value, $separator, $prefix . $key . $separator);
+            // If whitelist is not empty and key is not in whitelist, skip this key
+            if (!empty($targetList) && !in_array($key, $targetList, true)) {
+                $result[$key] = $value;
                 continue;
             }
 
-            $result[$key === '' ? \rtrim($prefix, $separator): $prefix . $key] = $value;
+            // If the key is an integer and preserveIntKeys is true, do not flatten this part of the array
+            if ($preserveIntKeys && is_int($key)) {
+                $result[rtrim($prefix, $separator)][$key] = $value;
+            }
+
+            if (is_array($value) && $value !== []) {
+                $result += static::flatten($value, $separator, $prefix . $key . $separator, [], $preserveIntKeys);
+                continue;
+            }
+
+            $finalKey = $key === '' ? rtrim($prefix, $separator) : $prefix . $key;
+            $result[$finalKey] = $value;
         }
 
         return $result;

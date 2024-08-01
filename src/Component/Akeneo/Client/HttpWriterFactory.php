@@ -32,22 +32,10 @@ class HttpWriterFactory implements RegisteredByNameInterface
             $endpoint = $configuration['endpoint'];
             $method = $configuration['method'];
 
-            $endpointSet = [
-                ApiAttributesEndpoint::NAME => ApiAttributesEndpoint::class,
-                ApiOptionsEndpoint::NAME => ApiOptionsEndpoint::class,
-                ApiProductsEndpoint::NAME => ApiProductsEndpoint::class,
-                ApiProductModelsEndpoint::NAME => ApiProductModelsEndpoint::class,
-                ApiCategoriesEndpoint::NAME => ApiCategoriesEndpoint::class,
-                ApiReferenceEntitiesEndpoint::NAME => ApiReferenceEntitiesEndpoint::class,
-                ApiFamiliesEndpoint::NAME => ApiFamiliesEndpoint::class,
-                ApiFamilyVariantsEndpoint::NAME => ApiFamilyVariantsEndpoint::class,
-            ];
-
-            $endpoint = $endpointSet[$endpoint] ?? null;
             Assert::that(
                 $endpoint,
                 'endpoint must be valid.'
-            )->notNull();
+            )->notNull()->notEmpty();
 
             $accountCode = (isset($configuration['account'])) ? $configuration['account'] : 'target_resource';
             $account = $config->getAccount($accountCode);
@@ -58,7 +46,7 @@ class HttpWriterFactory implements RegisteredByNameInterface
 
             return new ApiWriter(
                 $account,
-                new $endpoint,
+                $account->getApiEndpoint($endpoint),
                 $method,
                 $config->getLogger()
             );

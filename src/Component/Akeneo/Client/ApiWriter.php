@@ -77,7 +77,7 @@ class ApiWriter implements ItemWriterInterface
             $response = $this->execute($data);
         } catch (\RuntimeException $e) {
             // do nothing
-            throw new InvalidItemException('API Runtime exception', [], $data);
+            throw new InvalidItemException('API Runtime exception', ['message' => 'Unexpected Runtime exception thrown'], $data);
         } catch (UnauthorizedException $e) {
             $this->client->refreshToken();
             $response = $this->execute($data);
