@@ -2,7 +2,6 @@
 
 namespace Misery\Component\Writer;
 
-use XLSXWriter;
 use ZipArchive;
 
 class Xlsx
@@ -176,7 +175,7 @@ class Xlsx
             'sheetname' => $sheet_name,
             'xmlname' => $sheet_xmlname,
             'row_count' => 0,
-            'file_writer' => new \XLSXWriter_BuffererWriter($sheet_filename),
+            'file_writer' => new XlsxWriter_BuffererWriter($sheet_filename),
             'columns' => array(),
             'merge_cells' => array(),
             'max_cell_tag_start' => 0,
@@ -189,7 +188,7 @@ class Xlsx
         $rightToLeftValue = $this->isRightToLeft ? 'true' : 'false';
         $sheet = &$this->sheets[$sheet_name];
         $tabselected = count($this->sheets) == 1 ? 'true' : 'false';//only first sheet is selected
-        $max_cell = XLSXWriter::xlsCell(self::EXCEL_2007_MAX_ROW, self::EXCEL_2007_MAX_COL);//XFE1048577
+        $max_cell = self::xlsCell(self::EXCEL_2007_MAX_ROW, self::EXCEL_2007_MAX_COL);//XFE1048577
         $sheet->file_writer->write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n");
         $sheet->file_writer->write('<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">');
         $sheet->file_writer->write('<sheetPr filterMode="false">');
@@ -558,7 +557,7 @@ class Xlsx
         $style_indexes = $r['styles'];
 
         $temporary_filename = $this->tempFilename();
-        $file = new XLSXWriter_BuffererWriter($temporary_filename);
+        $file = new XlsxWriter_BuffererWriter($temporary_filename);
         $file->write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n");
         $file->write('<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">');
         $file->write('<numFmts count="' . count($this->number_formats) . '">');
@@ -1056,7 +1055,7 @@ class Xlsx
     //------------------------------------------------------------------
 }
 
-class XLSXWriter_BuffererWriter
+class XlsxWriter_BuffererWriter
 {
     protected $fd = null;
     protected $buffer = '';
@@ -1067,7 +1066,7 @@ class XLSXWriter_BuffererWriter
         $this->check_utf8 = $check_utf8;
         $this->fd = fopen($filename, $fd_fopen_flags);
         if ($this->fd === false) {
-            XLSXWriter::log("Unable to open $filename for writing.");
+            XlsxWriter::log("Unable to open $filename for writing.");
         }
     }
 
@@ -1083,7 +1082,7 @@ class XLSXWriter_BuffererWriter
     {
         if ($this->fd) {
             if ($this->check_utf8 && !self::isValidUTF8($this->buffer)) {
-                XLSXWriter::log("Error, invalid UTF8 encoding detected.");
+                XlsxWriter::log("Error, invalid UTF8 encoding detected.");
                 $this->check_utf8 = false;
             }
             fwrite($this->fd, $this->buffer);
