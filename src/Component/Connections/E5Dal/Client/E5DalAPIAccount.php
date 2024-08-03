@@ -1,13 +1,13 @@
 <?php
 
-namespace Misery\Component\Connections\Dal\Client;
+namespace Misery\Component\Connections\E5Dal\Client;
 
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndPointsInterface;
 use Misery\Component\Common\Client\AuthenticatedAccount;
 use Misery\Component\Common\Client\PaginationCursor;
-use Misery\Component\Connections\Dal\Client\Endpoints\DalApiEndpoints;
+use Misery\Component\Connections\E5Dal\Client\Endpoints\E5DalApiEndpoints;
 
 class E5DalAPIAccount implements ApiClientAccountInterface
 {
@@ -29,7 +29,7 @@ class E5DalAPIAccount implements ApiClientAccountInterface
 
     public function getSupporterEndPoints(): ApiEndPointsInterface
     {
-        return new DalApiEndpoints();
+        return new E5DalApiEndpoints();
     }
 
     public function getPaginator(ApiClientInterface $client, string $endpoint): PaginationCursor

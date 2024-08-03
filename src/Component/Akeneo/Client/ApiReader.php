@@ -2,15 +2,10 @@
 
 namespace Misery\Component\Akeneo\Client;
 
-use Assert\Assert;
-use Misery\Component\Common\Client\ApiClient;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\Paginator;
-use Misery\Component\Common\Client\InMemoryPaginator;
 use Misery\Component\Common\Utils\ValueFormatter;
-use Misery\Component\Connections\Dal\Client\PaginationCursor;
-use Misery\Component\Reader\ItemCollection;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Reader\ReaderInterface;
 
@@ -126,13 +121,16 @@ class ApiReader implements ReaderInterface
            return $this->readMultiple();
         }
 
-        // new Paginator
-        if (null === $this->page) {
-            $this->page = $this->client->getPaginator($this->endpoint->getAll());
+        // TODO we need to align all readers together into this version
+        if (str_contains($this->endpoint::class, '')) {
+            // new Paginator
+            if (null === $this->page) {
+                $this->page = $this->client->getPaginator($this->endpoint->getAll());
+            }
+            $item = $this->page->current();
+            $this->page->next();
+            return $item;
         }
-        $item = $this->page->current();
-        $this->page->next();
-        return $item;
 
         if (null === $this->page) {
             $this->page = Paginator::create($this->client, $this->request());
