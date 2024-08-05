@@ -1,6 +1,6 @@
 <?php
 
-namespace Misery\Component\Connections\Dal\Client;
+namespace Misery\Component\Connections\E5Dal\Client;
 
 use Misery\Component\Common\Client\PaginationCursor;
 use Misery\Component\Reader\ItemCollection;

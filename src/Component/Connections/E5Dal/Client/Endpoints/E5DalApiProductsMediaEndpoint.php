@@ -1,10 +1,10 @@
 <?php
 
-namespace Misery\Component\Connections\Dal\Client\Endpoints;
+namespace Misery\Component\Connections\E5Dal\Client\Endpoints;
 
 use Misery\Component\Common\Client\ApiEndpointInterface;
 
-class ApiProductsMediaEndpoint implements ApiEndpointInterface
+class E5DalApiProductsMediaEndpoint implements ApiEndpointInterface
 {
     public const NAME = 'products_media';
 
