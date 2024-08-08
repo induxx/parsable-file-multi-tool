@@ -122,7 +122,7 @@ class ApiReader implements ReaderInterface
         }
 
         // TODO we need to align all readers together into this version
-        if (str_contains($this->endpoint::class, '')) {
+        if (str_contains($this->endpoint::class, 'E5DalApi')) {
             // new Paginator
             if (null === $this->page) {
                 $this->page = $this->client->getPaginator($this->endpoint->getAll());
