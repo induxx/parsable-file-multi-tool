@@ -51,7 +51,8 @@ class ConvergenceAction implements OptionsInterface
             $value = $item[$fieldKey]['data'] ?? $item[$fieldKey] ?? $item[$key]['data'] ?? null;
 
             // Include only the fields with assigned values
-            if ($value !== null) {
+            // only for string data types
+            if (is_string($value)) {
                 // Encapsulate keys and values if needed
                 $fieldKey = $encapsulate ? $encapsulationChar . $fieldKey . $encapsulationChar : $fieldKey;
                 $value = $encapsulate ? $encapsulationChar . $value . $encapsulationChar : $value;
