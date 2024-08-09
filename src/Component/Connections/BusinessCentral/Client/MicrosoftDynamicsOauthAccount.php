@@ -4,9 +4,11 @@ namespace Misery\Component\Connections\BusinessCentral\Client;
 
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiClientInterface;
+use Misery\Component\Common\Client\ApiEndPointsInterface;
 use Misery\Component\Common\Client\AuthenticatedAccount;
 use Misery\Component\Common\Generator\UrlGenerator;
 use Misery\Component\Common\Utils\ValueFormatter;
+use Misery\Component\Connections\BusinessCentral\Client\EndPoints\MicrosoftDynamicsApiEndpoints;
 
 class MicrosoftDynamicsOauthAccount implements ApiClientAccountInterface
 {
@@ -72,5 +74,10 @@ class MicrosoftDynamicsOauthAccount implements ApiClientAccountInterface
 
     public function refresh(ApiClientInterface $client, AuthenticatedAccount $account): AuthenticatedAccount
     {
+    }
+
+    public function getSupporterEndPoints(): ApiEndPointsInterface
+    {
+        return new MicrosoftDynamicsApiEndpoints();
     }
 }
