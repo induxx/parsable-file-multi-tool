@@ -188,6 +188,10 @@ $factoryRegistry->registerAllByName(
     new Misery\Component\Source\SourceCollectionFactory(),
     new Misery\Component\Common\Pipeline\PipelineFactory(),
     new Misery\Component\BluePrint\BluePrintFactory(__DIR__.'/../config/blueprint'),
+    new Misery\Component\Project\ProjectDirectories(
+        __DIR__.'/../config/blueprint',
+        __DIR__.'/../config/template',
+    ),
     new Misery\Component\Statement\StatementFactory(),
     new Misery\Component\Reader\ItemReaderFactory(),
     new Misery\Component\Parser\ItemParserFactory(),
