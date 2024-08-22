@@ -16,14 +16,17 @@ If you like to add support to the template system, make sure you have the requir
 You can the API in 3 different Styles: JSON, CSV & as ITEM.
 
 [JSON] will not change anything, all Payloads are as is.
-Multi-dimensional Structure are kept.
-The Style is not very flexible, to make structural changes or the read multi-dimensional data.
+Multidimensional Payload Structure is kept (We don't use any converters).
+The Style is not very flexible, to make structural changes or the read multidimensional data.
 
 [CSV] will convert the Payload to CSV style flat data.
 This style is not very flexible to make structural changes.
+The data is flat, so it's relatively easy to manipulate but looses on structural integrity, as you don't have contextual awareness.
 
 [ITEM] will convert the Payload into a easy parsable Item, 
-this type will give you the most flexibility to manipulate the data.
+The data becomes discoverable, searchable across other 
+This type will give you the most flexibility to manipulate the data.
+You can export to CSV and/or API from this point.
 
 ### Examples
 
@@ -39,6 +42,10 @@ transformation_steps:
 In this example the only custom file is change_other_attributes.yaml.
 
 ```yaml
+context:
+  akeneo_read_connection: '%source_resource%'
+  akeneo_write_connection: '%target_resource%'
+
 transformation_steps:
   - {'run': akeneo/json/pull_akeneo-entities.yaml, 'with': {'endpoint': ['attributes']}}
   # DO SOMETHING
