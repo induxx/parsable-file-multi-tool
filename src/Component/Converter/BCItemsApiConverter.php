@@ -66,7 +66,7 @@ class BCItemsApiConverter implements ConverterInterface, ReaderAwareInterface, R
         $expand = $this->getOption('expand');
 
         unset($item['@odata.etag']);
-        $tmp['sku'] = $item['no'];
+        $tmp['sku'] = $item['no'] ?? $item['number'];
 
         $this->processCharacteristics(
             $item,
