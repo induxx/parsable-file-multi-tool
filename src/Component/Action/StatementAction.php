@@ -57,6 +57,11 @@ class StatementAction implements OptionsInterface, ConfigurationAwareInterface
                 $action = new DebugAction();
             }
 
+            if ($then['action'] === 'remove') {
+                $action = new RemoveAction();
+                $action->setOptions($then);
+            }
+
             if ($then['action'] === 'combine') {
                 $action = new CombineAction();
                 $action->setOptions($then);
