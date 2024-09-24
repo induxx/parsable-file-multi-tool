@@ -21,6 +21,7 @@ class FormatAction implements OptionsInterface
         'index' => null,
         'decimal_sep' => '.',
         'mille_sep' => ',',
+        'multi_value' => true,
     ];
 
     public function apply(array $item): array
@@ -41,7 +42,7 @@ class FormatAction implements OptionsInterface
         if (!isset($item[$field])) {
             return $item;
         }
-        if (is_array($item[$field])) {
+        if (is_array($item[$field]) && $this->getOption('multi_value')) {
             $item[$field] = array_map(function ($value) {
                 return $this->doApply($value);
             }, $item[$field]);

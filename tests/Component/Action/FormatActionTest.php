@@ -153,4 +153,21 @@ class FormatActionTest extends TestCase
 
         $this->assertEquals(['field' => 'A'], $result);
     }
+
+    public function testApplySelectIndexNoMultiValFunction()
+    {
+        $item = ['field' => ['A']];
+
+        $action = new FormatAction();
+        $action->setOptions([
+            'field' => 'field',
+            'functions' => ['select_index'],
+            'index' => 0,
+            'multi_value' => false,
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field' => 'A'], $result);
+    }
 }
