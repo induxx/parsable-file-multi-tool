@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Component\ChangeManager\ChangeManager;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
@@ -44,6 +45,7 @@ class Configuration
     /** @var ApiClient[] */
     private $accounts;
     private $isMultiStep = false;
+    public ChangeManager $changeManager;
 
     private array $extensions = [];
 
