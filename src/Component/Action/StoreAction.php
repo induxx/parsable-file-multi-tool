@@ -69,37 +69,43 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             $changeManagerData = $this->getOption('change_manager');
 
             // label maker process based on change_manager array
-            $labels = (new ChangeSetLabelMaker('product'));
-            if (true === $changeManagerData['all_values'] && isset($item['values'])) {
-                $labels->addSubDomainProperties('values', array_keys($item['values']));
-            }
-            $labels = $labels->build();
-
-            if ($changeManager->hasChanges($identifier, $item, $labels)) {
-                // start true_action
-                // make changes list
-                $changes = $changeManager->getChanges($identifier);
-                $this->configuration->addLists([
-                    'product_changes_fields_added' => $changes['added'],
-                    'product_changes_fields_deleted' => $changes['deleted'],
-                    'product_changes_fields_updated' => $changes['updated'],
-                    'product_changes_fields_all' => $changes['all'],
-                ]);
-
-                // see GroupAction, get ActionProcessor, process your action(s)
-                if ([] !== $trueAction) {
-                    $item = $this->trueActionProcessor->process($item);
+            foreach (['nl_BE', 'fr_BE'] as $locale) {
+                $labels = (new ChangeSetLabelMaker('product'));
+                if (true === $changeManagerData['all_values'] && isset($item['values'])) {
+                    $labels->addSubDomainProperties('values', array_keys($item['values']));
                 }
 
-                //$this->storeProduct($identifier);
-            } else {
-                // see GroupAction, get actionProcessor, process your action(s)
-                if ([] !== $falseAction) {
-                    $item = $this->falseActionProcessor->process($item);
-                }
+                $labels->addLocale($locale);
+                $labels = $labels->build();
 
-                // start false_action if any
+                if ($changeManager->hasChanges($identifier, $item, $labels)) {
+                    // start true_action
+                    // make changes list
+                    $changes = $changeManager->getChanges($identifier);
+
+                    $this->configuration->addLists([
+                        'product_changes_fields_added' => $changes['added'],
+                        'product_changes_fields_deleted' => $changes['deleted'],
+                        'product_changes_fields_updated' => $changes['updated'],
+                        'product_changes_fields_all' => $changes['all'],
+                    ]);
+
+                    // see GroupAction, get ActionProcessor, process your action(s)
+                    if ([] !== $trueAction) {
+                        $item = $this->trueActionProcessor->process($item);
+                    }
+
+                    //$this->storeProduct($identifier);
+                } else {
+                    // see GroupAction, get actionProcessor, process your action(s)
+                    if ([] !== $falseAction) {
+                        $item = $this->falseActionProcessor->process($item);
+                    }
+
+                    // start false_action if any
+                }
             }
+
         }
 
         return $item;
