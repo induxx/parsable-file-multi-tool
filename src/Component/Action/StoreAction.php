@@ -78,7 +78,7 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             if ($changeManager->hasChanges($identifier, $item, $labels)) {
                 // start true_action
                 // make changes list
-                $changes = $changeManager->getChanges($identifier);
+                $changes = $changeManager->getChanges($identifier, 'product.values');
                 $this->configuration->addLists([
                     'product_changes_fields_added' => $changes['added'],
                     'product_changes_fields_deleted' => $changes['deleted'],
