@@ -28,8 +28,14 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
     private $options = [
         'event' => null,
         'identifier' => null,
+        'entity' => 'product',
         'change_manager' => [
             'all_values' => true,
+            'values' => [],
+            'context' => [
+                'locales' => [],
+                'scope' => null,
+            ],
         ],
         'init' => false,
         'true_action' => [],
@@ -55,8 +61,8 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
     public function apply(array $item): array
     {
         $this->init();
-
-        $identifier = 'product:'.$item['identifier']; // $this->getOption('identifier');
+        $entity = $this->getOption('entity');
+        $identifier =  $entity.':'.$item['identifier']; // $this->getOption('identifier');
         $event = $this->getOption('event');
         if (empty($identifier) || empty($event)) {
             return $item;
@@ -69,16 +75,24 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             $changeManagerData = $this->getOption('change_manager');
 
             // label maker process based on change_manager array
-            $labels = (new ChangeSetLabelMaker('product'));
-            if (true === $changeManagerData['all_values'] && isset($item['values'])) {
+            $labels = (new ChangeSetLabelMaker($entity));
+            if (!empty($changeManagerData['values']) && isset($item['values'])) {
+                $labels->addSubDomainProperties('values', $changeManagerData['values']);
+            } elseif (true === $changeManagerData['all_values'] && isset($item['values'])) {
                 $labels->addSubDomainProperties('values', array_keys($item['values']));
+            }
+            if (isset($changeManagerData['context']['scope'])) {
+                $labels->addScope($changeManagerData['context']['scope']);
+            }
+            if (isset($changeManagerData['context']['locales'])) {
+                $labels->addLocales($changeManagerData['context']['locales']);
             }
             $labels = $labels->build();
 
             if ($changeManager->hasChanges($identifier, $item, $labels)) {
                 // start true_action
                 // make changes list
-                $changes = $changeManager->getChanges($identifier, 'product.values');
+                $changes = $changeManager->getChanges($identifier, $entity.'.values');
                 $this->configuration->addLists([
                     'product_changes_fields_added' => $changes['added'],
                     'product_changes_fields_deleted' => $changes['deleted'],
