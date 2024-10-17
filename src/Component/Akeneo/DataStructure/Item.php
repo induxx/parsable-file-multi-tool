@@ -81,6 +81,6 @@ class Item
 
     public function getDataValue()
     {
-        return $this->value['data'] ?? $this->value;
+        return $this->value['data'] ?? null;
     }
 }
