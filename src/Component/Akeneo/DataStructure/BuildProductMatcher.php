@@ -39,13 +39,14 @@ class BuildProductMatcher
      *  - Scope-able: "values|color|ecom"
      *  - localizable: "values|color|nl_BE"
      **/
-    public static function fromApiPayload(array $productData): array
+    public static function fromApiPayload(array $productData, array $attributeData = []): array
     {
         $newProduct = [];
         foreach ($productData['values'] ?? [] as $attributeCode => $productValues) {
             foreach ($productValues as $productValue) {
+                $attribute = $attributeData[$attributeCode] ?? [];
                 $matcher = Matcher::create('values|'.$attributeCode, $productValue['locale'], $productValue['scope']);
-                $newProduct[$k = $matcher->getMainKey()] = $productValue;
+                $newProduct[$k = $matcher->getMainKey()] = $productValue + $attribute;
                 $newProduct[$k]['matcher'] = $matcher;
             }
         }
