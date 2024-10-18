@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Component\ChangeManager\ChangeManager;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Pipeline\ActionPipe;
@@ -46,6 +47,11 @@ class ConfigurationFactory
             $additionalSources,
             $extensions
         );
+    }
+
+    public function setChangeManager(ChangeManager $changeManager)
+    {
+        $this->config->changeManager = $changeManager;
     }
 
     public function parseDirectivesFromConfiguration(array $configuration): Configuration
