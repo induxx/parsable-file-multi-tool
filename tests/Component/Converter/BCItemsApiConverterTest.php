@@ -14,25 +14,52 @@ class BCItemsApiConverterTest extends TestCase
         // Define test data
         $converter = new BCItemsApiConverter();
         $converter->setOptions([
-            'expand' => ['itemUnitOfMeasuresPieces', 'itemtranslations', 'itemreferences', 'itemCategories'],
+            'expand' => ['itemUnitOfMeasuresPieces', 'itemtranslations', 'itemreferences', 'itemCategories', 'itemContributions'],
             'mappings:list' => [
-
+                'itemtranslations' => [
+                    'typeName' => 'type_name',
+                    'itemDescriptionERP' => 'article_description_erp',
+                ],
+                'itemContributions' => [
+                    'typeCode' => 'RECUPEL',
+                ],
+                'itemUnitOfMeasuresPieces' => [
+                    'length' => 'package_length',
+                    'width' => 'package_width',
+                    'height' => 'package_height',
+                    'weight' => 'package_weight',
+                ],
+                'itemUnitOfMeasuresPallet' => [
+                    'length' => 'package_length',
+                    'width' => 'package_width',
+                    'height' => 'package_height',
+                    'weight' => 'package_weight',
+                    'qtyPerUnitOfMeasure' => 'amount_per_pallet',
+                ],
+                'itemUnitOfMeasuresColli' => [
+                    'length' => 'package_length',
+                    'width' => 'package_width',
+                    'height' => 'package_height',
+                    'weight' => 'package_weight',
+                    'qtyPerUnitOfMeasure' => 'amount_per_pallet',
+                ],
             ],
             'attributes:list' => [
-                'sku', 'itemDescriptionERP', 'unitPrice',
+                'sku', 'article_description_erp', 'unitPrice', 'package_length', 'package_width', 'package_height', 'package_weight', 'RECUPEL',
             ],
             'attribute_types:list' => [
-                'length' => AkeneoHeaderTypes::METRIC,
-                'width' => AkeneoHeaderTypes::METRIC,
-                'height' => AkeneoHeaderTypes::METRIC,
-                'itemDescriptionERP' => AkeneoHeaderTypes::TEXT,
+                'package_length' => AkeneoHeaderTypes::METRIC,
+                'package_width' => AkeneoHeaderTypes::METRIC,
+                'package_height' => AkeneoHeaderTypes::METRIC,
+                'article_description_erp' => AkeneoHeaderTypes::TEXT,
                 'unitPrice' => AkeneoHeaderTypes::TEXT,
+                'RECUPEL' => AkeneoHeaderTypes::SELECT,
             ],
             'localizable_attribute_codes:list' => [
-                'itemDescriptionERP'
+                'article_description_erp'
             ],
             'scopable_attribute_codes:list' => [],
-            'default_metrics:list' => ['length' => 'METER', 'width' => 'METER', 'height' => 'METER'],
+            'default_metrics:list' => ['package_length' => 'METER', 'package_width' => 'METER', 'package_height' => 'METER'],
             'attribute_option_label_codes:list' => [],
             'set_default_metrics' => TRUE,
             'default_locale' => 'en_US',
@@ -42,72 +69,59 @@ class BCItemsApiConverterTest extends TestCase
             'option_label' => 'label-nl_BE',
         ]);
 
-        $item = [
-            '@odata.etag' => 'etag_value',
-            'no' => 'SKU123',
-            'unitPrice' => 25.5,
-            'tariffNo' => '123456',
-            'standard_delivery_time' => 3,
-            'itemUnitOfMeasuresPieces' => [
-                ['length' => 10, 'width' => 5, 'height' => 2, 'qtyPerUnitOfMeasure' => 1],
-            ],
-            'itemtranslations' => [
-                ['itemDescriptionERP' => 'Product Description', 'typeName' => 'Product Type'],
-            ],
-            'itemreferences' => [
-                ['referenceNo' => 'REF123'],
-            ],
-            'itemCategories' => [
-                ['code' => 'category1'],
-                ['code' => 'category2'],
-            ],
-        ];
+        $item = json_decode(file_get_contents(__DIR__ . '/data/bc_article.json'), true);
 
         // Perform the conversion
         $result = $converter->convert($item);
 
         // Define the expected result
         $expectedResult = [
-            'sku' => 'SKU123',
-            'categories' => ['category1','category2'],
+            'sku' => '1001000023',
+            'categories' => ['1001'],
             'values|unitPrice' => [
                 'locale' => null,
                 'scope' => null,
-                'data' =>  25.5,
+                'data' =>  73.6,
                 'matcher' => Matcher::create('values|unitPrice'),
             ],
-            'values|length' => [
-                'locale' => null,
-                'scope' => null,
-                'data' =>  [
-                    'amount' => 10,
-                     'unit' => 'METER',
-                ],
-                'matcher' => Matcher::create('values|length'),
-            ],
-            'values|width' => [
-                'locale' => null,
-                'scope' => null,
-                'data' =>  [
-                    'amount' => 5,
-                    'unit' => 'METER',
-                ],
-                'matcher' => Matcher::create('values|width'),
-            ],
-            'values|height' => [
-                'locale' => null,
-                'scope' => null,
-                'data' =>  [
-                    'amount' => 2,
-                    'unit' => 'METER',
-                ],
-                'matcher' => Matcher::create('values|height'),
-            ],
-            'values|itemDescriptionERP' => [
+            'values|article_description_erp' => [
                 'locale' => 'en_US',
                 'scope' => null,
-                'data' => 'Product Description',
-                'matcher' => Matcher::create('values|itemDescriptionERP'),
+                'data' =>  'Badkamerventilator met timer',
+                'matcher' => Matcher::create('values|article_description_erp'),
+            ],
+            'values|package_length' => [
+                'locale' => null,
+                'scope' => null,
+                'data' =>  [
+                    'amount' => 0,
+                    'unit' => 'METER',
+                ],
+                'matcher' => Matcher::create('values|package_length'),
+            ],
+            'values|package_width' => [
+                'locale' => null,
+                'scope' => null,
+                'data' =>  [
+                    'amount' => 0,
+                    'unit' => 'METER',
+                ],
+                'matcher' => Matcher::create('values|package_width'),
+            ],
+            'values|package_height' => [
+                'locale' => null,
+                'scope' => null,
+                'data' =>  [
+                    'amount' => 0,
+                    'unit' => 'METER',
+                ],
+                'matcher' => Matcher::create('values|package_height'),
+            ],
+            'values|RECUPEL' => [
+                'locale' => null,
+                'scope' => null,
+                'data' => 'RECUPEL',
+                'matcher' => Matcher::create('values|RECUPEL'),
             ],
         ];
 
