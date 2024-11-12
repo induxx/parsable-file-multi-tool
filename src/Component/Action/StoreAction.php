@@ -54,7 +54,7 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             if ([] !== $falseAction) {
                 $this->falseActionProcessor = $this->configuration->generateActionProcessor($falseAction);
             }
-            $this->setOption('init', true);            
+            $this->setOption('init', true);
         }
     }
 
@@ -62,7 +62,9 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
     {
         $this->init();
         $entity = $this->getOption('entity');
-        $identifier =  $entity.':'.$item['identifier']; // $this->getOption('identifier');
+        $identifierKey = $this->getOption('identifier');
+
+        $identifier =  $entity.':'.$item[$identifierKey];
         $event = $this->getOption('event');
         if (empty($identifier) || empty($event)) {
             return $item;
@@ -109,7 +111,13 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                 if ([] !== $falseAction) {
                     $item = $this->falseActionProcessor->process($item);
                 }
+
+                $this->storeProduct($identifier);
+
+                return $item;
             }
+
+            return [];
         }
 
         return $item;
