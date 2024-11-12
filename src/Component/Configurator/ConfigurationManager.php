@@ -237,9 +237,10 @@ class ConfigurationManager
     {
         /** @var ItemActionProcessorFactory $factory */
         $factory = $this->factory->getFactory('action');
-        $actions = $factory->createFromConfiguration($configuration, $this, $this->sources);
+        $actions = $factory->createFromConfiguration($configuration, $this->config, $this->sources);
 
         $this->config->setActions($actions);
+        $this->config->setActionFactory($factory);
 
         return $actions;
     }

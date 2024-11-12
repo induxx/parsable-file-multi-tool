@@ -2,6 +2,8 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Component\ChangeManager\ChangeManager;
+use Misery\Component\Action\ItemActionProcessorFactory;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
@@ -44,6 +46,8 @@ class Configuration
     /** @var ApiClient[] */
     private $accounts;
     private $isMultiStep = false;
+    public ChangeManager $changeManager;
+    public ItemActionProcessorFactory $actionFactory;
 
     private array $extensions = [];
 
@@ -139,6 +143,16 @@ class Configuration
     public function setActions(ItemActionProcessor $actionProcessor): void
     {
         $this->actions = $actionProcessor;
+    }
+    
+    public function setActionFactory(ItemActionProcessorFactory $factory): void
+    {
+        $this->actionFactory = $factory;
+    }
+
+    public function generateActionProcessor(array $actions): ItemActionProcessor
+    {
+        return $this->actionFactory->createFromConfiguration($actions, $this, $this->sources);
     }
 
     public function setGroupedActions(string $name, ItemActionProcessor $actionProcessor): void

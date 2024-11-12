@@ -47,6 +47,11 @@ class ReadOnlyConfiguration
         return $this->lists;
     }
 
+    public function getList(string $alias)
+    {
+        return $this->lists[$alias] ?? null;
+    }
+
     public function getFilter(string $alias)
     {
         return $this->filters[$alias] ?? null;
