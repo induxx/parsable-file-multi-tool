@@ -2,7 +2,6 @@
 
 namespace Misery\Component\Akeneo\DataStructure;
 
-
 use App\Component\Akeneo\Api\Objects\Product;
 use Misery\Component\Converter\Matcher;
 
@@ -55,7 +54,7 @@ class BuildProductMatcher
         return $newProduct + $productData;
     }
 
-    public static function fromItem(ItemCollection $item)
+    public static function fromItem(AkeneoItemFactory $item)
     {
         $fields = [];
         foreach ($item->getItems() as $code => $fieldValue) {
@@ -74,7 +73,7 @@ class BuildProductMatcher
     public static function revertMatcherToProduct(array $productData): array
     {
         $fields = [];
-        foreach ($productData ?? [] as $field => &$fieldValue) {
+        foreach ($productData as $field => &$fieldValue) {
             $matcher = $fieldValue['matcher'] ?? null;
             if ($matcher instanceof Matcher) {
                 unset($fieldValue['matcher']);
@@ -90,7 +89,7 @@ class BuildProductMatcher
     public static function revertToKeyValue(array $productData): array
     {
         $fields = [];
-        foreach ($productData ?? [] as $field => $fieldValue) {
+        foreach ($productData as $field => $fieldValue) {
             $fields[$field] = $fieldValue;
             $matcher = $fieldValue['matcher'] ?? null;
             if ($matcher instanceof Matcher) {

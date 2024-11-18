@@ -52,13 +52,14 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\AkeneoFlatProductModelToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatProductToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
-
+    new Misery\Component\Converter\Item\Product(),
     new Misery\Component\Converter\Akeneo\Csv\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
     new Misery\Component\Converter\Akeneo\Csv\ProductModel(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
+
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
     new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
@@ -145,7 +146,8 @@ $actionRegistry
     ->register(\Misery\Component\Action\DateTimeAction::NAME, new Misery\Component\Action\DateTimeAction())
     ->register(Misery\Component\Action\FrameAction::NAME, new Misery\Component\Action\FrameAction())
     ->register(Misery\Component\Action\GroupAction::NAME, new Misery\Component\Action\GroupAction())
-    ->register(\Misery\Component\Action\StoreAction::NAME, new Misery\Component\Action\StoreAction())
+    ->register(Misery\Component\Action\StoreAction::NAME, new Misery\Component\Action\StoreAction())
+    ->register(Misery\Component\Action\MakeItemAction::NAME, new Misery\Component\Action\MakeItemAction())
 ;
 
 #$statementRegistry = new Misery\Component\Common\Registry\Registry('statement');

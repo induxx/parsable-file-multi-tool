@@ -7,6 +7,7 @@ use Assert\Assertion;
 class XmlWriter implements ItemWriterInterface
 {
     public const CONTAINER = 'container';
+    public const LOOP_ITEM = 'loop_item';
     public const HEADER = 'header';
     public const START = 'start';
 
@@ -29,7 +30,6 @@ class XmlWriter implements ItemWriterInterface
         array $options = []
     ) {
         $this->filename = $filename;
-        Assertion::writeable($filename);
 
         $this->options = $options;
         $start = isset($options[self::START]) > 0 ? $options[self::START]: [];
@@ -63,6 +63,10 @@ class XmlWriter implements ItemWriterInterface
 
     public function write(array $data): void
     {
+        if (isset($this->options[self::LOOP_ITEM])) {
+            $this->writer->startElement($this->options[self::LOOP_ITEM]);
+        }
+
         if (isset($data['@attributes'])) {
             foreach ($data['@attributes'] as $attributeName => $attributeValue) {
                 $this->writer->writeAttribute($attributeName, $attributeValue);
@@ -77,6 +81,7 @@ class XmlWriter implements ItemWriterInterface
             $this->writer->writeCdata($data['@CDATA']);
             return;
         }
+
         foreach($data as $key => $value) {
             if (\is_array($value)) {
                 if (\is_string($key) && is_numeric(current(array_keys($value)))) {
@@ -105,6 +110,10 @@ class XmlWriter implements ItemWriterInterface
             if (is_string($key) && is_string($value) && !empty($key)) {
                 $this->writer->writeElement($key, $value);
             }
+        }
+
+        if (isset($this->options[self::LOOP_ITEM])) {
+            $this->writer->endElement();
         }
     }
 
