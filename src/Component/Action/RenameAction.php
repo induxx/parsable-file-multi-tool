@@ -42,10 +42,6 @@ class RenameAction implements OptionsInterface
 
         $from = $this->findMatchedValueData($item, $from) ?? $from;
 
-        if ($from === 'weight') {
-            dd($from);
-        }
-
         if (!empty($this->options['suffix'])) {
             return $this->mapper->mapWithSuffix(
                 $item,

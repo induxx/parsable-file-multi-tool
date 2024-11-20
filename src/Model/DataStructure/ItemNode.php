@@ -80,6 +80,6 @@ class ItemNode
 
     public function getDataValue()
     {
-        return $this->value['data'] ?? null;
+        return $this->value['data'] ?? $this->value ?? null;
     }
 }

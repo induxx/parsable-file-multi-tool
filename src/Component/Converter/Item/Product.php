@@ -35,7 +35,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
     {
         $result = [];
         foreach ($item as $key => $value) {
-            $result[$key] = is_array($value) ? $value['data'] : $value;
+            $result[$key] = is_array($value) ? $value['data'] ?? $value : $value;
         }
 
         return $result;

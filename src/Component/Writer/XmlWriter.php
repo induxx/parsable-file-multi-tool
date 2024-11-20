@@ -61,9 +61,9 @@ class XmlWriter implements ItemWriterInterface
         }
     }
 
-    public function write(array $data): void
+    public function write(array $data, bool $loopItem = true): void
     {
-        if (isset($this->options[self::LOOP_ITEM])) {
+        if ($loopItem && isset($this->options[self::LOOP_ITEM])) {
             $this->writer->startElement($this->options[self::LOOP_ITEM]);
         }
 
@@ -87,7 +87,7 @@ class XmlWriter implements ItemWriterInterface
                 if (\is_string($key) && is_numeric(current(array_keys($value)))) {
                     foreach ($value as $i => $collectionValue) {
                         $this->writer->startElement($key);
-                        $this->write($collectionValue);
+                        $this->write($collectionValue, false);
                         $this->writer->endElement();
                     }
                     continue;
@@ -95,13 +95,13 @@ class XmlWriter implements ItemWriterInterface
 
                 if (\is_string($key)) {
                     $this->writer->startElement($key);
-                    $this->write($value);
+                    $this->write($value, false);
                     $this->writer->endElement();
                     continue;
                 }
 
                 if (\is_numeric($key)) {
-                    $this->write($value);
+                    $this->write($value, false);
                 }
 
                 continue;
@@ -112,7 +112,7 @@ class XmlWriter implements ItemWriterInterface
             }
         }
 
-        if (isset($this->options[self::LOOP_ITEM])) {
+        if ($loopItem && isset($this->options[self::LOOP_ITEM])) {
             $this->writer->endElement();
         }
     }

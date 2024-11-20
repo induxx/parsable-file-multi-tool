@@ -45,6 +45,27 @@ class Item implements ItemInterface
         $this->addItem($toCode, $itemValue, $item->getContext());
     }
 
+    public function reFrame(array $orderedFields, bool $appendRemaining = false): void
+    {
+        // Create a new array with the specified order
+        $orderedNodes = [];
+        foreach (array_keys($orderedFields) as $key) {
+            $orderedNodes[$key] = $this->itemNodes[$key] ?? $orderedFields[$key];
+        }
+
+        // Append any remaining items not in the order
+        if ($appendRemaining) {
+            foreach ($this->itemNodes as $key => $node) {
+                if (!array_key_exists($key, $orderedNodes)) {
+                    $orderedNodes[$key] = $node;
+                }
+            }
+        }
+
+        // Replace the original array with the reordered array
+        $this->itemNodes = $orderedNodes;
+    }
+
     public function moveItem(string $fromCode, string $toCode): void
     {
         $this->copyItem($fromCode, $toCode);
