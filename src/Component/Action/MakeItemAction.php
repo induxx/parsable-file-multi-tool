@@ -26,10 +26,15 @@ class MakeItemAction implements OptionsInterface, ConfigurationAwareInterface
     {
         $fields = [];
         foreach ($item->getItemNodes() as $code => $fieldValue) {
+            if (null === $fieldValue) {
+                continue;
+            }
             $matcher = $fieldValue->getMatcher();
 
             if ($matcher->matches('values')) {
                 $fields['values'][$matcher->getPrimaryKey()][] = $fieldValue->getValue();
+            } elseif ($matcher->matches('labels')) {
+                $fields['labels'][$matcher->getPrimaryKey()][] = $fieldValue->getValue();
             } else {
                 $fields[$code] = $fieldValue->getValue();
             }
@@ -41,7 +46,9 @@ class MakeItemAction implements OptionsInterface, ConfigurationAwareInterface
     public function apply(array $item): ItemInterface
     {
         $attributeTypes = $this->getOption('attribute_types:list');
-        $attributeTypes = $this->configuration->getList($attributeTypes);
+        if ([] !== $attributeTypes) {
+            $attributeTypes = $this->configuration->getList($attributeTypes);
+        }
 
         return AkeneoItemFactory::create($item, ['attribute_types' => $attributeTypes]);
     }

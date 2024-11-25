@@ -30,7 +30,24 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
 
     public function applyAsItem(ItemInterface $item): ItemInterface
     {
-        foreach (array_filter($this->getOption('list')) as $match => $replacer) {
+        $reverse = $this->getOption('reverse');
+        $list = array_filter($this->getOption('list'));
+
+        if ($reverse) {
+            $keys = [];
+            foreach ($list as $match => $replacer) {
+                if ($item->hasItem($replacer)) {
+                    $item->copyItem($replacer, $match);
+                    $keys[] = $replacer;
+                }
+            }
+            foreach ($keys as $keyToUnset) {
+                $item->removeItem($keyToUnset);
+            }
+            return $item;
+        }
+
+        foreach ($list as $match => $replacer) {
             if ($item->hasItem($match)) {
                 $item->moveItem($match, $replacer);
             }

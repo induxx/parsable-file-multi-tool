@@ -20,6 +20,12 @@ class AkeneoItemFactory
                 $type = $context['attribute_types'][$matcher->getPrimaryKey()] ?? null;
                 $itemValue['type'] = $type;
             }
+            if ($code === 'labels') {
+                foreach ($itemValue as $localeCode => $value) {
+                    $itemObj->addItem($code .'|'. $localeCode, $value, $context);
+                }
+                continue;
+            }
 
             $itemObj->addItem($code, $itemValue, $context);
         }
