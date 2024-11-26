@@ -8,7 +8,6 @@ use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
 use Misery\Component\Configurator\ConfigurationTrait;
-use Misery\Component\Converter\Matcher;
 
 class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwareInterface
 {
