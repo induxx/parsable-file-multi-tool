@@ -74,9 +74,18 @@ class TransformationCommand extends Command
             new OutputLogger()
         );
 
+        // reading the app_context file
+        $transformationDir = pathinfo($file, PATHINFO_DIRNAME);
+        $contextFile = $transformationDir.DIRECTORY_SEPARATOR.'app_context.yaml';
+        $context = (is_file($contextFile)) ? Yaml::parseFile($contextFile) : [];
+
         $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {
             return $value !== NULL;
         });
+
+        // merging it with the original MAIN-step.yaml, after this point the two are merged
+        $transformationFile = ArrayFunctions::array_merge_recursive($context, $transformationFile);
+
         $configuration = $configurationFactory->parseDirectivesFromConfiguration(
             array_replace_recursive($transformationFile, [
                 'context' => [
