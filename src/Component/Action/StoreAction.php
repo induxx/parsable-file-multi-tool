@@ -2,12 +2,12 @@
 
 namespace Misery\Component\Action;
 
-use App\Component\ChangeManager\ChangeSetLabelMaker;
-
+use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
 use Misery\Component\Configurator\ConfigurationTrait;
+use App\Component\ChangeManager\ChangeSetLabelMaker;
 
 class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwareInterface
 {
@@ -24,9 +24,21 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
     public ItemActionProcessor $falseActionProcessor;
 
     /** @var array */
+    private $defaults = [
+        'change_manager' => [
+            'all_values' => true,
+            'values' => [],
+            'context' => [
+                'locales' => [],
+                'scope' => null,
+            ],
+        ],
+    ];
+
+    /** @var array */
     private $options = [
         'event' => null,
-        'identifier' => null,
+        'identifier' => 'identifier',
         'entity' => 'product',
         'change_manager' => [
             'all_values' => true,
@@ -54,6 +66,14 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                 $this->falseActionProcessor = $this->configuration->generateActionProcessor($falseAction);
             }
             $this->setOption('init', true);
+
+            $this->setOption(
+                'change_manager',
+                ArrayFunctions::array_merge_recursive(
+                    $this->defaults['change_manager'],
+                    $this->getOption('change_manager')
+                )
+            );
         }
     }
 

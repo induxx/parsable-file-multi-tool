@@ -3,6 +3,10 @@
 namespace Misery\Command;
 
 use Ahc\Cli\Input\Command;
+use App\Component\ChangeManager\ChangeManager;
+use App\Component\Common\Resource\ChangeResource;
+use App\Infra\Adapter\KeyValueStore\FileKeyValueStoreAdapter;
+use App\Infra\Redis\RedisIdentityScope;
 use Assert\Assertion;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
@@ -72,6 +76,16 @@ class TransformationCommand extends Command
             $addSource ? new LocalFileManager($addSource): null,
             $extensions ? new LocalFileManager($extensions): null,
             new OutputLogger()
+        );
+
+        // setting up a fake File based key-value store for our change-manager
+        $configurationFactory->setChangeManager(
+            new ChangeManager(
+                new ChangeResource(
+                    new FileKeyValueStoreAdapter($workpath.DIRECTORY_SEPARATOR.'store'),
+                    new RedisIdentityScope()
+                )
+            )
         );
 
         // reading the app_context file
