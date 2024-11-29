@@ -18,6 +18,8 @@ abstract class FileParser implements CursorInterface
     {
         if ($file->isFile()) {
             $this->file = $file;
+
+            #ini_set('auto_detect_line_endings', '1');
         }
     }
 
