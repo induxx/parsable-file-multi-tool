@@ -59,7 +59,9 @@ class FormatAction implements OptionsInterface
         foreach ($this->getOption('functions') as $function) {
             switch ($function) {
                 case 'replace':
-                    $value = str_replace($this->getOption('search'), $this->getOption('replace'), $value);
+                    if ($this->getOption('search') && $this->getOption('replace')) {
+                        $value = str_replace($this->getOption('search'), $this->getOption('replace'), $value);
+                    }
                     break;
                 case 'number':
                     if (is_numeric($value)) {
