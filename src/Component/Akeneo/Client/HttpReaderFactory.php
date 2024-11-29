@@ -7,9 +7,8 @@ use App\Component\Akeneo\Api\Resources\AkeneoAttributesResource;
 use App\Component\Akeneo\Api\Resources\AkeneoCategoryResource;
 use App\Component\Akeneo\Api\Resources\AkeneoFamiliesResource;
 use App\Component\Akeneo\Api\Resources\AkeneoProductsResource;
-use App\Component\Akeneo\Api\Resources\Filter\GlobalQueryFilterParameters;
-use App\Component\Common\Cursor\CursorInterface;
 use App\Component\Common\Cursor\MultiCursor;
+use App\Component\Common\Resource\EntityResourceInterface;
 use Assert\Assert;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Configurator\Configuration;
@@ -71,43 +70,36 @@ class HttpReaderFactory implements RegisteredByNameInterface
         if (!$accountCode) {
             throw new \Exception(sprintf('Account "%s" not found.', $accountCode));
         }
+
         $client = $config->getAccount($accountCode);
-        if (!$client) {
+        $resources = $config->getResourceCollection($accountCode);
+
+        if (!$client && !$resources) {
             throw new \Exception(sprintf('Account "%s" not found.', $accountCode));
         }
-        $filterParameters = new GlobalQueryFilterParameters();
 
-        $queryString = $context['limiters']['querystring'] ?? null;
+        if ($resources) {
+            $endpoints = [
+                'attributes' => AkeneoAttributesResource::NAME,
+                'families' => AkeneoFamiliesResource::NAME,
+                'categories' => AkeneoCategoryResource::NAME,
+                'products' => AkeneoProductsResource::NAME,
+                'options' => AkeneoAttributeOptionsResource::NAME,
+            ];
+            $endpoint = $endpoints[$endpoint] ?? null;
 
-        if ($endpoint === 'attributes') {
-            $resource = new AkeneoAttributesResource($client, $filterParameters);
+            Assert::that($endpoint)->notNull('Unknown endpoint: ' . $endpoint);
 
-            return new ApiReader($resource);
-        } elseif ($endpoint === 'families') {
-            $resource = new AkeneoFamiliesResource($client, $filterParameters);
+            /** @var EntityResourceInterface $resource */
+            $resource = $resources->getResource($endpoint);
 
-            return new ApiReader($resource);
-        } elseif ($endpoint === 'categories') {
-            $resource = new AkeneoCategoryResource($client);
-
+            $queryString = $context['limiters']['querystring'] ?? null;
+            dd($context);
             if ($queryString) {
                 $cursor = $resource->querystring($queryString);
 
                 return new ApiReader($resource, $cursor);
             }
-            return new ApiReader($resource);
-        } elseif ($endpoint === 'products') {
-            $resource = new AkeneoProductsResource($client, $filterParameters);
-
-            if ($queryString) {
-                $cursor = $resource->queryStringContent($queryString);
-
-                return new ApiReader($resource, $cursor);
-            }
-
-            return new ApiReader($resource);
-        } elseif ($endpoint === 'options') {
-            $resource = new AkeneoAttributeOptionsResource($client);
 
             if (isset($configuration['identifier_filter_list'])) {
                 $cursor = new MultiCursor();
@@ -116,11 +108,10 @@ class HttpReaderFactory implements RegisteredByNameInterface
                 }
                 return new ApiReader($resource, $cursor);
             }
-
             return new ApiReader($resource);
-        } else {
-            throw new \Exception('Unknown endpoint: ' . $endpoint);
         }
+
+        throw new \Exception('Unknown or un-configured endpoint: ' . $endpoint);
     }
 
     public function getName(): string

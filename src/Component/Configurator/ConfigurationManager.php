@@ -2,10 +2,15 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Component\Akeneo\Api\Client\AkeneoApiClientAccount;
+use App\Component\Akeneo\Api\Resources\AkeneoResourceCollection;
+use App\Component\Common\Client\ApiClientInterface;
+use App\Component\Common\Resource\ResourceCollectionInterface;
 use Assert\Assert;
 use Assert\Assertion;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\Action\ItemActionProcessorFactory;
+use Misery\Component\Akeneo\Client\HttpReaderFactory;
 use Misery\Component\Akeneo\Client\HttpWriterFactory;
 use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\BluePrint\BluePrintFactory;
@@ -214,12 +219,23 @@ class ConfigurationManager
         );
     }
 
+    public function createResourceCollection(string $name, array $account): void
+    {
+        $this->config->addResourceCollection(
+            new AkeneoResourceCollection($name, $account)
+        );
+    }
+
     public function configureAccounts(array $configuration): void
     {
         /** @var ApiClientFactory $factory */
         $factory = $this->factory->getFactory('api_client');
         foreach ($configuration as $account) {
-            $this->config->addAccount($account['name'], $factory->createFromConfiguration($account));
+            if (isset($account['resourceType']) && str_starts_with($account['resourceType'], 'api-ak')) {
+                $this->createResourceCollection($account['name'], $account);
+            } else {
+                $this->config->addAccount($account['name'], $factory->createFromConfiguration($account));
+            }
         }
     }
 
@@ -364,6 +380,7 @@ class ConfigurationManager
 
     public function createHTTPReader(array $configuration): ReaderInterface
     {
+        /** @var HttpReaderFactory $factory */
         $factory = $this->factory->getFactory('http_reader');
         $reader = $factory->createFromConfiguration($configuration, $this->config);
 

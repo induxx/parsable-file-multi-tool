@@ -3,6 +3,8 @@
 namespace Misery\Component\Configurator;
 
 use App\Component\ChangeManager\ChangeManager;
+use App\Component\Common\Resource\NamedResourceInterface;
+use App\Component\Common\Resource\ResourceCollectionInterface;
 use Misery\Component\Action\ItemActionProcessorFactory;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -47,6 +49,7 @@ class Configuration
     private $accounts;
     private $isMultiStep = false;
     public ChangeManager $changeManager;
+    private array $resourceCollections = [];
     public ItemActionProcessorFactory $actionFactory;
 
     private array $extensions = [];
@@ -103,6 +106,21 @@ class Configuration
     public function getSources(): SourceCollection
     {
         return $this->sources;
+    }
+
+    public function addResourceCollection(ResourceCollectionInterface|NamedResourceInterface $resourceCollection): void
+    {
+        $this->resourceCollections[$resourceCollection->getName()] = $resourceCollection;
+    }
+
+    public function getResourceCollection(string $name):? ResourceCollectionInterface
+    {
+        return $this->resourceCollections[$name] ?? null;
+    }
+
+    public function getResourceCollections(): array
+    {
+        return $this->resourceCollections;
     }
 
     public function addAccount(string $name, ApiClientInterface $apiClient)
