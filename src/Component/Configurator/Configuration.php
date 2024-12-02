@@ -88,9 +88,14 @@ class Configuration
         $this->isMultiStep = true;
     }
 
-    public function addContext(array $context)
+    public function addContext(array $context): void
     {
         $this->context = array_merge($this->context, $context);
+    }
+
+    public function setContext(string $key, $value): void
+    {
+        $this->context[$key] = $value;
     }
 
     public function getContext(string $key = null)

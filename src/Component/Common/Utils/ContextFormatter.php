@@ -12,7 +12,7 @@ class ContextFormatter
         }
 
         $newData = [];
-        foreach ($data as $key => &$value) {
+        foreach ($data as $key => $value) {
             if (is_string($key)) {
                 $newKey = strtr($key, $replacements);
                 $newData[$newKey] = $value;

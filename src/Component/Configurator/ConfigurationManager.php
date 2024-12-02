@@ -126,11 +126,14 @@ class ConfigurationManager
         $this->config->addContext($configuration);
     }
 
-    public function addTransformationSteps(array $transformationSteps, array $masterConfiguration): void
+    /**
+     * TODO this needs to be broken into more steps, not clear
+     * context grows, but needs to be reset to previous state per step
+     */
+    public function addTransformationSteps(array $transformationSteps, array $masterConfiguration, array $context): void
     {
         /** @var ProjectDirectories $projectDirectories */
         $projectDirectories = $this->factory->getFactory('project_directories');
-        $debug = $this->config->getContext('debug');
         $dirName = pathinfo($this->config->getContext('transformation_file'))['dirname'] ?? null;
 
         unset($masterConfiguration['transformation_steps']);
@@ -155,13 +158,10 @@ class ConfigurationManager
                     foreach ($withArray as $key => $values) {
                         if (isset($values[$i])) {
                             $context[$key] = $values[$i];
-
-                            // Save the context in the master configuration
-                            $masterConfiguration['context'][$key] = $values[$i];
                         }
                     }
 
-                    $this->addTransformationSteps([$file], $masterConfiguration);
+                    $this->addTransformationSteps([$file], $masterConfiguration, $context);
                 }
                 continue;
             }
@@ -177,13 +177,8 @@ class ConfigurationManager
             $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {
                 return $value !== NULL;
             });
-            $configuration = array_replace_recursive($masterConfiguration, $transformationFile, [
-                'context' => [
-                    'try' => $transformationFile['context']['try'] ?? null,
-                    'debug' => $debug,
-                    'dirname' => $dirName,
-                    'transformation_file' => $file,
-            ]]);
+            $configuration = array_replace_recursive($transformationFile, $masterConfiguration);
+            $configuration['context'] = array_merge($configuration['context'], $context);
             $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
             // only start the process if our transformation file has a pipeline
@@ -201,7 +196,7 @@ class ConfigurationManager
         }
     }
 
-    public function configureShellCommands(array $configuration)
+    public function configureShellCommands(array $configuration): void
     {
         /** @var ShellCommandFactory $factory */
         $factory = $this->factory->getFactory('shell');

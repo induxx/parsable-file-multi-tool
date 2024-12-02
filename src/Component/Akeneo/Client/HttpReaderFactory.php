@@ -94,8 +94,7 @@ class HttpReaderFactory implements RegisteredByNameInterface
             $resource = $resources->getResource($endpoint);
 
             $queryString = $context['limiters']['querystring'] ?? null;
-            dd($context);
-            if ($queryString) {
+            if (!empty($queryString)) {
                 $cursor = $resource->querystring($queryString);
 
                 return new ApiReader($resource, $cursor);
