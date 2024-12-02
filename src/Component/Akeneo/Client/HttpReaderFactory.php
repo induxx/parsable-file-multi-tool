@@ -118,7 +118,7 @@ class HttpReaderFactory implements RegisteredByNameInterface
                 return new ApiReader($resource, $cursor);
             }
 
-            if (!empty($configuration['identifier_filter_list']) && $endpoint === 'akeneo_attributes') {
+            if (!empty($configuration['identifier_filter_list']) && $endpoint === AkeneoAttributeOptionsResource::NAME) {
                 $cursor = new MultiCursor();
                 foreach ($configuration['identifier_filter_list'] as $identifier) {
                     $cursor->addCursor($resource->getAllByAttributeCode($identifier));
