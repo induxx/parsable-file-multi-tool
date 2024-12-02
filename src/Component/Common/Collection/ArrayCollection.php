@@ -24,9 +24,19 @@ class ArrayCollection
         $this->items[$key] = $item;
     }
 
+    public function containsKey($key): bool
+    {
+        return isset($this->items[$key]);
+    }
+
     public function get($key): self
     {
         return new self([$this->items[$key] ?? null]);
+    }
+
+    public function remove($key): void
+    {
+        unset($this->items[$key]);
     }
 
     public function first()
@@ -34,7 +44,7 @@ class ArrayCollection
         return current($this->items);
     }
 
-    public function merge(ArrayCollection $collection)
+    public function merge(ArrayCollection $collection): void
     {
         foreach ($collection->getValues() as $item) {
             $this->items[] = $item;
@@ -62,6 +72,11 @@ class ArrayCollection
     }
 
     public function getValues(): array
+    {
+        return $this->items;
+    }
+
+    public function toArray(): array
     {
         return $this->items;
     }
