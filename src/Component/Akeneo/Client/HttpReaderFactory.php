@@ -7,6 +7,8 @@ use App\Component\Akeneo\Api\Resources\AkeneoAttributesResource;
 use App\Component\Akeneo\Api\Resources\AkeneoCategoryResource;
 use App\Component\Akeneo\Api\Resources\AkeneoFamiliesResource;
 use App\Component\Akeneo\Api\Resources\AkeneoProductsResource;
+use App\Component\Akeneo\Api\Resources\AkeneoReferenceEntityRecordResource;
+use App\Component\Akeneo\Api\Resources\AkeneoReferenceEntityResource;
 use App\Component\Common\Cursor\MultiCursor;
 use App\Component\Common\Resource\EntityResourceInterface;
 use App\Component\Common\Resource\SearchAbleEntityResourceInterface;
@@ -86,6 +88,7 @@ class HttpReaderFactory implements RegisteredByNameInterface
                 'categories' => AkeneoCategoryResource::NAME,
                 'products' => AkeneoProductsResource::NAME,
                 'options' => AkeneoAttributeOptionsResource::NAME,
+                'reference-entities' => AkeneoReferenceEntityRecordResource::NAME,
             ];
             $endpoint = $endpoints[$endpoint] ?? null;
 
@@ -99,7 +102,6 @@ class HttpReaderFactory implements RegisteredByNameInterface
 
                 return new ApiReader($resource, $cursor);
             }
-            dd($configuration);
 
             $queryString = $context['limiters']['querystring'] ?? null;
             if (!empty($queryString)) {
@@ -108,7 +110,15 @@ class HttpReaderFactory implements RegisteredByNameInterface
                 return new ApiReader($resource, $cursor);
             }
 
-            if (!empty($configuration['identifier_filter_list'])) {
+            if (!empty($configuration['identifier_filter_list']) && $endpoint === AkeneoReferenceEntityRecordResource::NAME) {
+                $cursor = new MultiCursor();
+                foreach ($configuration['identifier_filter_list'] as $identifier) {
+                    $cursor->addCursor($resource->getAllRecords($identifier));
+                }
+                return new ApiReader($resource, $cursor);
+            }
+
+            if (!empty($configuration['identifier_filter_list']) && $endpoint === 'akeneo_attributes') {
                 $cursor = new MultiCursor();
                 foreach ($configuration['identifier_filter_list'] as $identifier) {
                     $cursor->addCursor($resource->getAllByAttributeCode($identifier));

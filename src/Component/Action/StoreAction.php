@@ -23,8 +23,7 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
     public ItemActionProcessor $trueActionProcessor;
     public ItemActionProcessor $falseActionProcessor;
 
-    /** @var array */
-    private $defaults = [
+    private array $defaults = [
         'change_manager' => [
             'all_values' => true,
             'values' => [],
@@ -48,6 +47,7 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                 'scope' => null,
             ],
         ],
+        'store_product' => true,
         'init' => false,
         'true_action' => [],
         'false_action' => [],
@@ -147,6 +147,10 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
 
     private function storeProduct(string $identifier): void
     {
-        $this->configuration->changeManager->persistChange($identifier);
+        $storeProduct = $this->getOption('store_product');
+
+        if ($storeProduct) {
+            $this->configuration->changeManager->persistChange($identifier);
+        }
     }
 }
