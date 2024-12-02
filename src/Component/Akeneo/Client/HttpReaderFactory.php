@@ -9,6 +9,7 @@ use App\Component\Akeneo\Api\Resources\AkeneoFamiliesResource;
 use App\Component\Akeneo\Api\Resources\AkeneoProductsResource;
 use App\Component\Common\Cursor\MultiCursor;
 use App\Component\Common\Resource\EntityResourceInterface;
+use App\Component\Common\Resource\SearchAbleEntityResourceInterface;
 use Assert\Assert;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Configurator\Configuration;
@@ -90,8 +91,15 @@ class HttpReaderFactory implements RegisteredByNameInterface
 
             Assert::that($endpoint)->notNull('Unknown endpoint: ' . $endpoint);
 
-            /** @var EntityResourceInterface $resource */
+            /** @var EntityResourceInterface|SearchAbleEntityResourceInterface $resource */
             $resource = $resources->getResource($endpoint);
+
+            if (!empty($configuration['filter'])) {
+                $cursor = $resource->query($configuration['filter']);
+
+                return new ApiReader($resource, $cursor);
+            }
+            dd($configuration);
 
             $queryString = $context['limiters']['querystring'] ?? null;
             if (!empty($queryString)) {
@@ -100,7 +108,7 @@ class HttpReaderFactory implements RegisteredByNameInterface
                 return new ApiReader($resource, $cursor);
             }
 
-            if (isset($configuration['identifier_filter_list'])) {
+            if (!empty($configuration['identifier_filter_list'])) {
                 $cursor = new MultiCursor();
                 foreach ($configuration['identifier_filter_list'] as $identifier) {
                     $cursor->addCursor($resource->getAllByAttributeCode($identifier));

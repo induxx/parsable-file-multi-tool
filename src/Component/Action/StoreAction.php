@@ -126,12 +126,15 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                     $item = $this->trueActionProcessor->process($item);
                 }
 
+                $this->storeProduct($identifier);
+
+                return $item;
+            } else {
+
                 // see GroupAction, get actionProcessor, process your action(s)
                 if ([] !== $falseAction) {
                     $item = $this->falseActionProcessor->process($item);
                 }
-
-                $this->storeProduct($identifier);
 
                 return $item;
             }

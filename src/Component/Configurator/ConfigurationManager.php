@@ -131,69 +131,80 @@ class ConfigurationManager
      * context grows, but needs to be reset to previous state per step
      */
     public function addTransformationSteps(array $transformationSteps, array $masterConfiguration, array $context): void
-    {
+    {;
         /** @var ProjectDirectories $projectDirectories */
         $projectDirectories = $this->factory->getFactory('project_directories');
         $dirName = pathinfo($this->config->getContext('transformation_file'))['dirname'] ?? null;
 
         unset($masterConfiguration['transformation_steps']);
 
-        # list of transformations
+        // Iterate over the transformation steps
         foreach ($transformationSteps as $transformationFile) {
 
-            // this code detects the run | with option
-            // and creates virtual steps, so you don't need to repeat yourself
+            // Check if 'run' is specified
             if (isset($transformationFile['run'])) {
                 $file = $transformationFile['run'];
-                $withArray = $transformationFile['with'];
 
-                // Get the number of iterations needed
-                $iterationCount = count(current($withArray));
+                // Handle 'once_with' directive
+                if (isset($transformationFile['once_with'])) {
+                    $this->addTransformationSteps([$file], $masterConfiguration, array_merge($context, $transformationFile['once_with']));
 
-                // Iterate over each index
-                for ($i = 0; $i < $iterationCount; $i++) {
-                    $context = [];
-
-                    // Build the context for the current index
-                    foreach ($withArray as $key => $values) {
-                        if (isset($values[$i])) {
-                            $context[$key] = $values[$i];
-                        }
+                    // Handle 'all_with' directive
+                } elseif (isset($transformationFile['all_with'])) {
+                    // Iterate over each combination of parameters
+                    foreach ($this->arrayCartesianItem($transformationFile['all_with']) as $comboContext) {
+                        $this->addTransformationSteps([$file], $masterConfiguration, array_merge($context, $comboContext));
                     }
-
-                    $this->addTransformationSteps([$file], $masterConfiguration, $context);
                 }
                 continue;
             }
 
-            $file = $dirName . DIRECTORY_SEPARATOR . $transformationFile;
-            if (!is_file($file) && $projectDirectories->getTemplatePath()->isFile($transformationFile)) {
-                $file = $projectDirectories->getTemplatePath()->getAbsolutePath($transformationFile);
+            // Process the transformation file as before
+            $filePath = $dirName . DIRECTORY_SEPARATOR . $transformationFile;
+            if (!is_file($filePath) && $projectDirectories->getTemplatePath()->isFile($transformationFile)) {
+                $filePath = $projectDirectories->getTemplatePath()->getAbsolutePath($transformationFile);
             } else {
-                Assertion::file($file);
+                Assertion::file($filePath);
             }
 
-            // we need to start a new configuration manager.
-            $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {
-                return $value !== NULL;
+            // Read and parse the transformation file
+            $transformationContent = ArrayFunctions::array_filter_recursive(Yaml::parseFile($filePath), function ($value) {
+                return $value !== null;
             });
-            $configuration = array_replace_recursive($transformationFile, $masterConfiguration);
+            $configuration = array_replace_recursive($transformationContent, $masterConfiguration);
             $configuration['context'] = array_merge($configuration['context'], $context);
             $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
-            // only start the process if our transformation file has a pipeline
-            if (!isset($transformationFile['pipeline']) && !isset($transformationFile['shell'])) {
+            // Start the process if the transformation file has a pipeline or shell
+            if (!isset($transformationContent['pipeline']) && !isset($transformationContent['shell'])) {
                 continue;
             }
 
             (new ProcessManager($configuration))->startProcess();
 
-            // TODO connect the outputs here
+            // Execute shell commands if any
             if ($shellCommands = $configuration->getShellCommands()) {
                 $shellCommands->exec();
                 $configuration->clearShellCommands();
             }
         }
+    }
+
+    // Helper function to compute Cartesian product of arrays
+    private function arrayCartesianItem($arrays): array
+    {
+        $result = [[]];
+        foreach ($arrays as $key => $values) {
+            $append = [];
+            foreach ($result as $resultData) {
+                foreach ((array) $values as $item) {
+                    $resultData[$key] = $item;
+                    $append[] = $resultData;
+                }
+            }
+            $result = $append;
+        }
+        return $result;
     }
 
     public function configureShellCommands(array $configuration): void
