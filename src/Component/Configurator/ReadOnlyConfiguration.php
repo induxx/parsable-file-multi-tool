@@ -49,7 +49,7 @@ class ReadOnlyConfiguration
 
     public function getList(string $alias)
     {
-        return $this->lists[$alias] ?? null;
+        return $this->lists[$alias]?->getValues();
     }
 
     public function getFilter(string $alias)
