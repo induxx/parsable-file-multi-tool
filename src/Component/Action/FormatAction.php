@@ -59,7 +59,7 @@ class FormatAction implements OptionsInterface
         foreach ($this->getOption('functions') as $function) {
             switch ($function) {
                 case 'replace':
-                    if ($this->getOption('search') && $this->getOption('replace')) {
+                    if ($this->getOption('search') && $this->getOption('replace') !== null) {
                         $value = str_replace($this->getOption('search'), $this->getOption('replace'), $value);
                     }
                     break;
