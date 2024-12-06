@@ -220,9 +220,7 @@ class Configuration
 
     public function getLists(): array
     {
-        return array_map(function ($list) {
-            return $list->getValues();
-        }, $this->lists);
+        return $this->lists;
     }
 
     public function getList(string $alias): ?array
