@@ -2,6 +2,7 @@
 
 namespace Tests\Misery\Component\Configurator;
 
+use Misery\Component\Common\Collection\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Misery\Component\Configurator\Configuration;
 use Misery\Component\Common\Client\ApiClientInterface;
@@ -175,8 +176,10 @@ class ConfigurationTest extends TestCase
         $this->assertArrayHasKey('list1', $lists);
         $this->assertArrayHasKey('list2', $lists);
 
-        $this->assertEquals($list1, $lists['list1']);
-        $this->assertEquals($list2, $lists['list2']);
+        $collection1 = new ArrayCollection($list1);
+        $collection2 = new ArrayCollection($list2);
+        $this->assertEquals($collection1, $lists['list1']);
+        $this->assertEquals($collection2, $lists['list2']);
 
         // Updating a list
         $updatedList = ['itemX', 'itemY', 'itemZ'];
@@ -184,7 +187,8 @@ class ConfigurationTest extends TestCase
 
         $updatedLists = $configuration->getLists();
 
-        $this->assertEquals($updatedList, $updatedLists['list1']);
+        $updatedCollectionList = new ArrayCollection($updatedList);
+        $this->assertEquals($updatedCollectionList, $updatedLists['list1']);
 
         // Retrieving a single list
         $retrievedList = $configuration->getList('list1');
