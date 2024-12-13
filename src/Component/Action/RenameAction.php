@@ -43,6 +43,7 @@ class RenameAction implements OptionsInterface
         return $item;
     }
 
+
     public function apply(array $item): array
     {
         $this->init();
@@ -51,6 +52,10 @@ class RenameAction implements OptionsInterface
         $to = $this->getOption('to');
 
         $from = $this->findMatchedValueData($item, $from) ?? $from;
+
+        if (!isset($item[$from])) {
+            return $item;
+        }
 
         if (!empty($this->options['suffix'])) {
             return $this->mapper->mapWithSuffix(

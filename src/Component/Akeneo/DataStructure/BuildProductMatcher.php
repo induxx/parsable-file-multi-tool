@@ -54,7 +54,7 @@ class BuildProductMatcher
         return $newProduct + $productData;
     }
 
-    public static function fromItem(AkeneoItemFactory $item)
+    public static function fromItem(AkeneoItemFactory|ItemCollection $item)
     {
         $fields = [];
         foreach ($item->getItems() as $code => $fieldValue) {
