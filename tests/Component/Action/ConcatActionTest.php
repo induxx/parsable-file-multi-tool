@@ -28,15 +28,20 @@ class ConcatActionTest extends TestCase
 
     public function testApplyWithKeyMissing()
     {
-        $item = ['other_key' => 'value'];
+        $item = ['amount' => 1, 'unit' => 'GRAM'];
 
         $action = new ConcatAction();
         $action->setOptions([
             'key' => 'weight',
+            'format' => '%amount% %unit%'
         ]);
 
         $result = $action->apply($item);
 
-        $this->assertEquals(['other_key' => 'value'], $result);
+        $this->assertEquals([
+            'weight' => '1 GRAM',
+            'amount' => 1,
+            'unit' => 'GRAM',
+        ], $result);
     }
 }

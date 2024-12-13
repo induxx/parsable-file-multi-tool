@@ -30,7 +30,7 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
         // first we need to convert the values
         foreach ($item[$container] ?? [] as $key => $valueSet) {
             foreach ($valueSet ?? [] as  $value) {
-                $matcher = Matcher::create($container.'|'.$key, $value['locale'], $value['scope']);
+                $matcher = Matcher::create($container.'|'.$key, $value['locale'] ?? null, $value['scope'] ?? null);
                 $tmp[$keyMain = $matcher->getMainKey()] = $value['data'] ?? null;
                 if ($this->getOption('structure') === 'matcher') {
                     $tmp[$keyMain] = $value;
@@ -55,8 +55,13 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
             $item['identifier'] = $item[$identifier];
             unset($item[$identifier]);
         }
-        if (isset($item['categories']) && [] === $item['categories'] && false === $allowEmptyStringValues) {
-            unset($item['categories']);
+        if (array_key_exists('categories', $item)) {
+            // NULL is not an excepted value
+            if ($item['categories'] === [] && false === $allowEmptyStringValues) {
+                unset($item['categories']);
+            }elseif ($item['categories'] === null) {
+                unset($item['categories']);
+            }
         }
 
         foreach ($item ?? [] as $key => $itemValue) {

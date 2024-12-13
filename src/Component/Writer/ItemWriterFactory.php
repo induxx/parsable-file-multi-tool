@@ -18,16 +18,27 @@ class ItemWriterFactory implements RegisteredByNameInterface
         Assert::that(
             $configuration['type'],
             'type must be filled in.'
-        )->notEmpty()->string()->inArray(['xml', 'buffer', 'buffer_csv', 'csv', 'yaml', 'yml', 'xlsx', 'json']);
+        )->notEmpty()->string()->inArray(['xml', 'buffer', 'buffer_csv', 'csv', 'yaml', 'yml', 'xlsx', 'json', 'jsonl']);
 
         $filename = $fileManager->provisionPath($configuration['filename']);
+        $batchSize = $configuration['batch_size'] ?? 0;
         if ($configuration['type'] === 'xml') {
+
+            if ($batchSize !== 0) {
+                return new BatchWriter(
+                    XmlWriter::class,
+                    $filename,
+                    $batchSize,
+                        $configuration['options'] ?? []
+                );
+            }
+
             return new XmlWriter(
                 $filename,
                 $configuration['options'] ?? []
             );
         }
-        if ($configuration['type'] === 'json' || $configuration['type'] === 'buffer') {
+        if ($configuration['type'] === 'json' || $configuration['type'] === 'buffer' || $configuration['type'] === 'jsonl') {
             return new JsonWriter($filename);
         }
         if ($configuration['type'] === 'buffer_csv') {

@@ -67,7 +67,7 @@ class XmlParser implements CursorInterface
      *
      * @throws \Exception
      */
-    public function current()
+    public function current(): mixed
     {
         // this part is responsible for setting the start element correctly
         while ($this->i === 0 && $this->xml->read() && $this->xml->name !== $this->container) {
@@ -98,7 +98,7 @@ class XmlParser implements CursorInterface
     /**
      * {@inheritDoc}
      */
-    public function key()
+    public function key(): mixed
     {
         return $this->i;
     }

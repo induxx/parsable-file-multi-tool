@@ -41,7 +41,7 @@ class ItemCursor implements CursorInterface
     /**
      * {@inheritDoc}
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->itemReader->getIterator()->current();
     }
@@ -57,7 +57,7 @@ class ItemCursor implements CursorInterface
     /**
      * {@inheritDoc}
      */
-    public function key()
+    public function key(): mixed
     {
         return $this->itemReader->getIterator()->key();
     }

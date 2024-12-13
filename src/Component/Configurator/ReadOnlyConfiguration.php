@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Component\Common\Resource\ResourceCollectionInterface;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\Common\Client\ApiClient;
@@ -25,6 +26,7 @@ class ReadOnlyConfiguration
     private array $filters = [];
     private SourceCollection $sources;
     private array $lists;
+    private array $resourceCollections = [];
 
     public static function loadFromConfiguration(Configuration $configuration): self
     {
@@ -33,6 +35,7 @@ class ReadOnlyConfiguration
         $self->lists = $configuration->getLists();
         $self->filters = $configuration->getFilters();
         $self->mappings = $configuration->getMappings();
+        $self->resourceCollections = $configuration->getResourceCollections();
 
         return $self;
     }
@@ -42,9 +45,27 @@ class ReadOnlyConfiguration
         return $this->sources;
     }
 
+    /**
+     * @return ResourceCollectionInterface[]
+     */
+    public function getResourceCollections(): array
+    {
+        return $this->resourceCollections;
+    }
+
+    public function getResourceCollection(string $name):? ResourceCollectionInterface
+    {
+        return $this->resourceCollections[$name] ?? null;
+    }
+
     public function getLists(): array
     {
         return $this->lists;
+    }
+
+    public function getList(string $alias)
+    {
+        return $this->lists[$alias] ?? null;
     }
 
     public function getFilter(string $alias)

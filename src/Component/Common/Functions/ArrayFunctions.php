@@ -61,6 +61,7 @@ class ArrayFunctions
             // If the key is an integer and preserveIntKeys is true, do not flatten this part of the array
             if ($preserveIntKeys && is_int($key)) {
                 $result[rtrim($prefix, $separator)][$key] = $value;
+                //continue; // Skip the rest of the logic for this key
             }
 
             if (is_array($value) && $value !== []) {
@@ -199,6 +200,20 @@ class ArrayFunctions
         return array_filter($array, static function($item) use ($callback) {
             return $callback($item);
         });
+    }
+
+    public static function array_merge_recursive(array &$array1, array $array2) {
+        foreach ($array2 as $key => $value) {
+            // If the value is an array and the key exists in both arrays
+            if (is_array($value) && isset($array1[$key]) && is_array($array1[$key])) {
+                self::array_merge_recursive($array1[$key], $value);
+            } else {
+                // Overwrite the value in the first array
+                $array1[$key] = $value;
+            }
+        }
+
+        return $array1;
     }
 
     public static function fill_with_empty(array $array): array

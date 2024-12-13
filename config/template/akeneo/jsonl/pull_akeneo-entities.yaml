@@ -1,0 +1,20 @@
+context:
+  filter: []
+  identifier_filter_list: []
+  query: ''
+
+pipeline:
+  input:
+    http:
+      type: rest_api
+      account: '%akeneo_read_connection%'
+      endpoint: '%endpoint%'
+      method: GET
+      filter: '%filter%'
+      identifier_filter_list: '%identifier_filter_list%'
+      limiters:
+        querystring: '%query%'
+  output:
+    writer:
+      type: jsonl
+      filename: 'akeneo_%endpoint%.jsonl'
