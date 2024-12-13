@@ -5,7 +5,7 @@ namespace Misery\Component\Action;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 
-class RemoveAction implements ActionInterface, OptionsInterface
+class RemoveAction implements OptionsInterface
 {
     use OptionsTrait;
 
