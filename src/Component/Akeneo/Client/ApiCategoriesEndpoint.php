@@ -8,7 +8,7 @@ class ApiCategoriesEndpoint implements ApiEndpointInterface
 {
     public const NAME = 'categories';
     private const ALL = 'categories';
-    private const ONE = 'categories/%s';
+    private const ONE = 'categories/%code%';
 
     public function getAll(): string
     {

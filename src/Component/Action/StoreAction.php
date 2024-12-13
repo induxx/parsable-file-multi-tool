@@ -114,12 +114,11 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                 // start true_action
                 // make changes list
                 $changes = $changeManager->getChanges($identifier, $entity.'.values');
-                $this->configuration->addLists([
-                    'product_changes_fields_added' => $changes['added'],
-                    'product_changes_fields_deleted' => $changes['deleted'],
-                    'product_changes_fields_updated' => $changes['updated'],
-                    'product_changes_fields_all' => $changes['all'],
-                ]);
+
+                $this->configuration->updateList('product_changes_fields_added', $changes['added']);
+                $this->configuration->updateList('product_changes_fields_deleted', $changes['deleted']);
+                $this->configuration->updateList('product_changes_fields_updated', $changes['updated']);
+                $this->configuration->updateList('product_changes_fields_all', $changes['all']);
 
                 // see GroupAction, get ActionProcessor, process your action(s)
                 if ([] !== $trueAction) {

@@ -37,6 +37,7 @@ class Configuration
     private $decoders;
     private $reader;
     private $writer;
+    /** @var ArrayCollection[]  $lists */
     private $lists = [];
     private $mappings = [];
     private $filters = [];
@@ -167,7 +168,7 @@ class Configuration
     {
         $this->actions = $actionProcessor;
     }
-    
+
     public function setActionFactory(ItemActionProcessorFactory $factory): void
     {
         $this->actionFactory = $factory;
@@ -217,7 +218,27 @@ class Configuration
 
     public function addLists(array $lists): void
     {
-        $this->lists = array_merge($this->lists, $lists);
+        foreach ($lists as $listName => $list) {
+            $this->addList($listName, $list);
+        }
+    }
+
+    public function addList(string $listName, array $list): void
+    {
+        $this->lists[$listName] = new ArrayCollection($list);
+    }
+
+    public function updateList(string $listName, array $list): void
+    {
+        /** @var ArrayCollection $currentList */
+        $currentList = $this->getListObject($listName);
+        if ($currentList === null) {
+            $this->addList($listName, $list);
+            return;
+        }
+
+        $currentList->purge();
+        $currentList->addValues($list);
     }
 
     public function getLists(): array
@@ -225,9 +246,13 @@ class Configuration
         return $this->lists;
     }
 
-    public function getList(string $alias)
+    public function getList(string $alias): ?array
     {
-        return $this->lists[$alias] ?? null;
+        if (!isset($this->lists[$alias])) {
+            return null;
+        }
+
+        return $this->lists[$alias]->getValues();
     }
 
     public function addFilters(array $filters): void
@@ -355,5 +380,10 @@ class Configuration
         $this->encoders = new ArrayCollection();
         $this->decoders = new ArrayCollection();
         $this->blueprints = new ArrayCollection();
+    }
+
+    private function getListObject(string $alias): ?ArrayCollection
+    {
+        return $this->lists[$alias] ?? null;
     }
 }

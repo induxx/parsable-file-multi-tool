@@ -73,6 +73,35 @@ class FormatActionTest extends TestCase
         $this->assertEquals(['field' => ''], $result);
     }
 
+    public function testEmptyReplaceFormatFunction()
+    {
+        $item = ['field' => 'A|,B|,C|,D'];
+
+        $action = new FormatAction();
+        $action->setOptions([
+            'field' => 'field',
+            'functions' => ['replace'],
+            'search' => '|,',
+            'replace' => '',
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field' => 'ABCD'], $result);
+
+        $action = new FormatAction();
+        $action->setOptions([
+            'field' => 'field',
+            'functions' => ['replace'],
+            'search' => '',
+            'replace' => null,
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals(['field' => 'A|,B|,C|,D'], $result);
+    }
+
     public function testApplyPrefixFunction()
     {
         $item = ['field' => '12345'];
