@@ -8,16 +8,20 @@ use Misery\Component\Converter\Matcher;
 use Misery\Component\Mapping\ColumnMapper;
 use Misery\Model\DataStructure\ItemInterface;
 
-class RenameAction implements OptionsInterface
+class RenameAction implements OptionsInterface, ActionItemInterface
 {
     use OptionsTrait;
 
-    private $mapper = null;
+    private $mapper;
 
     public const NAME = 'rename';
 
-    /** @var array */
-    private $options = [
+    public function __construct()
+    {
+        $this->mapper = new ColumnMapper();
+    }
+
+    private array $options = [
         'from' => null,
         'to' => null,
         'suffix' => null,
@@ -27,35 +31,21 @@ class RenameAction implements OptionsInterface
         'strict_mode' => true,
     ];
 
-    public function init(): void
-    {
-        if (empty($this->mapper)) {
-            $this->mapper = new ColumnMapper($this->getOption('strict_mode'));
-        }
-    }
-
-    public function applyAsItem(ItemInterface $item): ItemInterface
+    public function applyAsItem(ItemInterface $item): void
     {
         $from = $this->getOption('from');
         $to = $this->getOption('to');
+        if (!$from || !$to) {
+            return;
+        }
+
         $item->moveItem($from, $to);
-
-        return $item;
     }
-
 
     public function apply(array $item): array
     {
-        $this->init();
-
         $from = $this->getOption('from');
         $to = $this->getOption('to');
-
-        $from = $this->findMatchedValueData($item, $from) ?? $from;
-
-        if (!isset($item[$from])) {
-            return $item;
-        }
 
         if (!empty($this->options['suffix'])) {
             return $this->mapper->mapWithSuffix(
@@ -72,18 +62,5 @@ class RenameAction implements OptionsInterface
         }
 
         return $this->mapper->map($item, [$from => $to]);
-    }
-
-    private function findMatchedValueData(array $item, string $field): int|string|null
-    {
-        foreach ($item as $key => $itemValue) {
-            $matcher = $itemValue['matcher'] ?? null;
-            /** @var $matcher Matcher */
-            if ($matcher && $matcher->matches($field)) {
-                return $key;
-            }
-        }
-
-        return null;
     }
 }

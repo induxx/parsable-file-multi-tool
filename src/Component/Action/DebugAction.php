@@ -19,7 +19,7 @@ class DebugAction implements OptionsInterface, ActionInterface, ActionItemInterf
         'until_field' => null,
     ];
 
-    #[NoReturn] public function applyAsItem(ItemInterface $item): ItemInterface
+    public function applyAsItem(ItemInterface $item): void
     {
         dd($item);
     }

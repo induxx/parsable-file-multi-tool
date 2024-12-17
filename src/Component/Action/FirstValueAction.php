@@ -4,6 +4,7 @@ namespace Misery\Component\Action;
 
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Converter\Matcher;
+use Misery\Model\DataStructure\ItemInterface;
 
 class FirstValueAction implements ActionInterface
 {
@@ -19,6 +20,22 @@ class FirstValueAction implements ActionInterface
         'store_field' => null,
         'default_value' => null,
     ];
+
+    public function applyAsItem(ItemInterface $item): void
+    {
+        $defaultValue = $this->getOption('default_value');
+        $storeField = $this->getOption('store_field');
+        $fields = $this->getOption('fields');
+
+        foreach ($fields as $field) {
+            if (!empty($item->getItem($field)->getDataValue())) {
+                $item->copyItem($field, $storeField);
+                return;
+            }
+        }
+
+        $item->addItem($storeField, $defaultValue);
+    }
 
     public function apply(array $item): array
     {

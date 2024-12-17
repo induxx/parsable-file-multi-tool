@@ -6,20 +6,17 @@ use Misery\Model\DataStructure\ItemInterface;
 
 class ItemActionProcessor
 {
-    private array $configurationRules;
-
-    public function __construct(array $configurationRules)
-    {
-        $this->configurationRules = $configurationRules;
-    }
+    public function __construct(private readonly array $configurationRules) {}
 
     public function process(ItemInterface|array $item): ItemInterface|array
     {
-        foreach ($this->configurationRules as $action) {
-            if ($item instanceof ItemInterface) {
-                $item = $action->applyAsItem($item);
-                continue;
+        if ($item instanceof ItemInterface) {
+            foreach ($this->configurationRules as $action) {
+                $action->applyAsItem($item);
             }
+        }
+
+        foreach ($this->configurationRules as $name => $action) {
             $item = $action->apply($item);
         }
 

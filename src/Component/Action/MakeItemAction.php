@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Action;
 
-use Misery\Component\Akeneo\DataStructure\AkeneoItemFactory;
+use Misery\Component\Akeneo\DataStructure\AkeneoItemBuilder;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
@@ -50,6 +50,6 @@ class MakeItemAction implements OptionsInterface, ConfigurationAwareInterface
             $attributeTypes = $this->configuration->getList($attributeTypes);
         }
 
-        return AkeneoItemFactory::create($item, ['attribute_types' => $attributeTypes]);
+        return AkeneoItemBuilder::fromProductApiPayload($item, ['attribute_types' => $attributeTypes]);
     }
 }

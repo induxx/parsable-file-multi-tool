@@ -13,12 +13,12 @@ class ColumnMapper implements Mapper
     public function map(array $item, array $mappings)
     {
         // Check for missing mapped items
-        $missingMappings = array_diff(array_keys($mappings), array_keys($item));
+        $mappingDif = count(array_diff(array_keys($mappings), array_keys($item))) == count(array_keys($mappings));
 
-        if ($this->strictMode && !empty($missingMappings)) {
+        if ($this->strictMode && $mappingDif) {
             throw new \InvalidArgumentException(sprintf(
-                'The following mapped items are not found in item: %s',
-                json_encode($missingMappings)
+                'No mapped items %s are not found in item.',
+                json_encode($mappings)
             ));
         }
 
