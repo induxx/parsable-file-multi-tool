@@ -2,8 +2,8 @@
 
 namespace Misery\Component\Akeneo\DataStructure;
 
-use App\Component\Akeneo\Api\Objects\Product;
 use Misery\Component\Converter\Matcher;
+use Misery\Model\DataStructure\ItemInterface;
 
 class BuildProductMatcher
 {
@@ -43,16 +43,16 @@ class BuildProductMatcher
         throw new \Exception('Deprecated! use a proper Factory');
     }
 
-    public static function fromItem(ItemCollection $item)
+    public static function fromItem(ItemInterface $item): array
     {
         $fields = [];
-        foreach ($item->getItems() as $code => $fieldValue) {
-            $matcher = $fieldValue->getMatcher();
+        foreach ($item->getItemNodes() as $code => $itemNode) {
+            $matcher = $itemNode->getMatcher();
 
             if ($matcher->matches('values')) {
-                $fields['values'][$matcher->getPrimaryKey()][] = $fieldValue->getValue();
+                $fields['values'][$matcher->getPrimaryKey()][] = $itemNode->getValue();
             } else {
-                $fields[$code] = $fieldValue->getValue();
+                $fields[$code] = $itemNode->getValue();
             }
         }
 
