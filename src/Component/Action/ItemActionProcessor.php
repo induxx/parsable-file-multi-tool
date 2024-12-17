@@ -10,13 +10,11 @@ class ItemActionProcessor
 
     public function process(ItemInterface|array $item): ItemInterface|array
     {
-        if ($item instanceof ItemInterface) {
-            foreach ($this->configurationRules as $action) {
-                $action->applyAsItem($item);
-            }
-        }
-
         foreach ($this->configurationRules as $name => $action) {
+            if ($item instanceof ItemInterface) {
+                $action->applyAsItem($item);
+                continue;
+            }
             $item = $action->apply($item);
         }
 
