@@ -6,6 +6,7 @@ use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Converter\Matcher;
 use Misery\Component\Mapping\ColumnMapper;
+use Misery\Model\DataStructure\ItemInterface;
 
 class RenameAction implements OptionsInterface
 {
@@ -25,6 +26,15 @@ class RenameAction implements OptionsInterface
         'fields' => [],
         'strict_mode' => true,
     ];
+
+    public function applyAsItem(ItemInterface $item): ItemInterface
+    {
+        $from = $this->getOption('from');
+        $to = $this->getOption('to');
+        $item->moveItem($from, $to);
+
+        return $item;
+    }
 
     public function init(): void
     {
