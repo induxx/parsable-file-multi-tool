@@ -14,10 +14,7 @@ class DebugAction implements OptionsInterface, ActionInterface, ActionItemInterf
     public const NAME = 'debug';
 
     /** @var array */
-    private $options = [
-        'field' => null,
-        'until_field' => null,
-    ];
+    private $options = [];
 
     #[NoReturn] public function applyAsItem(ItemInterface $item): ItemInterface
     {
@@ -26,18 +23,6 @@ class DebugAction implements OptionsInterface, ActionInterface, ActionItemInterf
 
     public function apply(array $item): array
     {
-        $untilField = $this->getOption('until_field');
-        if ($untilField && isset($item[$untilField])) {
-            dd($item[$untilField]);
-        }
-        $field = $this->getOption('field');
-        if ($field) {
-            dd($item[$field]);
-        }
-        if (null === $field && null === $untilField) {
-            dd($item);
-        }
-
-        return $item;
+        dd($item);
     }
 }

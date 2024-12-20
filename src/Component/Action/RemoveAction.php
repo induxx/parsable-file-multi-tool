@@ -6,7 +6,7 @@ use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Model\DataStructure\ItemInterface;
 
-class RemoveAction implements ActionInterface, OptionsInterface, ActionItemInterface
+class RemoveAction implements OptionsInterface, ActionItemInterface
 {
     use OptionsTrait;
 
