@@ -12,6 +12,7 @@ use Misery\Component\Modifier\ReferenceCodeModifier;
 use Misery\Component\Reader\ItemCollection;
 
 /**
+ * This case is not ready for scope-able options, nor API options
  * This Converter extracts the options from the Akeneo Product data structure
  */
 class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderInterface, RegisteredByNameInterface, OptionsInterface
@@ -20,30 +21,26 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
 
     private $options = [
         'attribute_option_codes:list' => [],
-        'parent_identifier' => 'attribute',
-        'identifier' => 'code',
-        'reference' => 'reference',
-        'reference_code' => true, # force the option code to be a reference code
+        'parent_identifier_field' => 'attribute',
+        'identifier_field' => 'code',
+        'reference_field' => 'reference',
+        'reference_code' => true, # force the option code to be a reference-able code
         'lower_cased' => true, # force the option code to be lower cased
     ];
 
-    public function init(): void
-    {
-    }
-
     public function convert(array $item): array
     {
-        $identifier = $this->getOption('identifier');
-        $parentIdentifier = $this->getOption('parent_identifier');
-        $reference = $this->getOption('reference');
+        $identifierField = $this->getOption('identifier_field');
+        $parentIdentifierField = $this->getOption('parent_identifier_field');
+        $referenceField = $this->getOption('reference_field');
         $optionCodes = $this->getOption('attribute_option_codes:list');
         $referenceCode = $this->getOption('reference_code');
         $lowerCased = $this->getOption('lower_cased');
 
-        // first we reduce the item to only the options
+        // Reduce the item to only the options
         $item = ColumnReducer::reduceItem($item, ...$optionCodes);
 
-        // second we remove the null values
+        // Remove null values
         $item = array_filter($item);
 
         $result = [];
@@ -51,7 +48,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
             return $result;
         }
 
-        // third we re-loop the item to create the options structure
+        // Create the options structure
         foreach ($item as $key => $value) {
             if (empty($value)) {
                 continue;
@@ -59,21 +56,32 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
             if (is_array($value)) {
                 foreach ($value as $option) {
                     $optionCode = $this->renderCode($option, $referenceCode, $lowerCased);
-                    $result[$key][$parentIdentifier] = $key;
-                    $result[$key][$identifier] = $optionCode;
-                    $result[$key][$reference] = $optionCode . '-'. $key;
+                    $id = $optionCode . '-'. $key;
+                    $result[$id][$parentIdentifierField] = $key;
+                    $result[$id][$identifierField] = $optionCode;
+                    $result[$id][$referenceField] = $id;
                 }
             } else {
                 $optionCode = $this->renderCode($value, $referenceCode, $lowerCased);
-                $result[$key][$parentIdentifier] = $key;
-                $result[$key][$identifier] = $optionCode;
-                $result[$key][$reference] = $optionCode . '-'. $key;
+                $id = $optionCode . '-'. $key;
+                $result[$id][$parentIdentifierField] = $key;
+                $result[$id][$identifierField] = $optionCode;
+                $result[$id][$referenceField] = $id;
             }
         }
 
         return $result;
     }
 
+    /**
+     * Render the option code.
+     * This method is used to render the option code into a acceptable format for akeneo.
+     *
+     * @param string $value The value to render.
+     * @param bool $referenceCode Whether to use reference code.
+     * @param bool $lowerCase Whether to convert to lower case.
+     * @return string The rendered code.
+     */
     private function renderCode(string $value, bool $referenceCode = true, bool $lowerCase = true): string
     {
         if ($referenceCode) {
@@ -86,6 +94,12 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
         return $value;
     }
 
+    /**
+     * Load the given item array as an ItemCollection, exploding the item into multiple loop-able items.
+     *
+     * @param array $item The item to load.
+     * @return ItemCollection The loaded item collection.
+     */
     public function load(array $item): ItemCollection
     {
         return new ItemCollection($this->convert($item));
