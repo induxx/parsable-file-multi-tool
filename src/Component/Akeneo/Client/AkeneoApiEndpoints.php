@@ -16,6 +16,7 @@ class AkeneoApiEndpoints implements ApiEndPointsInterface
         ApiReferenceEntitiesEndpoint::NAME => ApiReferenceEntitiesEndpoint::class,
         ApiFamiliesEndpoint::NAME => ApiFamiliesEndpoint::class,
         ApiFamilyVariantsEndpoint::NAME => ApiFamilyVariantsEndpoint::class,
+        ApiAssetsEndpoint::NAME => ApiAssetsEndpoint::class,
     ];
 
     public function getEndPoint(string $endpointName): ApiEndpointInterface

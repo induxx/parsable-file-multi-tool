@@ -81,6 +81,10 @@ class ItemReader implements ItemReaderInterface
                 if ($rowValue === 'UNIQUE') {
                     $list = [];
                     $reader = $reader->filter(static function ($row) use ($columnName, &$list) {
+                        if (!is_array($row)) {
+                            return false;
+                        }
+
                         $id = $row[$columnName];
                         if (in_array($id, $list, true)) {
                             return false;
