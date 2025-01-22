@@ -13,6 +13,7 @@ use Misery\Component\Item\Processor\EncoderProcessor;
 use Misery\Component\Item\Processor\NullProcessor;
 use Misery\Component\Parser\CsvParser;
 use Misery\Component\Parser\JsonFileParser;
+use Misery\Component\Parser\JsonParser;
 use Misery\Component\Parser\XmlParser;
 use Misery\Component\Parser\YamlParser;
 
@@ -65,7 +66,12 @@ class SourceCollectionFactory implements RegisteredByNameInterface
         Assert::that($file)->file();
 
         $path = pathinfo($file);
-        if (in_array(strtolower($path['extension']), ['json', 'buffer'])) {
+        if (strtolower($path['extension'] === 'buffer')) {
+            $sourceCollection->add(
+                Source::createSimple(JsonParser::create($file), $alias ?? $path['basename'])
+            );
+        }
+        if (strtolower($path['extension'] === 'json')) {
             $sourceCollection->add(
                 Source::createSimple(JsonFileParser::create($file), $alias ?? $path['basename'])
             );

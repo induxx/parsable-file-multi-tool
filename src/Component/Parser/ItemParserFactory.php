@@ -22,7 +22,7 @@ class ItemParserFactory implements RegisteredByNameInterface
         Assert::that(
             $type,
             'type must be filled in.'
-        )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed', 'yaml', 'buffer', 'json', 'jsonl']);
+        )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed', 'yaml', 'buffer', 'json', 'jsonl', 'json-file']);
 
         $fetchers = [
             'continuous' => ContinuousBufferFetcher::class,
@@ -58,9 +58,17 @@ class ItemParserFactory implements RegisteredByNameInterface
             return $mainParser;
         }
 
+        // TODO json and json-file are the same, we should merge them
         if ($type === 'json' || $type === 'buffer' || $type === 'jsonl') {
-            return JsonFileParser::create(
+            return JsonParser::create(
                 $manager->getFile($configuration['filename'])
+            );
+        }
+
+        if ($type === 'json-file') {
+            return JsonFileParser::create(
+                $manager->getFile($configuration['filename']),
+                $configuration['container'] ?? null
             );
         }
 
