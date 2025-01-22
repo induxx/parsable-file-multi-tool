@@ -39,6 +39,10 @@ class JsonFileParser extends FileParser
 
     public static function create(string $filename, string $container = null): self
     {
+        if (!file_exists($filename)) {
+            throw new \RuntimeException("File not found: $filename");
+        }
+
         return new self(new \SplFileObject($filename), $container);
     }
 
@@ -64,12 +68,8 @@ class JsonFileParser extends FileParser
         $this->iterator->next();
     }
 
-    /**
-     * Returns the current key (index).
-     *
-     * @return int
-     */
-    public function key(): int
+    /** Returns the current key (index).*/
+    public function key(): string|int
     {
         return $this->iterator->key();
     }
