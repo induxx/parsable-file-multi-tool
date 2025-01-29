@@ -66,15 +66,23 @@ class SourceCollectionFactory implements RegisteredByNameInterface
         Assert::that($file)->file();
 
         $path = pathinfo($file);
-        if (strtolower($path['extension'] === 'buffer')) {
+        if (in_array(strtolower($path['extension']), ['buffer', 'jsonl'])) {
             $sourceCollection->add(
                 Source::createSimple(JsonParser::create($file), $alias ?? $path['basename'])
             );
         }
         if (strtolower($path['extension'] === 'json')) {
-            $sourceCollection->add(
-                Source::createSimple(JsonFileParser::create($file), $alias ?? $path['basename'])
-            );
+            try {
+                // if the file is not a Regular JSON file, try to parse it as a JSONL file
+                $sourceCollection->add(
+                    Source::createSimple(JsonFileParser::create($file), $alias ?? $path['basename'])
+                );
+                return;
+            } catch (\Exception $e) {
+                $sourceCollection->add(
+                    Source::createSimple(JsonParser::create($file), $alias ?? $path['basename'])
+                );
+            }
         }
         if (strtolower($path['extension']) === 'csv') {
             $sourceCollection->add(
