@@ -15,6 +15,7 @@ class ArrayValueAction implements OptionsInterface
         'field' => null,
         'column_item' => null,
         'function' => null,
+        'separator' => ' ',
     ];
 
     public function apply(array $item): array
@@ -28,6 +29,17 @@ class ArrayValueAction implements OptionsInterface
                 break;
             case 'array_merge':
                 $item = $this->arrayMerge($item, $field, $columnItem);
+                break;
+            case 'array_values_with_keys':
+                $item = array_merge($item, $item[$columnItem] ?? []);
+                break;
+            case 'array_keys':
+                $item[$field] =  array_keys($item[$columnItem]) ?? [];
+                break;
+            case 'array_filter':
+                $item[$field] = array_filter($item[$columnItem] ?? [], function ($value) {
+                    return $value !== "" && $value !== null && $value !== false && $value !== [];
+                });
                 break;
             default:
                 throw new \Exception('Function not found');
