@@ -99,6 +99,11 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             }
         }
 
+        // CSV empty string data is converted to null
+        if ($value === '') {
+            $value = null;
+        }
+
         $localizable = in_array(
             $attributeCode,
             $this->getOption('localizable_attribute_codes:list')
@@ -123,6 +128,9 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
                 // TODO implement attributes reader
+                if (empty($value)) {
+                    $value = [];
+                }
                 if (is_array($value) && $this->getOption('filter_option_codes')) {
                     $value = $this->filterOptionCodes($attributeCode, $value);
                 }
