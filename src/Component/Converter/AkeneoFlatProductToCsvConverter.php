@@ -135,7 +135,12 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                     $value = $this->filterOptionCodes($attributeCode, $value);
                 }
                 if (is_string($value)) {
-                    $value = [$value];
+                    // if the value is a comma separated string
+                    if (str_contains($value, ',')) {
+                        $value = explode(',', $value);
+                    } else {
+                        $value = [$value];
+                    }
                 }
                 break;
             case AkeneoHeaderTypes::PRICE:
