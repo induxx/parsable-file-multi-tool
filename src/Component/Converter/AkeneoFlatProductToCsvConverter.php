@@ -118,11 +118,13 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 // no changes
                 break;
             case AkeneoHeaderTypes::NUMBER:
-                $value = $this->numberize($value);
+                if (!empty($value)) {
+                    $value = $this->numberize($value);
+                }
                 break;
             case AkeneoHeaderTypes::SELECT:
                 // TODO implement attributes reader
-                if ($this->getOption('filter_option_codes')) {
+                if (is_string($value) && $this->getOption('filter_option_codes')) {
                     $value = $this->filterOptionCode($attributeCode, $value);
                 }
                 break;
