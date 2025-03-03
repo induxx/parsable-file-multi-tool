@@ -22,10 +22,15 @@ class AkeneoErrors
         $this->errors[] = $error;
     }
 
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
     public function getErrorMessages(): array
     {
         return array_map(function (AkeneoError $error) {
-            return  $error->getField() . ': ' . $error->getMessage();
+            return  $error->getField() . ': ' . $error->getErrorMessage();
         }, $this->errors);
     }
 
