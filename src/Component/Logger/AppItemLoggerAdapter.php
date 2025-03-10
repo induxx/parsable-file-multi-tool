@@ -6,7 +6,7 @@ use App\Component\Logger\ItemLogger;
 
 class AppItemLoggerAdapter implements ItemLoggerInterface
 {
-    public function __construct(public readonly ItemLogger $logger) {}
+    public function __construct(public readonly \App\Component\Logger\ItemLoggerInterface $logger) {}
 
     public function logCreate(string $entityClass, string $identifier): void
     {
