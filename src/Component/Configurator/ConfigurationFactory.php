@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Bundle\AIBundle\Command\CommandItemLogger;
 use App\Component\ChangeManager\ChangeManager;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
@@ -47,6 +48,11 @@ class ConfigurationFactory
             $additionalSources,
             $extensions
         );
+    }
+
+    public function setItemLogger(CommandItemLogger $itemLogger)
+    {
+        $this->config->setItemLogger($itemLogger);
     }
 
     public function setChangeManager(ChangeManager $changeManager)

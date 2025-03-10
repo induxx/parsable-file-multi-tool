@@ -107,7 +107,7 @@ class ItemReader implements ItemReaderInterface
                 }
             } else {
                 $reader = $reader->filter(static function ($row) use ($rowValue, $columnName) {
-                    return $row && $row[$columnName] === $rowValue;
+                    return $row[$columnName] === $rowValue;
                 });
             }
         }

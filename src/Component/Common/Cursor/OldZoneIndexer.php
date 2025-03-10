@@ -7,21 +7,20 @@ class OldZoneIndexer
 {
     private const MEDIUM_CACHE_SIZE = 5000;
 
-    private array $indexes = [];
-    private array $zones = [];
-    private array $ranges = [];
+    /** @var array */
+    private $indexes;
+    private $zones;
+    private $ranges;
 
     public function __construct(CursorInterface $cursor, string $reference)
     {
         // prep indexes
         $cursor->loop(function ($row) use ($cursor, $reference) {
-            if ($row) {
-                $zone = (int)(($cursor->key() - 1) / self::MEDIUM_CACHE_SIZE);
-                $reference = $row[$reference];
-                $this->zones[$reference] = $zone;
-                $this->indexes[$reference] = $cursor->key();
-                $this->ranges[$zone][] = $cursor->key();
-            }
+            $zone = (int) (($cursor->key() -1) / self::MEDIUM_CACHE_SIZE);
+            $reference = $row[$reference];
+            $this->zones[$reference] = $zone;
+            $this->indexes[$reference] = $cursor->key();
+            $this->ranges[$zone][] = $cursor->key();
         });
         $cursor->rewind();
     }

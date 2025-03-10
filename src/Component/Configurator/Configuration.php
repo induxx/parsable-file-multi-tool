@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Bundle\AIBundle\Command\CommandItemLogger;
 use App\Component\ChangeManager\ChangeManager;
 use Misery\Component\Action\ItemActionProcessorFactory;
 use Psr\Log\LoggerAwareTrait;
@@ -291,11 +292,6 @@ class Configuration
     public function getWriter(): ?ItemWriterInterface
     {
         return $this->writer;
-    }
-
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger;
     }
 
     public function setReader($reader): void

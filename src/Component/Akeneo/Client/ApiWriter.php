@@ -89,7 +89,10 @@ class ApiWriter implements ItemWriterInterface
                 'API exception',
                 [
                     'message' => $response->getContent(),
-                    'errors' => AkeneoErrorFactory::createErrors($response->getContent())
+                    'errors' => AkeneoErrorFactory::createErrors($response->getContent()),
+                    'identifier' => $data['identifier'] ?? $data['code'] ?? $data['sku'] ?? $data['id'] ?? '',
+                    'identityClass' => $this->endpoint::NAME,
+                    'method' => $this->method,
                 ],
                 $data
             );

@@ -37,10 +37,21 @@ class PipelineFactory implements RegisteredByNameInterface
                         $pipeline->output(new PipeWriter(
                             $configurationManager->createBufferWriter($configuration['output']['http']['buffer_file'])
                         ));
+
+                        $pipeline->output(new PipeItemLogger(
+                            $configurationManager->getConfig()->getItemLogger(),
+                            $configuration['output']['http']['endpoint'],
+                            $configuration['output']['http']['method']
+                        ));
                         break;
                     }
 
                     $pipeline->output(new PipeWriter($writer));
+                    $pipeline->output(new PipeItemLogger(
+                        $configurationManager->getConfig()->getItemLogger(),
+                        $configuration['output']['http']['endpoint'],
+                        $configuration['output']['http']['method']
+                    ));
 
                     $pipeline->invalid(
                         new PipeWriter($this->createInvalid($configurationManager, $configuration))

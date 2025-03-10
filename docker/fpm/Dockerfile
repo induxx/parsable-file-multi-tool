@@ -15,7 +15,12 @@ RUN apt install -y moreutils
 
 # python panda
 RUN apt-get update && \
-    apt-get --no-install-recommends --no-install-suggests --yes --quiet install python3 python3-pip && \
-    pip install --break-system-packages pandas && \
-    apt-get clean && apt-get --yes --quiet autoremove --purge && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get install --no-install-recommends --yes python3 python3-pip python3-venv && \
+    python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install pandas && \
+    apt-get clean && apt-get --yes autoremove --purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+           /usr/share/doc/* /usr/share/groff/* /usr/share/info/* /usr/share/linda/* \
+           /usr/share/lintian/* /usr/share/locale/* /usr/share/man/*
+
+ENV PATH="/opt/venv/bin:$PATH"

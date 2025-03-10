@@ -22,7 +22,7 @@ abstract class PaginationCursor implements \Iterator
         return $this->client;
     }
 
-    public function current(): mixed
+    public function current()
     {
         if (!$this->valid()) {
             return false;

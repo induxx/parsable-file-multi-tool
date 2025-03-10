@@ -21,7 +21,7 @@ class AkeneoError
         return $this->field;
     }
 
-    public function getErrorMessage(): string
+    public function getMessage(): string
     {
         return $this->message;
     }

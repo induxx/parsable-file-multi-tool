@@ -12,6 +12,7 @@ class PipeWriter implements PipeWriterInterface
     {
         $this->writer = $writer;
     }
+
     public function write(array $data): void
     {
         $this->writer->write($data);

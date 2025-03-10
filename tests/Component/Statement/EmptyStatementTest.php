@@ -40,14 +40,5 @@ class EmptyStatementTest extends TestCase
             'description' => 'LV',
             'sku' => '1234678',
         ], $statement->apply($item2));
-
-        // This test "currently" is not applicable because the field is not empty
-
-//        $item3 = [
-//            'description' => 'LV',
-//            'sku' => '1234678',
-//        ];
-//
-//        $this->assertTrue($statement->isApplicable($item3));
     }
 }

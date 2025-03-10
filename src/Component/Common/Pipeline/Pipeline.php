@@ -62,13 +62,17 @@ class Pipeline
     {
         if ($exception->hasErrors()) {
             foreach ($exception->getErrors()->getErrorMessages() as $errorMessage) {
-                $this->logger->warning(sprintf('WARNING: %s', $errorMessage));
+                $this->getItemLogger()->logFailed(
+                    $exception->getInvalidIdentityClass(),
+                    $exception->getInvalidIdentifier(),
+                    $errorMessage
+                );
             }
         }
         $this->invalid->write([
             'line' => $lineNumber,
             'msg' => $exception->getMessage(),
-            'item' => json_encode($exception->getInvalidItem()),
+            'item' => json_encode($exception->getInvalidItemData()),
         ]);
 
         // WE need a silent LOGGER here
