@@ -2,13 +2,13 @@
 
 namespace Misery\Component\Common\Pipeline;
 
-use App\Bundle\AIBundle\Command\CommandItemLogger;
+use Misery\Component\Logger\ItemLoggerInterface;
 use Misery\Component\Writer\ItemWriterInterface;
 
 class PipeItemLogger implements PipeWriterInterface
 {
     public function __construct(
-        private readonly CommandItemLogger $itemLogger,
+        private readonly ItemLoggerInterface $itemLogger,
         private readonly string            $identityClass,
         private readonly string            $method
     ) {}

@@ -2,7 +2,6 @@
 
 namespace Misery\Component\Configurator;
 
-use App\Bundle\AIBundle\Command\CommandItemLogger;
 use App\Component\ChangeManager\ChangeManager;
 use Misery\Component\Logger\ItemLoggerInterface;
 use Misery\Component\Logger\NullItemLogger;
@@ -24,7 +23,6 @@ class ConfigurationFactory
     public function __construct(Registry $factoryRegistry)
     {
         $this->factoryRegistry = $factoryRegistry;
-        $this->setItemLogger(new NullItemLogger());
     }
 
     public function getFactory(string $alias)
@@ -41,6 +39,7 @@ class ConfigurationFactory
     ) {
         $this->config = new Configuration();
         $this->config->setLogger($logger);
+        $this->config->setItemLogger(new NullItemLogger());
         $sources = ($source) ? $this->getFactory('source')->createFromFileManager($source) : null;
         $this->manager = new ConfigurationManager(
             $this->config,
@@ -53,7 +52,7 @@ class ConfigurationFactory
         );
     }
 
-    public function setItemLogger(CommandItemLogger|ItemLoggerInterface $itemLogger)
+    public function setItemLogger(ItemLoggerInterface $itemLogger)
     {
         $this->config->setItemLogger($itemLogger);
     }

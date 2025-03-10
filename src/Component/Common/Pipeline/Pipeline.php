@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Common\Pipeline;
 
+use Misery\Component\Logger\ItemLoggerAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Misery\Component\Common\Pipeline\Exception\InvalidItemException;
 use Misery\Component\Common\Pipeline\Exception\SkipPipeLineException;
@@ -11,6 +12,7 @@ use Misery\Component\Debugger\NullItemDebugger;
 class Pipeline
 {
     use LoggerAwareTrait;
+    use ItemLoggerAwareTrait;
 
     /** @var PipeReaderInterface */
     private $in;

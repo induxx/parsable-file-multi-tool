@@ -2,7 +2,6 @@
 
 namespace Misery\Component\Logger;
 
-use App\Bundle\AIBundle\Command\CommandItemLogger;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -13,14 +12,14 @@ trait ItemLoggerAwareTrait
     /**
      * The logger instance.
      */
-    protected CommandItemLogger $itemLogger;
+    protected ItemLoggerInterface $itemLogger;
 
-    public function setItemLogger(ItemLoggerInterface|CommandItemLogger $itemLogger): void
+    public function setItemLogger(ItemLoggerInterface $itemLogger): void
     {
         $this->itemLogger = $itemLogger;
     }
 
-    public function getItemLogger(): ItemLoggerInterface|CommandItemLogger
+    public function getItemLogger(): ItemLoggerInterface
     {
         return $this->itemLogger;
     }
