@@ -17,13 +17,15 @@ class AkeneoErrorFactory
 
         // Handle multi-payload response
         if (is_array($payload) && isset($payload[0])) {
-            foreach ($payload as $msg) {
+            foreach (array_filter($payload) as $msg) {
                 $statusCode = $msg['status_code'] ?? $msg['code'] ?? null;
                 $id = $msg['identifier'] ?? $msg['code'] ?? 'unknown_id';
-                $errors[] = new AkeneoError(
-                    $id,
-                    implode(': ', array_filter([$statusCode, $msg['message']]))
-                );
+                if (isset($msg['message'])) {
+                    $errors[] = new AkeneoError(
+                        $id,
+                        implode(': ', array_filter([$statusCode, $msg['message']]))
+                    );
+                }
 
                 // Handle Errors
                 if (isset($msg['errors']) && is_array($msg['errors'])) {
