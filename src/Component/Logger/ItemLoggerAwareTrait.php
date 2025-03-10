@@ -13,7 +13,7 @@ trait ItemLoggerAwareTrait
     /**
      * The logger instance.
      */
-    protected ?CommandItemLogger $itemLogger = null;
+    protected CommandItemLogger $itemLogger;
 
     public function setItemLogger(ItemLoggerInterface|CommandItemLogger $itemLogger): void
     {
