@@ -6,7 +6,6 @@ use Ahc\Cli\Input\Command;
 use Assert\Assertion;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
-use Misery\Component\Logger\NullItemLogger;
 use Misery\Component\Logger\OutputLogger;
 use Misery\Component\Process\ProcessManager;
 use Symfony\Component\Yaml\Yaml;
