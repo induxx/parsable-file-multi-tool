@@ -22,6 +22,11 @@ class AkeneoErrors
         $this->errors[] = $error;
     }
 
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
     public function getErrorMessages(): array
     {
         return array_map(function (AkeneoError $error) {
