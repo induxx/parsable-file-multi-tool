@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Common\Pipeline;
 
+use Misery\Component\Logger\ItemLoggerAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Misery\Component\Common\Pipeline\Exception\InvalidItemException;
 use Misery\Component\Common\Pipeline\Exception\SkipPipeLineException;
@@ -11,6 +12,7 @@ use Misery\Component\Debugger\NullItemDebugger;
 class Pipeline
 {
     use LoggerAwareTrait;
+    use ItemLoggerAwareTrait;
 
     /** @var PipeReaderInterface */
     private $in;
@@ -62,13 +64,17 @@ class Pipeline
     {
         if ($exception->hasErrors()) {
             foreach ($exception->getErrors()->getErrorMessages() as $errorMessage) {
-                $this->logger->warning(sprintf('WARNING: %s', $errorMessage));
+                $this->getItemLogger()->logFailed(
+                    $exception->getInvalidIdentityClass(),
+                    $exception->getInvalidIdentifier(),
+                    $errorMessage
+                );
             }
         }
         $this->invalid->write([
             'line' => $lineNumber,
             'msg' => $exception->getMessage(),
-            'item' => json_encode($exception->getInvalidItem()),
+            'item' => json_encode($exception->getInvalidItemData()),
         ]);
 
         // WE need a silent LOGGER here

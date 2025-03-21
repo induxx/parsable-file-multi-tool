@@ -4,6 +4,7 @@ namespace Misery\Component\Configurator;
 
 use App\Component\ChangeManager\ChangeManager;
 use Misery\Component\Action\ItemActionProcessorFactory;
+use Misery\Component\Logger\ItemLoggerAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
@@ -27,6 +28,7 @@ use Misery\Component\Writer\ItemWriterInterface;
 class Configuration
 {
     use LoggerAwareTrait;
+    use ItemLoggerAwareTrait;
     private $pipeline = null;
     private $actions = null;
     private $groupedActions = null;
