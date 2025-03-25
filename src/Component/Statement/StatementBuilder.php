@@ -67,7 +67,9 @@ class StatementBuilder
             case 'CHARLEN_GT':
                 $context['condition'] = 'greater_than';
                 $statement = CharlenStatement::prepare(new SetValueAction(), $context);
-
+                break;
+            case 'IN_ARRAY':
+                $statement = InArrayStatement::prepare(new SetValueAction(), $context);
                 break;
             default:
                 throw new \Exception('invalid statement operator');
@@ -78,6 +80,17 @@ class StatementBuilder
 
     public static function build($when, array $context = []): StatementInterface
     {
+        if (is_array($when) && isset($when[0])) {
+            // Multiple conditions, treat as a collection
+            $collection = new StatementCollection();
+            foreach ($when as $singleWhen) {
+                $statement = self::build($singleWhen, $context);
+                $collection->add($statement);
+            }
+
+            return new CollectionStatement($collection, new SetValueAction(), $context);
+        }
+
         $statement = null;
 
         if (is_string($when)) {
