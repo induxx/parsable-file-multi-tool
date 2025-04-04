@@ -122,6 +122,7 @@ class PipelineFactory implements RegisteredByNameInterface
     {
         $configuration = $configuration['input'];
         $pipeline = new Pipeline();
+        $pipeline->setItemLogger($configurationManager->getConfig()->getItemLogger());
 
         $reader = (isset($configuration['http'])) ?
             $configurationManager->createHTTPReader($configuration['http']) :
