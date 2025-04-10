@@ -96,6 +96,7 @@ $modifierRegistry
     ->register(Misery\Component\Modifier\UrlEncodeModifier::NAME, new Misery\Component\Modifier\UrlEncodeModifier())
     ->register(Misery\Component\Modifier\StripTagsModifier::NAME, new Misery\Component\Modifier\StripTagsModifier())
     ->register(Misery\Component\Modifier\CapitalizeModifier::NAME, new Misery\Component\Modifier\CapitalizeModifier())
+    ->register(Misery\Component\Modifier\SlugModifier::NAME, new Misery\Component\Modifier\SlugModifier())
 
     //->register(Misery\Component\Modifier\StructureModifier::NAME, new Misery\Component\Modifier\StructureModifier())
 ;
