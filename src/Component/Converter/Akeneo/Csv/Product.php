@@ -160,6 +160,9 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                     if ($prep['data'] === '1') {
                         $prep['data'] = true;
                     }
+                    if ($prep['data'] === '') {
+                        $prep['data'] = null;
+                    }
                 }
                 # number
                 if ($codes[$masterKey] === 'pim_catalog_number') {
