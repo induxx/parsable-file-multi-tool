@@ -178,4 +178,54 @@ class AkeneoStructureFormatterActionTest extends TestCase
         // The item should remain unchanged as the field is not localizable
         $this->assertEquals($item, $result);
     }
+
+    public function testApplyWithFallbackLocales(): void
+    {
+        $item = [
+            'color' => [
+                ['lang' => 'en_US', 'data' => 'Red'],
+                ['lang' => 'fr_FR', 'data' => 'Rouge'],
+            ]
+        ];
+
+        $options = [
+            'context' => [
+                'active_locales' => ['en_US', 'en_GB', 'fr_FR'],
+                'active_scopes' => ['ecommerce', 'print'],
+                'active_locales_per_channel' => [
+                    'ecommerce' => ['en_US', 'en_GB', 'fr_FR'],
+                    'print' => ['en_US'],
+                ],
+                'fallback_locales' => [
+                    'en_US' => 'en_GB',
+                ],
+            ],
+            'restructure' => [
+                [
+                    'field' => 'color',
+                    'structure' => [
+                        'locale' => '{{lang}}',
+                        'scope' => null,
+                        'data' => '{{data}}',
+                    ],
+                    'struct' => 'localized_items_array',
+                ]
+            ],
+            'matcher_structure' => false,
+            'attributes_source' => 'attributes',
+        ];
+
+        $this->formatter->setOptions($options);
+
+        $result = $this->formatter->apply($item);
+
+        $expected = [
+            "color-en_US-ecommerce" => "Red",
+            'color-en_GB-ecommerce' => 'Red',
+            "color-en_US-print" => "Red",
+            "color-fr_FR-ecommerce" => "Rouge",
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
 }

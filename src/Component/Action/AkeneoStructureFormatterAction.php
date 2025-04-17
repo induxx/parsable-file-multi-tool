@@ -25,6 +25,7 @@ class AkeneoStructureFormatterAction implements OptionsInterface, ConfigurationA
         'context' => [
             'active_scopes' => [],
             'active_locales' => [],
+            'fallback_locales' => [],
             'active_locales_per_channel' => [],
             'locale_mapping' => [],
             'scope_mapping' => [],
@@ -39,6 +40,7 @@ class AkeneoStructureFormatterAction implements OptionsInterface, ConfigurationA
         $activeLocales = $context['active_locales'] ?? [];
         $activeLocalesPerChannel = $context['active_locales_per_channel'] ?? [];
         $activeScopes = $context['active_scopes'] ?? [];
+        $fallbackLocales = $context['fallback_locales'] ?? [];
         $restructures = $this->getOption('restructure');
         $attributesSource = $this->getOption('attributes_source');
         if (null === $attributesSource) {
@@ -85,11 +87,23 @@ class AkeneoStructureFormatterAction implements OptionsInterface, ConfigurationA
                     // scopable loop
                     if ($scopable && null === $value['scope']) {
                         //dump($value['locale']);
+                        $locale = $value['locale'];
+                        $fallbackLocale = $fallbackLocales[$locale] ?? null;
                         foreach ($activeScopes as $activeScope) {
                             $activeScopeLocales = $activeLocalesPerChannel[$activeScope] ?? [];
-                            //dump($activeLocales);
-                            if ($activeScopeLocales !== [] && in_array($value['locale'], $activeScopeLocales)) {
-                                $matcher = Matcher::create('values|'.$fieldName, $value['locale'], $activeScope);
+                            $matcher = null;
+                            if ($activeScopeLocales !== [] && in_array($locale, $activeScopeLocales)) {
+                                $matcher = Matcher::create('values|' . $fieldName, $locale, $activeScope);
+                                $item[$matcher->getRowKey()] = $value['data'];
+                                unset($item[$fieldName]);
+                                if ($this->getOption('matcher_structure')) {
+                                    $value['scope'] = $activeScope;
+                                    $output[$k = $matcher->getMainKey()] = $value;
+                                    $output[$k]['matcher'] = $matcher;
+                                }
+                            }
+                            if ($activeScopeLocales !== [] && in_array($fallbackLocale, $activeScopeLocales)) {
+                                $matcher = Matcher::create('values|' . $fieldName, $fallbackLocale, $activeScope);
                                 $item[$matcher->getRowKey()] = $value['data'];
                                 unset($item[$fieldName]);
                                 if ($this->getOption('matcher_structure')) {
