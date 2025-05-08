@@ -9,6 +9,7 @@ class AkeneoApiEndpoints implements ApiEndPointsInterface
 {
     private array $endpointSet = [
         ApiAttributesEndpoint::NAME => ApiAttributesEndpoint::class,
+        ApiAttributeGroupsEndpoint::NAME => ApiAttributeGroupsEndpoint::class,
         ApiOptionsEndpoint::NAME => ApiOptionsEndpoint::class,
         ApiProductsEndpoint::NAME => ApiProductsEndpoint::class,
         ApiProductModelsEndpoint::NAME => ApiProductModelsEndpoint::class,

@@ -34,6 +34,10 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         'container' => 'values',
         'option_label' => 'label-nl_BE',
         'properties' => ['sku', 'family', 'parent'],
+        'boolean_mapping' => [
+            'true_values' => [ 'true','1' ],
+            'false_values' => ['false', '0' ],
+        ],
     ];
 
     private $decoder;
@@ -117,6 +121,16 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             case AkeneoHeaderTypes::TEXT:
                 // no changes
                 break;
+            case AkeneoHeaderTypes::BOOLEAN:
+                if (is_string($value)) {
+                    $value = strtolower($value);
+                    if (in_array($value,  $this->getOption('boolean_mapping')['true_values'])) {
+                        $value = true;
+                    } elseif (in_array($value, $this->getOption('boolean_mapping')['false_values'])) {
+                        $value = false;
+                    }
+                }
+                break;
             case AkeneoHeaderTypes::NUMBER:
                 if (!empty($value)) {
                     $value = $this->numberize($value);
@@ -187,7 +201,11 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 break;
             case AkeneoHeaderTypes::REFDATA_MULTISELECT:
                 if (is_string($value)) {
-                    $value = [$value];
+                    if (str_contains($value, ',')) {
+                        $value = explode(',', $value);
+                    } else {
+                        $value = [$value];
+                    }
                 }
                 break;
             case AkeneoHeaderTypes::REFDATA_SELECT:
