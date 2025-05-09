@@ -59,7 +59,7 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
             // NULL is not an excepted value
             if ($item['categories'] === [] && false === $allowEmptyStringValues) {
                 unset($item['categories']);
-            }elseif ($item['categories'] === null) {
+            } elseif ($item['categories'] === null) {
                 unset($item['categories']);
             }
         }
@@ -67,7 +67,7 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
         foreach ($item ?? [] as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;
             $value = $itemValue['data']['amount'] ?? $itemValue['data'] ?? null;
-            if ($matcher && false === $allowEmptyStringValues && $value === '') {
+            if ($matcher && false === $allowEmptyStringValues && ($value === '' || $value === null)) {
                 unset($item[$key]);
                 continue;
             }
