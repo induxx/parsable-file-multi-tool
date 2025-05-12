@@ -26,26 +26,31 @@ class AkeneoOptionExtractorTest extends TestCase
                 'attribute' => 'color',
                 'code' => 'red',
                 'reference' => 'red-color',
+                'original_value' => 'Red'
             ],
             'blue-color' => [
                 'attribute' => 'color',
                 'code' => 'blue',
                 'reference' => 'blue-color',
+                'original_value' => 'Blue'
             ],
             'l-size' => [
                 'attribute' => 'size',
                 'code' => 'l',
                 'reference' => 'l-size',
+                'original_value' => 'L'
             ],
             'm-size' => [
                 'attribute' => 'size',
                 'code' => 'm',
                 'reference' => 'm-size',
+                'original_value' => 'M'
             ],
             'nike-brand' => [
                 'attribute' => 'brand',
                 'code' => 'nike',
                 'reference' => 'nike-brand',
+                'original_value' => 'nike'
             ]
         ];
 
@@ -75,21 +80,25 @@ class AkeneoOptionExtractorTest extends TestCase
                 'attribute' => 'color',
                 'code' => 'red',
                 'reference' => 'red-color',
+                'original_value' => 'Red'
             ],
             'blue-color' => [
                 'attribute' => 'color',
                 'code' => 'blue',
                 'reference' => 'blue-color',
+                'original_value' => 'Blue'
             ],
             'l-size' => [
                 'attribute' => 'size',
                 'code' => 'l',
                 'reference' => 'l-size',
+                'original_value' => 'L'
             ],
             'm-size' => [
                 'attribute' => 'size',
                 'code' => 'm',
                 'reference' => 'm-size',
+                'original_value' => 'M'
             ],
         ]);
 

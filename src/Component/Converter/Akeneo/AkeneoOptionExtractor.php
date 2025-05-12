@@ -24,7 +24,10 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
         'parent_identifier_field' => 'attribute',
         'identifier_field' => 'code',
         'reference_field' => 'reference',
+        'separator' => ',',
+        'has_string_separator' => false, # LEGACY if the value is a string and contains the separator, explode it
         'reference_code' => true, # force the option code to be a reference-able code
+        'reference_code_pattern' => 'old_pattern', # the pattern to use for the reference code
         'lower_cased' => true, # force the option code to be lower cased
     ];
 
@@ -36,6 +39,8 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
         $optionCodes = $this->getOption('attribute_option_codes:list');
         $referenceCode = $this->getOption('reference_code');
         $lowerCased = $this->getOption('lower_cased');
+        $separator = $this->getOption('separator');
+        $hasStringSeparator = $this->getOption('has_string_separator');
 
         // Reduce the item to only the options
         $item = ColumnReducer::reduceItem($item, ...$optionCodes);
@@ -53,20 +58,35 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
             if (empty($value)) {
                 continue;
             }
+            // transform the value into an array if it is a string and contains the separator
+            if ($hasStringSeparator && is_string($value) && str_contains($value, $separator)) {
+                $value = explode($separator, $value);
+            }
+
             if (is_array($value)) {
                 foreach ($value as $option) {
+                    $option = trim($option);
+                    if (empty($option)) {
+                        continue;
+                    }
                     $optionCode = $this->renderCode($option, $referenceCode, $lowerCased);
                     $id = $optionCode . '-'. $key;
                     $result[$id][$parentIdentifierField] = $key;
                     $result[$id][$identifierField] = $optionCode;
                     $result[$id][$referenceField] = $id;
+                    $result[$id]['original_value'] = $option;
                 }
             } else {
+                $value = trim($value);
+                if (empty($value)) {
+                    continue;
+                }
                 $optionCode = $this->renderCode($value, $referenceCode, $lowerCased);
                 $id = $optionCode . '-'. $key;
                 $result[$id][$parentIdentifierField] = $key;
                 $result[$id][$identifierField] = $optionCode;
                 $result[$id][$referenceField] = $id;
+                $result[$id]['original_value'] = $value;
             }
         }
 
@@ -85,7 +105,9 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
     private function renderCode(string $value, bool $referenceCode = true, bool $lowerCase = true): string
     {
         if ($referenceCode) {
-            $value = (new ReferenceCodeModifier())->modify($value);
+            $mod = new ReferenceCodeModifier();
+            $mod->setOption('use_pattern', $this->getOption('reference_code_pattern'));
+            $value = $mod->modify($value);
         }
         if ($lowerCase) {
             $value = strtolower($value);
