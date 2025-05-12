@@ -6,6 +6,7 @@ use Misery\Component\Akeneo\Header\AkeneoHeaderTypes;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Modifier\ReferenceCodeModifier;
 use Misery\Component\Reader\ReaderAwareInterface;
 use Misery\Component\Reader\ReaderAwareTrait;
 
@@ -28,6 +29,9 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         'attribute_option_label_codes:list' => [],
         'set_default_metrics' => false,
         'filter_option_codes' => true,
+        'reference_code' => false, # LEGACY FALSE forces the option code to be a reference-able code
+        'reference_code_pattern' => 'old_pattern', # LEGACY FALSE forces the option code to be a reference-able code
+        'lower_cased' => false, # LEGACY FALSE forces the option code to be lower cased
         'default_locale' => null,
         'default_scope' => null,
         'default_currency' => null,
@@ -88,6 +92,9 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
 
     public function getAkeneoDataStructure(string $attributeCode, $value, array $context)
     {
+        $referenceCode = $this->getOption('reference_code');
+        $lowerCased = $this->getOption('lower_cased');
+
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
         if (null === $type) {
             return $value;
@@ -124,7 +131,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             case AkeneoHeaderTypes::BOOLEAN:
                 if (is_string($value)) {
                     $value = strtolower($value);
-                    if (in_array($value,  $this->getOption('boolean_mapping')['true_values'])) {
+                    if (in_array($value, $this->getOption('boolean_mapping')['true_values'])) {
                         $value = true;
                     } elseif (in_array($value, $this->getOption('boolean_mapping')['false_values'])) {
                         $value = false;
@@ -139,7 +146,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             case AkeneoHeaderTypes::SELECT:
                 // TODO implement attributes reader
                 if (is_string($value) && $this->getOption('filter_option_codes')) {
-                    $value = $this->filterOptionCode($attributeCode, $value);
+                    $value = $this->filterOptionCode($value, $referenceCode, $lowerCased);
                 }
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
@@ -147,9 +154,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 if (empty($value)) {
                     $value = [];
                 }
-                if (is_array($value) && $this->getOption('filter_option_codes')) {
-                    $value = $this->filterOptionCodes($attributeCode, $value);
-                }
+
                 if (is_string($value)) {
                     // if the value is a comma separated string
                     if (str_contains($value, ',')) {
@@ -157,6 +162,10 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                     } else {
                         $value = [$value];
                     }
+                }
+
+                if ($this->getOption('filter_option_codes')) {
+                    $value = $this->filterOptionCodes($value, $referenceCode, $lowerCased);
                 }
                 break;
             case AkeneoHeaderTypes::PRICE:
@@ -234,15 +243,27 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         }
     }
 
-    public function filterOptionCode(string $attributeCode, string $value)
+    private function filterOptionCode(string $value, bool $referenceCode = true, bool $lowerCase = true): string
     {
-        return  str_replace('-', '_', str_replace(' ', '-', $value));
+        if ($referenceCode) {
+            $mod = new ReferenceCodeModifier();
+            $mod->setOption('use_pattern', $this->getOption('reference_code_pattern'));
+            $value = $mod->modify($value);
+        }
+        if ($lowerCase) {
+            $value = strtolower($value);
+        }
+        if (!$lowerCase && !$referenceCode) {
+            $value = str_replace('-', '_', str_replace(' ', '-', $value));
+        }
+
+        return $value;
     }
 
-    public function filterOptionCodes(string $attributeCode, $optionValues)
+    private function filterOptionCodes(array $optionValues, bool $referenceCode = true, bool $lowerCase = true): array
     {
-        return array_map(function ($optionValue) {
-            return str_replace('-', '_', str_replace(' ', '-', $optionValue['code']));
+        return array_map(function ($optionValue) use ($referenceCode, $lowerCase) {
+            return $this->filterOptionCode($optionValue['code'] ?? $optionValue, $referenceCode, $lowerCase);
         }, $optionValues);
     }
 

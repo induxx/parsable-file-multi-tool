@@ -42,7 +42,7 @@ class SubItemCursor implements \Iterator
         $this->subItems->next();
     }
 
-    public function key()
+    public function key(): mixed
     {
         return $this->iterator->key();
     }
