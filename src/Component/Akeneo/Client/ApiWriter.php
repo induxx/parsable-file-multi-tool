@@ -84,7 +84,7 @@ class ApiWriter implements ItemWriterInterface
             $response = $this->execute($data);
         }
 
-        if (!in_array($response->getCode(), [200, 204])) {
+        if (!in_array($response->getCode(), [200, 201, 202, 203, 204, 205, 206, 207, 208, 226])) {
             throw new InvalidItemException(
                 'API exception',
                 [
