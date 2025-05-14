@@ -17,11 +17,13 @@ class CleanseModifier implements RowModifier, OptionsInterface
      * - remove_any: characters or substrings to remove anywhere in the value
      * - remove_start: substrings to strip from the start (repeatedly)
      * - remove_end: substrings to strip from the end (repeatedly)
+     * - clean_whole: substrings which, if found, clear the whole value
      */
     private array $options = [
         'remove_any'   => [],
         'remove_start' => [],
         'remove_end'   => [],
+        'clean_whole'  => [],
     ];
 
     /**
@@ -34,6 +36,7 @@ class CleanseModifier implements RowModifier, OptionsInterface
         $removeAny   = $this->options['remove_any'] ?? [];
         $removeStart = $this->options['remove_start'] ?? [];
         $removeEnd   = $this->options['remove_end'] ?? [];
+        $cleanWhole  = $this->options['clean_whole'] ?? [];
 
         // Handle arrays recursively
         if (is_array($value)) {
@@ -43,6 +46,12 @@ class CleanseModifier implements RowModifier, OptionsInterface
         // Only process strings
         if (!is_string($value)) {
             return $value;
+        }
+
+        foreach ($cleanWhole as $needle) {
+            if ($needle !== '' && strpos($value, $needle) !== false) {
+                return '';
+            }
         }
 
         // 1. Remove any specified characters/substrings anywhere
@@ -80,7 +89,6 @@ class CleanseModifier implements RowModifier, OptionsInterface
             return array_map([$this, 'reverseModify'], $value);
         }
 
-        // No reverse operation; return value unchanged
         return $value;
     }
 }
