@@ -20,8 +20,6 @@ class CompareAction implements ActionInterface, OptionsInterface
         'then'          => [],
     ];
 
-    private array $values = [];
-
     public function apply(array $item): array
     {
         $field = $this->getOption('field');
@@ -84,11 +82,6 @@ class CompareAction implements ActionInterface, OptionsInterface
         }
 
         return $item;
-    }
-
-    public function __destruct()
-    {
-        $this->values = [];
     }
 
     private function getThenAction(
