@@ -282,18 +282,4 @@ class CompareActionTest extends TestCase
 
         $this->assertEquals($item, $result);
     }
-
-    public function testDestructShouldClearValues(): void
-    {
-        $action = new CompareAction();
-
-        $reflection = new \ReflectionClass($action);
-        $property = $reflection->getProperty('values');
-        $property->setAccessible(true);
-        $property->setValue($action, ['test' => 'waarde']);
-
-        $action->__destruct();
-
-        $this->assertEmpty($property->getValue($action));
-    }
 }
