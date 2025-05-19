@@ -58,7 +58,7 @@ class CompareAction implements ActionInterface, OptionsInterface
             }
 
             if ($value === $compareValue) {
-                $thenAction->apply($item);
+                return $thenAction->apply($item);
             }
         }
 
