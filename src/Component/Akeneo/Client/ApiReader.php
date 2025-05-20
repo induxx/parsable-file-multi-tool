@@ -18,9 +18,9 @@ class ApiReader implements ReaderInterface
     private $activeEndpoint;
 
     public function __construct(
-        ApiClientInterface $client,
+        ApiClientInterface   $client,
         ApiEndpointInterface $endpoint,
-        array $context
+        array                $context
     ) {
         $this->client = $client;
         $this->endpoint = $endpoint;
@@ -34,12 +34,22 @@ class ApiReader implements ReaderInterface
         }
 
         // todo - create function for this. Check how filtering must be applied.
-        if(isset($this->context['limiters']['query_array'])) {
+        if (isset($this->context['limiters']['query_array'])) {
             $endpoint = $this->client->getUrlGenerator()->generate($endpoint);
 
             $params = ['search' => json_encode($this->context['limiters']['query_array'])];
             if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
                 $params['pagination_type'] = 'search_after';
+                $params['limit'] = 100;
+            }
+
+            if ($this->endpoint instanceof ApiCategoriesEndpoint
+                || $this->endpoint instanceof ApiFamiliesEndpoint
+                || $this->endpoint instanceof ApiFamilyVariantsEndpoint
+                || $this->endpoint instanceof ApiAttributesEndpoint
+                || $this->endpoint instanceof ApiOptionsEndpoint
+            ) {
+                $params['limit'] = 100;
             }
 
             return $this->client
@@ -48,7 +58,7 @@ class ApiReader implements ReaderInterface
                 ->getContent();
         }
 
-        if(isset($this->context['limiters']['querystring'])) {
+        if (isset($this->context['limiters']['querystring'])) {
             $querystring = preg_replace('/\s+/', '+', $this->context['limiters']['querystring']);
             $querystring = ValueFormatter::format($querystring, $this->context);
             $endpoint = sprintf($querystring, $endpoint);
@@ -62,7 +72,7 @@ class ApiReader implements ReaderInterface
                 $endpoint = sprintf('%s?search=', $endpoint);
             }
             foreach ($this->context['filters'] as $attrCode => $filterValues) {
-                $valueChunks = array_chunk(array_values($filterValues),100);
+                $valueChunks = array_chunk(array_values($filterValues), 100);
                 foreach ($valueChunks as $filterChunk) {
                     $filter = [$attrCode => [['operator' => 'IN', 'value' => $filterChunk]]];
                     $chunkEndpoint = sprintf('%s%s&limit=100', $endpoint, json_encode($filter));
@@ -72,7 +82,7 @@ class ApiReader implements ReaderInterface
                         ->getResponse()
                         ->getContent();
 
-                    if (empty($items)){
+                    if (empty($items)) {
                         $items = $result;
 
                         continue;
@@ -90,8 +100,8 @@ class ApiReader implements ReaderInterface
 
         $url = $this->client->getUrlGenerator()->generate($endpoint);
         if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
-            if(!strpos($url, 'pagination_type')) {
-                if(isset($this->context['limiters']['querystring'])) {
+            if (!strpos($url, 'pagination_type')) {
+                if (isset($this->context['limiters']['querystring'])) {
                     $url = sprintf('%s&pagination_type=search_after', $url);
                 } else {
                     $url = sprintf('%s?pagination_type=search_after', $url);
@@ -118,7 +128,7 @@ class ApiReader implements ReaderInterface
     public function read()
     {
         if (isset($this->context['multiple'])) {
-           return $this->readMultiple();
+            return $this->readMultiple();
         }
 
         // TODO we need to align all readers together into this version
@@ -129,6 +139,7 @@ class ApiReader implements ReaderInterface
             }
             $item = $this->page->current();
             $this->page->next();
+
             return $item;
         }
 

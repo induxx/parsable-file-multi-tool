@@ -128,6 +128,7 @@ $actionRegistry
     ->register(Misery\Component\Action\KeyMapperAction::NAME, new Misery\Component\Action\KeyMapperAction())
     ->register(Misery\Component\Action\ExpandAction::NAME, new Misery\Component\Action\ExpandAction())
     ->register(Misery\Component\Action\StatementAction::NAME, new Misery\Component\Action\StatementAction())
+    ->register(Misery\Component\Action\CompareAction::NAME, new Misery\Component\Action\CompareAction())
     ->register(Misery\Component\Action\MergeAction::NAME, new Misery\Component\Action\MergeAction())
     ->register(Misery\Component\Action\UnsetAction::NAME, new Misery\Component\Action\UnsetAction())
     ->register(Misery\Component\Action\EmptyAction::NAME, new Misery\Component\Action\EmptyAction())
