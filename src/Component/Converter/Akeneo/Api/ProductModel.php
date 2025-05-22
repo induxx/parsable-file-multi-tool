@@ -7,7 +7,7 @@ use Misery\Component\Converter\AkeneoProductApiConverter;
 class ProductModel extends AkeneoProductApiConverter
 {
     private array $options = [
-        'identifier' => 'sku',
+        'identifier' => 'code',
         'structure' => 'matcher', # matcher OR flat
         'container' => 'values',
         'render_associations' => true,

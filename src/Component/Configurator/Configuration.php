@@ -353,6 +353,8 @@ class Configuration
 
         $this->writer = null;
         $this->pipeline = null;
+        $this->lists = [];
+        $this->mappings = [];
         $this->shellCommands = null;
         $this->converters = new ArrayCollection();
         $this->feeds = new ArrayCollection();
