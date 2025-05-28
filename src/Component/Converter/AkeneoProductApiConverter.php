@@ -10,6 +10,8 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
 {
     use OptionsTrait;
 
+    protected const IDENTIFIER = 'identifier';
+
     private $options = [
         'identifier' => 'sku',
         'structure' => 'matcher', # matcher OR flat
@@ -52,8 +54,12 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
         $allowEmptyStringValues = $this->getOption('allow_empty_string_values');
 
         if (isset($item[$identifier])) {
-            $item['identifier'] = $item[$identifier];
-            unset($item[$identifier]);
+            $identifierKey = $this->getIdentifierKey();
+            $item[$identifierKey] = $item[$identifier];
+
+            if ($identifierKey !== $identifier) {
+                unset($item[$identifier]);
+            }
         }
         if (array_key_exists('categories', $item)) {
             // NULL is not an excepted value
@@ -101,5 +107,10 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
     public function getName(): string
     {
         return 'akeneo/product/api';
+    }
+
+    protected function getIdentifierKey(): string
+    {
+        return self::IDENTIFIER;
     }
 }
