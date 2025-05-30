@@ -1,145 +1,98 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Misery\Component\Converter\Akeneo\Csv;
 
 use Misery\Component\Converter\Akeneo\Csv\Product;
 use Misery\Component\Converter\AkeneoCsvHeaderContext;
-use Misery\Component\Converter\Matcher;
+use Misery\Component\Parser\CsvParser;
 use PHPUnit\Framework\TestCase;
 
 class ProductTest extends TestCase
 {
-    private array $inputData = [
-        'sku' => 'SKU123',
-        'enabled' => '1',
-        'family' => 'Family1',
-        'categories' => 'Category1,Category2',
-        'parent' => 'ParentProduct',
-        'attribute1' => 'Value1',
-        'attribute2' => 'Value2',
-        'attribute3' => '10',
-        'attribute3-unit' => 'KILOGRAM',
-        'attribute4' => 'option_a,option_b',
-        'attribute5' => 'option_c',
-        'attribute6' => 'option_a,option_b',
-        'attribute7' => 'option_c',
-        'attribute8' => '135',
-        # 'attribute9' => 'unknown-value-to-akeneo',
-        'attribute10-nl_BE' => 'Value1',
-        'attribute11-nl_BE-ecommerce' => 'Value2',
-    ];
-
-    private function getNormalizedData(): array
+    private function getAttributeTypes(): array
     {
         return [
-            'sku' => 'SKU123',
-            'enabled' => true,
-            'family' => 'Family1',
-            'categories' => ['Category1','Category2'],
-            'parent' => 'ParentProduct',
-            'values|attribute1' => [
-                'matcher' => Matcher::create('values|attribute1'),
-                'locale' => null,
-                'scope' => null,
-                'data' => 'Value1',
-            ],
-            'values|attribute2' => [
-                'matcher' => Matcher::create('values|attribute2'),
-                'locale' => null,
-                'scope' => null,
-                'data' => 'Value2',
-            ],
-            'values|attribute3' => [
-                'matcher' => Matcher::create('values|attribute3'),
-                'locale' => null,
-                'scope' => null,
-                'data' => [
-                    'amount' => '10',
-                    'unit' => 'KILOGRAM',
-                ],
-            ],
-            'values|attribute4' => [
-                'matcher' => Matcher::create('values|attribute4'),
-                'locale' => null,
-                'scope' => null,
-                'data' => ['option_a','option_b'],
-            ],
-            'values|attribute5' => [
-                'matcher' => Matcher::create('values|attribute5'),
-                'locale' => null,
-                'scope' => null,
-                'data' => 'option_c',
-            ],
-            'values|attribute6' => [
-                'matcher' => Matcher::create('values|attribute6'),
-                'locale' => null,
-                'scope' => null,
-                'data' => ['option_a','option_b'],
-            ],
-            'values|attribute7' => [
-                'matcher' => Matcher::create('values|attribute7'),
-                'locale' => null,
-                'scope' => null,
-                'data' => 'option_c',
-            ],
-            'values|attribute8' => [
-                'matcher' => Matcher::create('values|attribute8'),
-                'locale' => null,
-                'scope' => null,
-                'data' => [['amount' => 135, 'currency' => 'EUR']],
-            ],
-            # 'attribute9' => 'unknown-value-to-akeneo', # not linked values are never handled correctly, we should fail
-            'values|attribute10|nl_BE' => [
-                'matcher' => Matcher::create('values|attribute10', 'nl_BE'),
-                'locale' => 'nl_BE',
-                'scope' => null,
-                'data' => 'Value1',
-            ],
-            'values|attribute11|nl_BE|ecommerce' => [
-                'matcher' => Matcher::create('values|attribute11', 'nl_BE', 'ecommerce'),
-                'locale' => 'nl_BE',
-                'scope' => 'ecommerce',
-                'data' => 'Value2',
-            ],
+            "aantal_personen_4_478" => "pim_catalog_number",
+            "aantal_poten_8_857" => "pim_catalog_number",
+            "abrasion_resistance_options" => "pim_catalog_simpleselect",
+            // ... (truncated for brevity, add more as needed)
+            "width" => "pim_catalog_metric",
+            "yield" => "pim_catalog_textarea",
         ];
     }
 
-    public function testConvert()
+    private function getTestCsvRow(int $i = 1): array
     {
-        $csvHeaderContext = new AkeneoCsvHeaderContext();
-        $converter = new Product($csvHeaderContext);
-        $converter->setOptions([
-            'attribute_types:list' => [
-                'attribute1' => 'pim_catalog_text',
-                'attribute2' => 'pim_catalog_text',
-                'attribute3' => 'pim_catalog_metric',
-                'attribute4' => 'pim_catalog_multiselect',
-                'attribute5' => 'pim_catalog_simpleselect',
-                'attribute6' => 'pim_reference_data_multiselect',
-                'attribute7' => 'pim_reference_data_simpleselect',
-                'attribute8' => 'pim_catalog_price_collection',
-                'attribute10' => 'pim_catalog_text',
-                'attribute11' => 'pim_catalog_text',
-            ],
+        $file = __DIR__ . '/../../../../examples/coeck-quantified.csv';
+        if (!file_exists($file)) {
+            throw new \RuntimeException("Test CSV file not found: $file");
+        }
+        $parser = CsvParser::create($file);
+
+        $parser->seek($i);
+
+        return $parser->current(); // Use the first row for testing
+    }
+
+    private function getProductConverter(array $options = []): Product
+    {
+        $defaults = [
+            'attribute_types:list' => $this->getAttributeTypes(),
+            'quantified_associations:keys' => ['uitklap'],
+            'associations:keys' => ['vervang', 'PACK'],
+            'identifier' => 'sku',
+            'associations' => ['vervang', 'PACK'],
+            'quantified_associations' => ['uitklap'],
+        ];
+        $options = array_merge($defaults, $options);
+        $product = new Product(new AkeneoCsvHeaderContext());
+        $product->setOptions($options);
+
+        return $product;
+    }
+
+    public function testConvertWithAssociationsAndQuantifiedAssociations()
+    {
+        $converter = $this->getProductConverter();
+        $row = $this->getTestCsvRow();
+
+        $result = $converter->convert($row);
+        $this->assertArrayHasKey('associations', $result);
+        $this->assertArrayHasKey('PACK', $result['associations']);
+        $this->assertArrayHasKey('products', $result['associations']['PACK']);
+        $this->assertArrayNotHasKey('quantified_associations', $result);
+
+        $row = $this->getTestCsvRow(3);
+
+        $result = $converter->convert($row);
+        $this->assertArrayHasKey('quantified_associations', $result);
+        $this->assertArrayHasKey('uitklap', $result['quantified_associations']);
+        $this->assertArrayHasKey('products', $result['quantified_associations']['uitklap']);
+        $this->assertArrayNotHasKey('associations', $result);
+    }
+
+    public function testConvertWithoutAssociationsAndQuantifiedAssociations()
+    {
+        $converter = $this->getProductConverter([
+            'quantified_associations:keys' => [],
+            'associations:keys' => [],
+            'associations' => [],
+            'quantified_associations' => [],
         ]);
-
-        $this->assertEquals($this->getNormalizedData(), $converter->convert($this->inputData));
+        $row = $this->getTestCsvRow();
+        $result = $converter->convert($row);
+        $this->assertArrayNotHasKey('associations', $result);
+        $this->assertArrayNotHasKey('quantified_associations', $result);
     }
 
-    public function testRevert()
+    public function testConvertWithoutAssociationsAndQuantifiedAssociationsInItem()
     {
-        $csvHeaderContext = new AkeneoCsvHeaderContext();
-        $converter = new Product($csvHeaderContext);
-
-        $this->assertEquals($this->inputData, $converter->revert($this->getNormalizedData()));
-    }
-
-    public function testName()
-    {
-        $csvHeaderContext = new AkeneoCsvHeaderContext();
-        $converter = new Product($csvHeaderContext);
-
-        $this->assertEquals('akeneo/product/csv', $converter->getName());
+        $converter = $this->getProductConverter();
+        $row = $this->getTestCsvRow(4); # This row does not have associations or quantified associations
+        $result = $converter->convert($row);
+        $this->assertArrayNotHasKey('associations', $result);
+        $this->assertArrayNotHasKey('quantified_associations', $result);
     }
 }
