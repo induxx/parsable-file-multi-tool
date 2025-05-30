@@ -33,7 +33,9 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         'default_currency' => null,
         'container' => 'values',
         'option_label' => 'label-nl_BE',
-        'properties' => ['sku', 'family', 'parent'],
+        'properties' => ['sku', 'family', 'parent', 'enabled', 'categories', 'associations', 'groups', 'quantified_associations'],
+        'quantified_associations' => [],
+        'associations' => [],
     ];
 
     private $decoder;
@@ -257,9 +259,42 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         $container = $this->getOption('container');
 
         $output = [];
-        $output['sku'] = $item['sku'];
-        if (array_key_exists('family', $item)) {
-            $output['family'] = $item['family'];
+        foreach ($this->getOption('properties') as $masterKey) {
+            // if quantified_associations is present, we need to handle it separately
+            if ($masterKey === 'quantified_associations' && !empty($item['quantified_associations'])) {
+                // we need adapt to th following structure
+                // - quantified_associations|<association_code>|products|identifier becomes a comma separated list <association_code>-products
+                // - quantified_associations|<association_code>|products|quantity becomes a comma separated list <association_code>-products-quantity
+                foreach ($item['quantified_associations'] as $associationCode => $associationData) {
+                    if (isset($associationData['products']) && is_array($associationData['products'])) {
+                        $output[$associationCode.'-products'] = implode(',', array_column($associationData['products'], 'identifier'));
+                        $output[$associationCode.'-products-quantity'] = implode(',', array_column($associationData['products'], 'quantity'));
+                    }
+                    if (isset($associationData['product-models']) && is_array($associationData['product-models'])) {
+                        $output[$associationCode.'-product-models'] = implode(',', array_column($associationData['product-models'], 'identifier'));
+                        $output[$associationCode.'-product-models-quantity'] = implode(',', array_column($associationData['product-models'], 'quantity'));
+                    }
+                }
+                unset($item['quantified_associations']);
+            }
+            if ($masterKey === 'associations' && !empty($item['associations'])) {
+                // we need adapt to the following structure
+                // - associations|<association_code>|products becomes a comma separated list <association_code>-products
+                foreach ($item['associations'] as $associationCode => $associationData) {
+                    if (isset($associationData['products']) && is_array($associationData['products'])) {
+                        $output[$associationCode.'-products'] = implode(',', $associationData['products']);
+                    }
+                    if (isset($associationData['product-models']) && is_array($associationData['product-models'])) {
+                        $output[$associationCode.'-product-models'] = implode(',', $associationData['product-models']);
+                    }
+                }
+                unset($item['associations']);
+            }
+
+            if (array_key_exists($masterKey, $item)) {
+                $output[$masterKey] = $item[$masterKey];
+                unset($item[$masterKey]);
+            }
         }
 
         foreach ($item as $key => $itemValue) {

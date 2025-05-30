@@ -25,12 +25,16 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
     private ItemDecoder $decoder;
 
     private $options = [
+        'investigate' => true, # if true, will not convert, but return the header
         'container' => 'values',
         'default_currency' => 'EUR',
         'single_currency' => true,
         'attribute_types:list' => null, # this key value list is optional, improves type matching for options, metrics, prices
         'identifier' => 'sku',
         'associations' => ['RELATED'],
+        'associations:keys' => [],
+        'quantified_associations' => [],
+        'quantified_associations:keys' => [],
         'properties' => [
             'sku' => [
                 'text' => null,
@@ -82,6 +86,99 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         return [$encoderFactory, $decoderFactory];
     }
 
+    private function findAssociationKeys(array $item): void
+    {
+        $associationKeys = [];
+        foreach ($item as $key => $value) {
+            if (str_ends_with($key, '-quantity')) {
+                continue; // skip quantified associations
+            }
+            if (str_contains($key, '-')) {
+                $keys = explode('-', $key);
+                if (count($keys) > 1 && in_array($keys[0], $this->getOption('associations'))) {
+                    $associationKeys[] = $key;
+                }
+            }
+        }
+
+        $this->setOption('associations:keys', array_unique($associationKeys));
+    }
+
+    private function findQuantifiedAssociationKeys(array $item): void
+    {
+        $quantifiedKeys = [];
+        $suffix = '-quantity';
+        $suffixLen = strlen($suffix);
+
+        foreach ($item as $key => $value) {
+            if (substr_compare($key, $suffix, -$suffixLen) === 0) {
+                $code = explode('-', $key)[0];
+                $type =  explode('-', $key)[1];
+                $quantifiedKeys[$type][] = [
+                    'code' => $code,
+                    'quantity' => $key,
+                    'id' => substr($key, 0, -$suffixLen),
+                ];
+            }
+        }
+
+        $this->setOption('quantified_associations:keys', $quantifiedKeys);
+    }
+
+    private function convertQuantifiedAssociations(array &$item, array &$output): void
+    {
+        $quantifiedAssociations = [];
+        foreach ($this->getOption('quantified_associations:keys') as $assocType => $assocs) {
+            foreach ($assocs as $assoc) {
+                $ids = isset($item[$assoc['id']]) ? explode(',', $item[$assoc['id']]) : [];
+                $quantities = isset($item[$assoc['quantity']]) ? explode(',', $item[$assoc['quantity']]) : [];
+                $products = [];
+                foreach ($ids as $i => $identifier) {
+                    $identifier = trim($identifier);
+                    if ($identifier === '') {
+                        continue;
+                    }
+                    $quantity = isset($quantities[$i]) ? (int) $quantities[$i] : null;
+                    $products[] = [
+                        'identifier' => $identifier,
+                        'quantity' => $quantity,
+                    ];
+                }
+                if (!empty($products)) {
+                    if (!isset($quantifiedAssociations[$assoc['code']])) {
+                        $quantifiedAssociations[$assoc['code']] = [];
+                    }
+                    $quantifiedAssociations[$assoc['code']][$assocType] = $products;
+                }
+                // Optionally unset processed keys from $item
+                unset($item[$assoc['id']], $item[$assoc['quantity']]);
+            }
+        }
+        if (!empty($quantifiedAssociations)) {
+            $output['quantified_associations'] = $quantifiedAssociations;
+        }
+    }
+
+    private function convertAssociations(array &$item, array &$output): void
+    {
+        $associations = [];
+        foreach ($this->getOption('associations:keys') as $key) {
+            $keys = explode('-', $key);
+            $assocType = $keys[0];
+            $assocCode = $keys[1];
+            if (!empty($item[$key])) {
+                if (!isset($associations[$assocType])) {
+                    $associations[$assocType] = [];
+                }
+                $associations[$assocType][$assocCode] = array_filter(explode(',', $item[$key]));
+            }
+            unset($item[$key]); // Optionally unset processed keys from $item
+        }
+        if (!empty($associations)) {
+            $output['associations'] = $associations;
+        }
+    }
+
     public function convert(array $item): array
     {
         $this->csvHeaderContext->unsetHeader();
@@ -91,7 +188,20 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         $separator = '-';
         $output = [];
 
+        if ($this->getOption('investigate')) {
+            $this->findAssociationKeys($item);
+            $this->findQuantifiedAssociationKeys($item);
+            $this->setOption('investigate', false);
+        }
+
         $item = $this->encoder->encode($item);
+
+        if ([] !== $this->getOption('quantified_associations:keys')) {
+            $this->convertQuantifiedAssociations($item, $output);
+        }
+        if ([] !== $this->getOption('associations:keys')) {
+            $this->convertAssociations($item, $output);
+        }
 
         foreach ($item as $key => $value) {
             $keys = explode($separator, $key);
