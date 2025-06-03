@@ -18,7 +18,7 @@ class UnsetAction implements OptionsInterface, ConfigurationAwareInterface
     private $options = [
         'field' => null,
         'list' => null,
-        'remove_keys' => false,
+        'unset_list_keys' => false,
         'empty_only' => 0
     ];
 
@@ -26,14 +26,14 @@ class UnsetAction implements OptionsInterface, ConfigurationAwareInterface
     {
         $field = $this->getOption('field');
         $list = $this->getOption('list');
-        $removeKeys = $this->getOption('remove_keys');
+        $unsetListKey = $this->getOption('unset_list_keys');
 
         // validation
         if ($field && !is_array($item[$field])) {
             return $item;
         }
 
-        if ($removeKeys) {
+        if ($unsetListKey) {
             $item[$field] = array_values(
                 array_diff($item[$field], $list)
             );

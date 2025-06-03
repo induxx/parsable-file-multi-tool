@@ -105,6 +105,15 @@ class RetainActionTest extends TestCase
             'sku' => 'sku-thomas',
             'labels-nl_NL' => null,
         ], $format->apply($item));
+
+        $format->setOptions([
+            'list' => ['sku', 'labels-nl_NL'],
+        ]);
+
+        $this->assertEquals([
+            'sku' => 'sku-thomas',
+            'labels-nl_NL' => null,
+        ], $format->apply($item));
     }
 
     public function test_labels_with_nested_data(): void
@@ -120,6 +129,15 @@ class RetainActionTest extends TestCase
 
         $format->setOptions([
             'keys' => ['sku', 'labels-fr_FR'],
+        ]);
+
+        $this->assertEquals([
+            'sku' => 'sku-thomas',
+            'labels-fr_FR' => 'label FR',
+        ], $format->apply($item));
+
+        $format->setOptions([
+            'list' => ['sku', 'labels-fr_FR'],
         ]);
 
         $this->assertEquals([

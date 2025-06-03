@@ -15,7 +15,6 @@ class ListMapperAction implements OptionsInterface, ActionItemInterface
     /** @var array */
     private $options = [
         'field' => null,
-        'fields' => [],
         'store_field' => null,
         'list' => [],
     ];
@@ -58,16 +57,6 @@ class ListMapperAction implements OptionsInterface, ActionItemInterface
         $field      = $this->getOption('field');
         $storeField = $this->getOption('store_field', $field);
         $list       = $this->getOption('list');
-        $fields     = $this->getOption('fields');
-
-        if ($fields !== []) {
-            $this->setOption('fields', []);
-            foreach ($fields as $field) {
-                $this->setOption('field', $field);
-                $item = $this->apply($item);
-            }
-            return $item;
-        }
 
         // Nothing to apply if options are missing or list is empty
         if (null === $field || null === $storeField || empty($list)) {
