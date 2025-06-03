@@ -322,4 +322,3 @@ class AkeneoOptionExtractorTest extends TestCase
         $this->assertEquals($expected, $extractor->convert($item));
     }
 }
-
