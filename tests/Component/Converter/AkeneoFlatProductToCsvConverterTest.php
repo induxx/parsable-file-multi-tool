@@ -63,4 +63,84 @@ class AkeneoFlatProductToCsvConverterTest extends TestCase
 
         $this->assertEquals('long-description', $output['values|long_description|en_GB|ecommerce']['data']);
     }
+
+    public function testSimpleselectReferenceCodeNormalization()
+    {
+        $codes = [
+            'exterior_finish_color' => 'pim_catalog_simpleselect',
+        ];
+        $converter = new AkeneoFlatProductToCsvConverter();
+        $converter->setOptions([
+            'attributes:list' => array_keys($codes),
+            'attribute_types:list' => $codes,
+            'reference_code' => true,
+            'lower_cased' => true,
+        ]);
+        $input = [
+            'exterior_finish_color' => 'COLOR-RED',
+        ];
+        $output = $converter->convert($input);
+        $this->assertEquals('color_red', $output['values|exterior_finish_color']['data']);
+    }
+
+    public function testMultiselectReferenceCodeNormalization()
+    {
+        $codes = [
+            'exhaust_location' => 'pim_catalog_multiselect',
+        ];
+        $converter = new AkeneoFlatProductToCsvConverter();
+        $converter->setOptions([
+            'attributes:list' => array_keys($codes),
+            'attribute_types:list' => $codes,
+            'reference_code' => true,
+            'lower_cased' => true,
+        ]);
+        $input = [
+            'exhaust_location' => 'Boven,Rechts,Links',
+        ];
+        $output = $converter->convert($input);
+        $this->assertEquals(['boven', 'rechts', 'links'], $output['values|exhaust_location']['data']);
+    }
+
+    public function testSimpleselectReferenceCodeWithCustomPattern()
+    {
+        $codes = [
+            'exterior_finish_color' => 'pim_catalog_simpleselect',
+        ];
+        $converter = new AkeneoFlatProductToCsvConverter();
+        $converter->setOptions([
+            'attributes:list' => array_keys($codes),
+            'attribute_types:list' => $codes,
+            'reference_code' => true,
+            'lower_cased' => true,
+            'reference_code_pattern' => 'new_pattern',
+        ]);
+        $input = [
+            'exterior_finish_color' => 'COLOR-BLUE',
+        ];
+        $output = $converter->convert($input);
+        $this->assertStringContainsString('color_blue', $output['values|exterior_finish_color']['data']);
+    }
+
+    public function testMultiselectReferenceCodeWithCustomPattern()
+    {
+        $codes = [
+            'exhaust_location' => 'pim_catalog_multiselect',
+        ];
+        $converter = new AkeneoFlatProductToCsvConverter();
+        $converter->setOptions([
+            'attributes:list' => array_keys($codes),
+            'attribute_types:list' => $codes,
+            'reference_code' => true,
+            'lower_cased' => true,
+            'reference_code_pattern' => 'new_pattern',
+        ]);
+        $input = [
+            'exhaust_location' => 'Boven,Rechts',
+        ];
+
+        $output = $converter->convert($input);
+        $this->assertEquals('boven', $output['values|exhaust_location']['data'][0]);
+        $this->assertEquals('rechts', $output['values|exhaust_location']['data'][1]);
+    }
 }
