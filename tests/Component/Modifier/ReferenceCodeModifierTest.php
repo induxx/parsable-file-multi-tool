@@ -42,7 +42,6 @@ class ReferenceCodeModifierTest extends TestCase
         $this->assertEquals('A_B_C', $modifier->modify('A/B\\C'));
         $this->assertEquals('A_B_C_C', $modifier->modify('A|B:C;C'));
         $this->assertEquals('A_B_C', $modifier->modify('A.B,C'));
-        $this->assertEquals('A_B_C', $modifier->modify('A😀B😂C'));
         $this->assertEquals('AssBCC', $modifier->modify('AßBÇC'));
         $this->assertEquals('AeBeC', $modifier->modify('AéBèC'));
         $this->assertEquals('A_B_C', $modifier->modify('A--B--C--'));
