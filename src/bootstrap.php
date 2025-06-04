@@ -67,6 +67,7 @@ $converterRegistry->registerAllByName(
     ),
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
     new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
+    new Misery\Component\Converter\Akeneo\Api\Family(),
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
     new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator(),
     new Misery\Component\Converter\ReadLoopItemCollectionConverter(),
@@ -84,6 +85,7 @@ $modifierRegistry
     ->register(Misery\Component\Modifier\ArrayUnflattenModifier::NAME, new Misery\Component\Modifier\ArrayUnflattenModifier())
     ->register(Misery\Component\Modifier\ArrayFlattenModifier::NAME, new Misery\Component\Modifier\ArrayFlattenModifier())
     ->register(Misery\Component\Modifier\NullifyEmptyStringModifier::NAME, new Misery\Component\Modifier\NullifyEmptyStringModifier())
+    ->register(Misery\Component\Modifier\CleanseModifier::NAME, new Misery\Component\Modifier\CleanseModifier())
     ->register(Misery\Component\Modifier\ReplaceCharacterModifier::NAME, new Misery\Component\Modifier\ReplaceCharacterModifier())
     ->register(Misery\Component\Modifier\FilterEmptyStringModifier::NAME, new Misery\Component\Modifier\FilterEmptyStringModifier())
     ->register(Misery\Component\Modifier\FilterWhiteSpacesModifier::NAME, new Misery\Component\Modifier\FilterWhiteSpacesModifier())

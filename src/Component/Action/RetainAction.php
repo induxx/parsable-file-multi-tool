@@ -14,7 +14,9 @@ class RetainAction implements OptionsInterface
 
     /** @var array */
     private $options = [
-        'keys' => [],
+        'keys' => null,
+        'fields' => null,
+        'list' => [],
         'mode' => 'multi',
     ];
 
@@ -23,7 +25,8 @@ class RetainAction implements OptionsInterface
      */
     private function applyForSingleDimensionItem(array $item): array
     {
-        $keys = array_intersect($this->options['keys'], array_keys($item));
+        $fields = $this->getOption('keys', $this->getOption('fields', $this->getOption('list')));
+        $keys = array_intersect($fields, array_keys($item));
         if (empty($keys)) {
             return $item;
         }
@@ -38,7 +41,7 @@ class RetainAction implements OptionsInterface
 
     public function applyAsItem(ItemInterface $item): ItemInterface
     {
-        $fields = $this->getOption('keys', $this->getOption('fields'));
+        $fields = $this->getOption('keys', $this->getOption('fields', $this->getOption('list')));
         if (empty($fields)) {
             return $item;
         }
@@ -60,7 +63,7 @@ class RetainAction implements OptionsInterface
             return $this->applyForSingleDimensionItem($item);
         }
 
-        $optionsToKeep = $this->options['keys'];
+        $optionsToKeep = $this->getOption('keys', $this->getOption('fields', $this->getOption('list')));
 
         // we loop all configured option values
         $valuesToKeep = $this->getNestedValuesToKeep($optionsToKeep);

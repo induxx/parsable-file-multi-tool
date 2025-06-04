@@ -49,6 +49,10 @@ class ListMapperAction implements OptionsInterface, ActionItemInterface
      */
     public function apply(array $item): array
     {
+        if ([] === $this->getOption('list')) {
+            return $item;
+        }
+
         // Cache option lookups once
         $field      = $this->getOption('field');
         $storeField = $this->getOption('store_field', $field);
