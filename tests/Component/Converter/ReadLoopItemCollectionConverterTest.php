@@ -60,6 +60,65 @@ class ReadLoopItemCollectionConverterTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+    public function testConvertWithLoopItemArrayOfStrings(): void
+    {
+        $item = [
+            'root' => 'value',
+            'my_list' => ['a', 'b', 'c']
+        ];
+        $this->converter->setOptions([
+            'loop_item' => 'my_list',
+            'join_with' => ['root']
+        ]);
+
+        $result = $this->converter->convert($item);
+
+        $expected = [
+            [
+                'root' => 'value',
+                'my_list' => 'a',
+            ],
+            [
+                'root' => 'value',
+                'my_list' => 'b',
+            ],
+            [
+                'root' => 'value',
+                'my_list' => 'c',
+            ],
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testConvertWithLoopItemArrayOfMixedTypes(): void
+    {
+        $item = [
+            'root' => 'value',
+            'my_list' => [
+                ['sub' => 'array'],
+                'string',
+            ]
+        ];
+        $this->converter->setOptions([
+            'loop_item' => 'my_list',
+            'join_with' => ['root']
+        ]);
+
+        $result = $this->converter->convert($item);
+
+        $expected = [
+            [
+                'root' => 'value',
+                'sub' => 'array',
+            ],
+            [
+                'root' => 'value',
+                'my_list' => 'string',
+            ],
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
     public function testLoadReturnsItemCollection(): void
     {
         $item = ['key' => 'value'];
