@@ -92,7 +92,7 @@ class ReadLoopItemCollectionConverter implements InitConverterInterface, Convert
             return $result;
         }
 
-        return $item;
+        return [];
     }
 
     public function getName(): string

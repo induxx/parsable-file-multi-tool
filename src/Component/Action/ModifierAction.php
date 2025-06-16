@@ -28,6 +28,7 @@ class ModifierAction implements OptionsInterface
         'modifier' => null,
         'formatter' => null,
         'keys' => null,
+        'list' => null,
     ];
 
     public function __construct(Registry $modifierRegistry, Registry $formatRegistry)
@@ -41,7 +42,7 @@ class ModifierAction implements OptionsInterface
         // this should be part of the prepare state
         // when we set the options
         // so don't need to check on every action::apply
-        $keys = explode(',', $this->options['keys']);
+        $keys = $this->getOption('list') ?? explode(',', $this->options['keys']);
 
         foreach ($keys as $key) {
             $listItem = $item[$key] ?? null;

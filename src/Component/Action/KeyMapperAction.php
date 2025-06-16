@@ -26,11 +26,15 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
         'key' => null,
         'list' => [],
         'reverse' => false,
+        'allow_join' => false,
+        'separator' => '; ',
     ];
 
     public function applyAsItem(ItemInterface $item): void
     {
         $reverse = $this->getOption('reverse');
+        $allowJoin = $this->getOption('allow_join');
+        $separator = $this->getOption('separator');
         $list = array_filter($this->getOption('list'));
 
         if ($reverse) {
@@ -47,9 +51,35 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
             return;
         }
 
-        foreach ($list as $match => $replacer) {
-            if ($item->hasItem($match)) {
-                $item->moveItem($match, $replacer);
+        if (!$allowJoin) {
+            foreach ($list as $match => $replacer) {
+                if ($item->hasItem($match)) {
+                    $item->moveItem($match, $replacer);
+                }
+            }
+        } else {
+            $joined = [];
+            foreach ($list as $match => $replacer) {
+                if ($item->hasItem($match)) {
+                    $value = $item->getItem($match);
+                    if (!is_string($value)) {
+                        // skip non-string values
+                        $item->removeItem($match);
+                        continue;
+                    }
+                    if (!isset($joined[$replacer])) {
+                        $joined[$replacer] = [];
+                    }
+                    $joined[$replacer][] = $value;
+                    $item->removeItem($match);
+                }
+            }
+            foreach ($joined as $replacer => $values) {
+                // Filter out empty strings to avoid multiple separators
+                $filtered = array_filter($values, static fn($v) => $v !== '' && $v !== null);
+                if ($filtered) {
+                    $item->addItem($replacer, implode($separator, $filtered));
+                }
             }
         }
     }
@@ -57,6 +87,8 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
     public function apply(array $item): array
     {
         $reverse = $this->getOption('reverse');
+        $allowJoin = $this->getOption('allow_join');
+        $separator = $this->getOption('separator');
         if ($reverse) {
             $list = array_filter($this->getOption('list'));
 
@@ -87,6 +119,38 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
         foreach ($list as $key => $value) {
             $newKey = $this->findMatchedValueData($item, $key) ?? $key;
             $newList[$newKey] = $value;
+        }
+
+        if ($allowJoin) {
+            // join values for duplicate destination keys
+            $joined = [];
+            $toRemove = [];
+            foreach ($newList as $src => $dst) {
+                if (array_key_exists($src, $item)) {
+                    $value = $item[$src];
+                    if (!is_string($value)) {
+                        // skip non-string values
+                        $toRemove[] = $src;
+                        continue;
+                    }
+                    if (!isset($joined[$dst])) {
+                        $joined[$dst] = [];
+                    }
+                    $joined[$dst][] = $value;
+                    $toRemove[] = $src;
+                }
+            }
+            foreach ($toRemove as $src) {
+                unset($item[$src]);
+            }
+            foreach ($joined as $dst => $values) {
+                // Filter out empty strings to avoid multiple separators
+                $filtered = array_filter($values, static fn($v) => $v !== '' && $v !== null);
+                if ($filtered) {
+                    $item[$dst] = implode($separator, $filtered);
+                }
+            }
+            return $item;
         }
 
         if (count($newList) > 0) {

@@ -28,7 +28,7 @@ class ReadLoopItemCollectionConverterTest extends TestCase
 
         $result = $this->converter->convert($item);
 
-        $this->assertEquals($item, $result);
+        $this->assertEquals([], $result);
     }
 
     public function testConvertWithLoopItem(): void
@@ -127,7 +127,7 @@ class ReadLoopItemCollectionConverterTest extends TestCase
         $result = $this->converter->load($item);
 
         $this->assertInstanceOf(ItemCollection::class, $result);
-        $this->assertEquals($item, $result->getItems());
+        $this->assertEquals([], $result->getItems());
     }
 
     public function testInitCreatesItemEncoder(): void
