@@ -10,25 +10,31 @@ use Symfony\Component\Yaml\Yaml;
 
 class MappingFactory implements RegisteredByNameInterface
 {
-    public function createFromConfiguration(array $configuration, InMemoryFileManager $fm, ConfigurationManager $configurationManager)
+    public function createFromConfiguration(array $configuration, InMemoryFileManager $fm, ConfigurationManager $configurationManager): void
     {
         foreach ($configuration as $mappingList) {
             if (isset($mappingList['name'])) {
                 $mapping = $configurationManager->getConfig()->getMapping($mappingList['name']);
                 if (null === $mapping && isset($mappingList['source'])) {
                     $mapping = $this->create($fm->getFile($mappingList['source']));
-                    if (isset($mappingList['options'])) {
-                        if (in_array('flatten', $mappingList['options'])) {
-                            $mapping = ArrayFunctions::flatten($mapping);
-                        }
-                        if (in_array('flip', $mappingList['options'])) {
-                            $mapping = array_flip($mapping);
-                        }
-                    }
                 }
-
                 if (null === $mapping && isset($mappingList['map'])) {
                     $mapping = $mappingList['map'];
+                }
+
+                if (isset($mappingList['options'])) {
+                    if (in_array('flatten', $mappingList['options'])) {
+                        $mapping = ArrayFunctions::flatten($mapping);
+                    }
+                    if (in_array('flip', $mappingList['options'])) {
+                        $mapping = array_flip($mapping);
+                    }
+                    if (in_array('values', $mappingList['options'])) {
+                        $mapping = array_values($mapping);
+                    }
+                    if (in_array('keys', $mappingList['options'])) {
+                        $mapping = array_keys($mapping);
+                    }
                 }
 
                 // @TODO join mapping and lists into one principle

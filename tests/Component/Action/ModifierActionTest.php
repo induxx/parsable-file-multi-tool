@@ -235,4 +235,58 @@ class ModifierActionTest extends TestCase
 
         $this->assertEquals($expected, $action->apply($item));
     }
+
+    public function test_it_can_modify_multiple_keys_with_list_option()
+    {
+        $modifierRegistry = new Registry('modifier');
+        $modifierRegistry->register('upper', new class implements \Misery\Component\Common\Modifier\CellModifier {
+            public function modify($value) { return strtoupper($value); }
+        });
+
+        $formatRegistry = new Registry('format');
+
+        $action = new ModifierAction($modifierRegistry, $formatRegistry);
+        $action->setOptions([
+            'modifier' => 'upper',
+            'list' => ['foo', 'bar'],
+        ]);
+
+        $item = [
+            'foo' => 'hello',
+            'bar' => 'world',
+            'baz' => 'untouched',
+        ];
+
+        $result = $action->apply($item);
+
+        $this->assertEquals('HELLO', $result['foo']);
+        $this->assertEquals('WORLD', $result['bar']);
+        $this->assertEquals('untouched', $result['baz']);
+    }
+
+    public function test_it_can_modify_array_values_with_list_option()
+    {
+        $modifierRegistry = new Registry('modifier');
+        $modifierRegistry->register('upper', new class implements \Misery\Component\Common\Modifier\CellModifier {
+            public function modify($value) { return strtoupper($value); }
+        });
+
+        $formatRegistry = new Registry('format');
+
+        $action = new ModifierAction($modifierRegistry, $formatRegistry);
+        $action->setOptions([
+            'modifier' => 'upper',
+            'list' => ['foo'],
+        ]);
+
+        $item = [
+            'foo' => ['hello', 'world'],
+            'bar' => 'untouched',
+        ];
+
+        $result = $action->apply($item);
+
+        $this->assertEquals(['HELLO', 'WORLD'], $result['foo']);
+        $this->assertEquals('untouched', $result['bar']);
+    }
 }
