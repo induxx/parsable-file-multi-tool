@@ -157,7 +157,7 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
             return $this->map($item, $newList);
         }
 
-        return $this->map($item, $list);
+        return $item;
     }
 
     private function map(array $item, array $list)

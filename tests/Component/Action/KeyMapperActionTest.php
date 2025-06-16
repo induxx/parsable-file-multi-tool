@@ -193,4 +193,23 @@ class KeyMapperActionTest extends TestCase
             'X' => 'bar',
         ], $result);
     }
+
+    public function testApplyReturnsOriginalItemWhenNoReverseNoAllowJoinAndEmptyList()
+    {
+        $item = [
+            'foo' => 'bar',
+            'baz' => 'qux',
+        ];
+
+        $action = new KeyMapperAction();
+        $action->setOptions([
+            'list' => [],
+            'reverse' => false,
+            'allow_join' => false,
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertSame($item, $result);
+    }
 }
