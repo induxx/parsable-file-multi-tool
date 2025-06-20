@@ -20,7 +20,7 @@ class PipeItemLogger implements PipeWriterInterface
         // swith case for HTTP method type
         switch ($this->method) {
             case 'POST':
-                $this->itemLogger->logCreate($this->identyClass, $identifier);
+                $this->itemLogger->logCreate($this->identityClass, $identifier);
                 break;
             case 'PATCH':
             case 'MULTI_PATCH':

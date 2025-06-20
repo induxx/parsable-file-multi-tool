@@ -206,4 +206,30 @@ class ReadLoopItemCollectionConverterTest extends TestCase
             ],
         ], $result);
     }
+
+    public function testConvertWithLoopItemArrayNoJoins(): void
+    {
+        $item = [
+            'root' => 'value',
+            'list' => [
+                ['key' => 'a'],
+                ['key' => 'b'],
+                ['key' => 'c']
+            ]
+        ];
+
+        $this->converter->setOptions([
+            'loop_item' => 'list',
+        ]);
+
+        $result = $this->converter->convert($item);
+
+        $expected = [
+            ['key' => 'a',],
+            ['key' => 'b',],
+            ['key' => 'c',],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
 }
