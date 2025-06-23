@@ -66,6 +66,9 @@ class ReadOnlyConfiguration
 
     public function getList(string $alias)
     {
+        if (!isset($this->lists[$alias])) {
+            return null;
+        }
         return $this->lists[$alias]?->getValues();
     }
 

@@ -5,7 +5,6 @@ namespace Misery\Component\Converter;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
-use function PHPUnit\Framework\assertXmlFileEqualsXmlFile;
 
 class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
