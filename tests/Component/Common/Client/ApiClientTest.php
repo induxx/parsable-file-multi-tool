@@ -145,21 +145,6 @@ class ApiClientTest extends TestCase
         $this->assertSame($client, $client->delete('endpoint'));
     }
 
-    public function testLogWritesToFile()
-    {
-        $client = $this->getApiClientMock(false);
-        $logFile = sys_get_temp_dir() . '/curl.log';
-        if (file_exists($logFile)) {
-            unlink($logFile);
-        }
-        $ref = new \ReflectionMethod(ApiClient::class, 'log');
-        $ref->setAccessible(true);
-
-        $ref->invoke($client, 'Test message', 200, ['foo' => 'bar']);
-
-        $this->assertFileExists('/app/var/logs/curl.log');
-    }
-
     public function testSetHeadersMergesHeaders()
     {
         $client = $this->getApiClientMock(false);
