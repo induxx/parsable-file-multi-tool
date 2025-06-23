@@ -53,6 +53,7 @@ class Configuration
     public ItemActionProcessorFactory $actionFactory;
 
     private array $extensions = [];
+    private LocalFileManager $fm;
 
     public function __construct()
     {
@@ -76,6 +77,16 @@ class Configuration
         foreach ($files->listFiles() as $file) {
             $this->extensions[basename($file)] = new \SplFileInfo($file);
         }
+    }
+
+    public function addWorkFm(LocalFileManager $fm): void
+    {
+        $this->fm = $fm;
+    }
+
+    public function getWorkFm(): LocalFileManager
+    {
+        return $this->fm;
     }
 
     public function isMultiStep(): bool
@@ -106,6 +117,11 @@ class Configuration
     public function getSources(): SourceCollection
     {
         return $this->sources;
+    }
+
+    public function getAccounts(): array
+    {
+        return $this->accounts;
     }
 
     public function addAccount(string $name, ApiClientInterface $apiClient)

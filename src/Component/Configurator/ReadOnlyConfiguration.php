@@ -7,6 +7,7 @@ use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\Common\Client\ApiClient;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Collection\ArrayCollection;
+use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Pipeline\Pipeline;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Converter\ConverterInterface;
@@ -25,6 +26,8 @@ class ReadOnlyConfiguration
     private array $filters = [];
     private SourceCollection $sources;
     private array $lists;
+    private array $accounts = [];
+    private LocalFileManager $fm;
 
     public static function loadFromConfiguration(Configuration $configuration): self
     {
@@ -33,6 +36,8 @@ class ReadOnlyConfiguration
         $self->lists = $configuration->getLists();
         $self->filters = $configuration->getFilters();
         $self->mappings = $configuration->getMappings();
+        $self->accounts  = $configuration->getAccounts();
+        $self->fm = $configuration->getWorkFm();
 
         return $self;
     }
@@ -40,6 +45,16 @@ class ReadOnlyConfiguration
     public function getSources(): SourceCollection
     {
         return $this->sources;
+    }
+
+    public function getWorkFm(): LocalFileManager
+    {
+        return $this->fm;
+    }
+
+    public function getAccount(string $name): ?ApiClientInterface
+    {
+        return $this->accounts[$name] ?? null;
     }
 
     public function getLists(): array
