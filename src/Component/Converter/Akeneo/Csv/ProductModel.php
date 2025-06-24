@@ -22,6 +22,9 @@ class ProductModel extends Product
             'family' => [
                 'text' => null,
             ],
+            'family_variant' => [
+                'text' => null,
+            ],
             'categories'=> [
                 'list' => null,
             ],
