@@ -26,6 +26,16 @@ class ConfigurationTest extends TestCase
         $this->assertSame($pipeline, $configuration->getPipeline());
     }
 
+    public function testSetAndGetWorkFm()
+    {
+        $configuration = new Configuration();
+        $fm = $this->createMock(LocalFileManager::class);
+
+        $configuration->setWorkFm($fm);
+
+        $this->assertSame($fm, $configuration->getWorkFm());
+    }
+
     public function testSetAndGetExtensions()
     {
         $configuration = new Configuration();

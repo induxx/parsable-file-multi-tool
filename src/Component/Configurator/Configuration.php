@@ -47,12 +47,13 @@ class Configuration
     private $context = [];
     private $shellCommands;
     /** @var ApiClient[] */
-    private $accounts;
+    private $accounts = [];
     private $isMultiStep = false;
     public ChangeManager $changeManager;
     public ItemActionProcessorFactory $actionFactory;
 
     private array $extensions = [];
+    private ?LocalFileManager $fm = null;
 
     public function __construct()
     {
@@ -61,6 +62,7 @@ class Configuration
         $this->encoders = new ArrayCollection();
         $this->decoders = new ArrayCollection();
         $this->blueprints = new ArrayCollection();
+        $this->sources = new SourceCollection('default');
     }
 
     /**
@@ -76,6 +78,19 @@ class Configuration
         foreach ($files->listFiles() as $file) {
             $this->extensions[basename($file)] = new \SplFileInfo($file);
         }
+    }
+
+    public function setWorkFm(LocalFileManager $fm): void
+    {
+        $this->fm = $fm;
+    }
+
+    public function getWorkFm(): LocalFileManager
+    {
+        if ($this->fm === null) {
+            throw new \RuntimeException('Work file manager is not set.');
+        }
+        return $this->fm;
     }
 
     public function isMultiStep(): bool
@@ -106,6 +121,11 @@ class Configuration
     public function getSources(): SourceCollection
     {
         return $this->sources;
+    }
+
+    public function getAccounts(): array
+    {
+        return $this->accounts;
     }
 
     public function addAccount(string $name, ApiClientInterface $apiClient)

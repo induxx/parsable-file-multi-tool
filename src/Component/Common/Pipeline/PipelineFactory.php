@@ -128,8 +128,9 @@ class PipelineFactory implements RegisteredByNameInterface
             $configurationManager->createHTTPReader($configuration['http']) :
             $configurationManager->createReader($configuration['reader'])
         ;
-        if (isset($configuration['reader']['converter'])) {
-            $converter = $configurationManager->createConverter($configuration['reader']['converter']);
+        $converterName = $configuration['reader']['converter'] ?? $configuration['http']['converter'] ?? null;
+        if ($converterName) {
+            $converter = $configurationManager->createConverter($converterName);
             if ($converter instanceof InitConverterInterface) {
                 $converter->init();
             }

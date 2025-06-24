@@ -5,6 +5,8 @@ namespace Misery\Component\Akeneo\Client;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\Paginator;
+use Misery\Component\Common\Cursor\CursorInterface;
+use Misery\Component\Common\Cursor\ItemCursor;
 use Misery\Component\Common\Utils\ValueFormatter;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Reader\ReaderInterface;
@@ -224,6 +226,11 @@ class ApiReader implements ReaderInterface
     public function filter(callable $callable): ReaderInterface
     {
         return new ItemReader($this->processFilter($callable));
+    }
+
+    public function getCursor(): CursorInterface
+    {
+        return (new ItemReader($this->getIterator()))->getCursor();
     }
 
     private function processFilter(callable $callable): \Generator
