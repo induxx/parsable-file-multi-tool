@@ -304,6 +304,9 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         if (array_key_exists('family', $item)) {
             $output['family'] = $item['family'];
         }
+        if (array_key_exists('family_variant', $item)) {
+            $output['family_variant'] = $item['family_variant'];
+        }
         if (array_key_exists('categories', $item)) {
             $output['categories'] = $item['categories'];
         }
@@ -326,7 +329,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                 if (is_array($itemValue['data']) && isset($itemValue['data'][0]['amount'])) {
                     // CSV can accept 2 column types, price and price-EUR
                     // for safety we should restore the old key here
-                    $output[$matcher->getRowKey()] = $itemValue['data'][0]['amount'];
+                    $output[$matcher->getRowKey().'-'.$itemValue['data'][0]['currency']] = $itemValue['data'][0]['amount'];
                     continue;
                 }
                 if (is_array($itemValue['data'])) {
