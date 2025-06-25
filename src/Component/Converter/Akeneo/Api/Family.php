@@ -25,12 +25,17 @@ class Family implements ConverterInterface, RegisteredByNameInterface, OptionsIn
     {
         $attrAsLabel = $this->getOption('attribute_as_label');
 
-        if (isset($item['label-en_US'])) {
-            $item['labels']['en_US'] = $item['label-en_US'];
+        foreach ($item as $key => $value) {
+            if (str_starts_with($key, 'label-')) {
+                $item['labels'][str_replace('label-', '', $key)] = $value;
+                unset($item[$key]);
+            }
         }
-        unset($item['label-en_US']);
-        $item['attribute_requirements']['ecommerce'] = $item['requirements-ecommerce'];
-        unset($item['requirements-ecommerce']);
+
+        if (isset($item['requirements-ecommerce'])) {
+            $item['attribute_requirements']['ecommerce'] = $item['requirements-ecommerce'];
+            unset($item['requirements-ecommerce']);
+        }
 
         if (empty($item['attribute_as_label'])) {
             unset($item['attribute_as_label']);
