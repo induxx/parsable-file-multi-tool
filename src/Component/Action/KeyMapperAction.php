@@ -117,7 +117,13 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
         // we just need to replace these keys
         $newList = [];
         foreach ($list as $key => $value) {
-            $newKey = $this->findMatchedValueData($item, $key) ?? $key;
+            $newKey = $this->findMatchedValueData($item, $key);
+            // ig newKey is different from key, we need to replace it
+            if ($newKey) {
+                $this->replaceMatch($item, $newKey, $value);
+            } else {
+                $newKey = $key;
+            }
             $newList[$newKey] = $value;
         }
 
@@ -167,6 +173,14 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
         } catch (\InvalidArgumentException) {
             return $item;
         }
+    }
+
+    private function replaceMatch(array &$item, string $match, string $to): void
+    {
+        $matcher = $item[$match]['matcher']->duplicateWithNewKey($to);
+        $item[$matcher->getMainKey()] = $item[$match];
+        $item[$matcher->getMainKey()]['matcher'] = $matcher;
+        unset($item[$match]);
     }
 
     private function findMatchedValueData(array $item, string $field): int|string|null

@@ -48,7 +48,7 @@ class KeyMapperActionTest extends TestCase
                 'data' => 'value1',
             ],
             'new_key2' => [
-                'matcher' => Matcher::create('key2'),
+                'matcher' => Matcher::create('new_key2'),
                 'data' => 'value2',
             ],
             'key3' => 'value3',

@@ -78,7 +78,12 @@ class Matcher
         $matcher->scope = $this->scope;
         $matcher->locale = $this->locale;
         $matcher->matches = $this->matches;
-        $matcher->matches[1] = $newPrimaryKey;
+        // properties don't have the values prefix
+        if (count($this->matches) > 1) {
+            $matcher->matches[1] = $newPrimaryKey;
+        } else {
+            $matcher->matches = [$newPrimaryKey];
+        }
         if (count(explode($this->separator, $newPrimaryKey)) > 1) {
             $matcher->matches = explode($this->separator, $newPrimaryKey);
         }
