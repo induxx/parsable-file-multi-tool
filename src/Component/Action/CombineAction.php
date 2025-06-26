@@ -34,7 +34,7 @@ class CombineAction implements ActionInterface, OptionsInterface
 
         // only filter NULL values
         $values = array_filter($values, function ($value) {
-            return $value !== null;
+            return $value !== null && $value !== '';
         });
 
         $value = implode($sep, $values);
