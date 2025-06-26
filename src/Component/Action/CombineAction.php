@@ -32,7 +32,10 @@ class CombineAction implements ActionInterface, OptionsInterface
             $values[] = AkeneoValuePicker::pick($item, $key, $this->options);
         }
 
-        $values = array_filter($values);
+        // only filter NULL values
+        $values = array_filter($values, function ($value) {
+            return $value !== null;
+        });
 
         $value = implode($sep, $values);
 

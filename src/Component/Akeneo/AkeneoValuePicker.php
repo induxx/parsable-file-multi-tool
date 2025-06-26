@@ -62,7 +62,7 @@ class AkeneoValuePicker implements ValuePickerInterface
 
         $itemValue = $item[$field] ?? null;
 
-        if ($itemValue) {
+        if ($itemValue !== null) {
             if (null === $context['scope'] && null === $context['locale']) {
                 return $itemValue;
             }
