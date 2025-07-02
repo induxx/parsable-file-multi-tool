@@ -1,6 +1,7 @@
 context:
   filter: []
   identifier_filter_list: []
+  query: ''
 
 pipeline:
   input:
@@ -11,6 +12,8 @@ pipeline:
       method: GET
       filter: '%filter%'
       identifier_filter_list: '%identifier_filter_list%'
+      limiters:
+        querystring: '%query%'
   output:
     writer:
       type: jsonl
