@@ -72,6 +72,8 @@ class ConfigurationManager
         $this->factory = $factory;
         $this->workFiles = $workFiles;
 
+        $this->config->setWorkFm($this->workFiles);
+
         $this->inMemoryFileManager = new InMemoryFileManager();
         if ($this->sourceFiles) {
             $this->inMemoryFileManager->addFromFileManager($this->sourceFiles);

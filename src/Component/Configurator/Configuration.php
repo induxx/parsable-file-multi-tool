@@ -6,6 +6,7 @@ use App\Component\ChangeManager\ChangeManager;
 use App\Component\Common\Resource\NamedResourceInterface;
 use App\Component\Common\Resource\ResourceCollectionInterface;
 use Misery\Component\Action\ItemActionProcessorFactory;
+use Misery\Component\Logger\ItemLoggerAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
@@ -29,6 +30,7 @@ use Misery\Component\Writer\ItemWriterInterface;
 class Configuration
 {
     use LoggerAwareTrait;
+    use ItemLoggerAwareTrait;
     private $pipeline = null;
     private $actions = null;
     private $groupedActions = null;
@@ -47,13 +49,14 @@ class Configuration
     private $context = [];
     private $shellCommands;
     /** @var ApiClient[] */
-    private $accounts;
+    private $accounts = [];
     private $isMultiStep = false;
     public ChangeManager $changeManager;
     private array $resourceCollections = [];
     public ItemActionProcessorFactory $actionFactory;
 
     private array $extensions = [];
+    private ?LocalFileManager $fm = null;
 
     public function __construct()
     {
@@ -62,6 +65,7 @@ class Configuration
         $this->encoders = new ArrayCollection();
         $this->decoders = new ArrayCollection();
         $this->blueprints = new ArrayCollection();
+        $this->sources = new SourceCollection('default');
     }
 
     /**
@@ -77,6 +81,19 @@ class Configuration
         foreach ($files->listFiles() as $file) {
             $this->extensions[basename($file)] = new \SplFileInfo($file);
         }
+    }
+
+    public function setWorkFm(LocalFileManager $fm): void
+    {
+        $this->fm = $fm;
+    }
+
+    public function getWorkFm(): LocalFileManager
+    {
+        if ($this->fm === null) {
+            throw new \RuntimeException('Work file manager is not set.');
+        }
+        return $this->fm;
     }
 
     public function isMultiStep(): bool
@@ -127,6 +144,11 @@ class Configuration
     public function getResourceCollections(): array
     {
         return $this->resourceCollections;
+    }
+  
+    public function getAccounts(): array
+    {
+        return $this->accounts;
     }
 
     public function addAccount(string $name, ApiClientInterface $apiClient)
@@ -374,6 +396,8 @@ class Configuration
 
         $this->writer = null;
         $this->pipeline = null;
+        $this->lists = [];
+        $this->mappings = [];
         $this->shellCommands = null;
         $this->converters = new ArrayCollection();
         $this->feeds = new ArrayCollection();

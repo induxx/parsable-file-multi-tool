@@ -82,13 +82,17 @@ class ReadLoopItemCollectionConverter implements InitConverterInterface, Convert
 
             $result = [];
             foreach ($item[$this->getOption('loop_item')] as $i => $distilledItem) {
-                $result[$i] = array_merge($rootItem, $distilledItem);
+                if (is_string($distilledItem)) {
+                    $result[$i] = array_merge($rootItem, [$this->getOption('loop_item') => $distilledItem]);
+                } elseif (is_array($distilledItem)) {
+                    $result[$i] = array_merge($rootItem, $distilledItem);
+                }
             }
 
             return $result;
         }
 
-        return $item;
+        return [];
     }
 
     public function getName(): string

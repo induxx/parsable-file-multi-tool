@@ -3,7 +3,7 @@
 namespace Misery\Component\Writer;
 
 use Assert\Assert;
-use Misery\Component\Parser\JsonFileParser;
+use Misery\Component\Parser\JsonParser;
 
 /**
  * This CSV writer, writes all items to a JSON buffer first,
@@ -42,7 +42,7 @@ class BufferedCsvWriter implements ItemWriterInterface
 
     public function close(): void
     {
-        $reader = JsonFileParser::create($this->tmpFile);
+        $reader = JsonParser::create($this->tmpFile);
 
         $this->csvWriter->setHeader(array_keys($this->headers));
         while ($item = $reader->current()) {

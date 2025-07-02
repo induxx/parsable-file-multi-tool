@@ -298,4 +298,34 @@ class ApiClient implements ApiClientInterface
     {
         return $this->urlGenerator;
     }
+
+    /**
+     * Download the raw response body from the endpoint.
+     * Returns string|null on success, throws on error.
+     */
+    public function download(string $endpoint): ?string
+    {
+        $this->setAuthenticationHeaders();
+        $this->setHeaders(['Content-Type' => 'application/json']);
+
+        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
+        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
+        \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
+        \curl_setopt($this->handle, CURLOPT_HEADER, false);
+
+        $this->generateHeaders();
+
+        $response = \curl_exec($this->handle);
+        $status = \curl_getinfo($this->handle, CURLINFO_HTTP_CODE);
+
+        if ($response === false) {
+            throw new \RuntimeException(\curl_error($this->handle), \curl_errno($this->handle));
+        }
+
+        if ($status >= 200 && $status < 300) {
+            return $response !== '' ? $response : null;
+        }
+
+        throw new \RuntimeException('Download failed: HTTP ' . $status . ' - ' . $response, $status);
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace Tests\Misery\Component\Writer;
 
-use Misery\Component\Parser\JsonFileParser;
+use Misery\Component\Parser\JsonParser;
 use Misery\Component\Writer\JsonWriter;
 use PHPUnit\Framework\TestCase;
 
@@ -54,7 +54,7 @@ class JsonWriterTest extends TestCase
 
         self::assertTrue($file->isFile());
 
-        $parser = JsonFileParser::create($filePath);
+        $parser = JsonParser::create($filePath);
 
         $result = [];
         while ($item = $parser->current()) {

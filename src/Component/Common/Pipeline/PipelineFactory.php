@@ -37,10 +37,21 @@ class PipelineFactory implements RegisteredByNameInterface
                         $pipeline->output(new PipeWriter(
                             $configurationManager->createBufferWriter($configuration['output']['http']['buffer_file'])
                         ));
+
+                        $pipeline->output(new PipeItemLogger(
+                            $configurationManager->getConfig()->getItemLogger(),
+                            $configuration['output']['http']['endpoint'],
+                            $configuration['output']['http']['method']
+                        ));
                         break;
                     }
 
                     $pipeline->output(new PipeWriter($writer));
+                    $pipeline->output(new PipeItemLogger(
+                        $configurationManager->getConfig()->getItemLogger(),
+                        $configuration['output']['http']['endpoint'],
+                        $configuration['output']['http']['method']
+                    ));
 
                     $pipeline->invalid(
                         new PipeWriter($this->createInvalid($configurationManager, $configuration))
@@ -111,13 +122,15 @@ class PipelineFactory implements RegisteredByNameInterface
     {
         $configuration = $configuration['input'];
         $pipeline = new Pipeline();
+        $pipeline->setItemLogger($configurationManager->getConfig()->getItemLogger());
 
         $reader = (isset($configuration['http'])) ?
             $configurationManager->createHTTPReader($configuration['http']) :
             $configurationManager->createReader($configuration['reader'])
         ;
-        if (isset($configuration['reader']['converter'])) {
-            $converter = $configurationManager->createConverter($configuration['reader']['converter']);
+        $converterName = $configuration['reader']['converter'] ?? $configuration['http']['converter'] ?? null;
+        if ($converterName) {
+            $converter = $configurationManager->createConverter($converterName);
             if ($converter instanceof InitConverterInterface) {
                 $converter->init();
             }

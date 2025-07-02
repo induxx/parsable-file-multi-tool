@@ -3,6 +3,8 @@
 namespace Misery\Component\Configurator;
 
 use App\Component\ChangeManager\ChangeManager;
+use Misery\Component\Logger\ItemLoggerInterface;
+use Misery\Component\Logger\NullItemLogger;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Pipeline\ActionPipe;
@@ -37,6 +39,7 @@ class ConfigurationFactory
     ) {
         $this->config = new Configuration();
         $this->config->setLogger($logger);
+        $this->config->setItemLogger(new NullItemLogger());
         $sources = ($source) ? $this->getFactory('source')->createFromFileManager($source) : null;
         $this->manager = new ConfigurationManager(
             $this->config,
@@ -47,6 +50,11 @@ class ConfigurationFactory
             $additionalSources,
             $extensions
         );
+    }
+
+    public function setItemLogger(ItemLoggerInterface $itemLogger)
+    {
+        $this->config->setItemLogger($itemLogger);
     }
 
     public function setChangeManager(ChangeManager $changeManager): void

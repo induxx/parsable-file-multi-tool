@@ -24,3 +24,10 @@ RUN apt-get update && \
            /usr/share/lintian/* /usr/share/locale/* /usr/share/man/*
 
 ENV PATH="/opt/venv/bin:$PATH"
+
+# python panda
+#RUN apt-get update && \
+#    apt-get --no-install-recommends --no-install-suggests --yes --quiet install python3 python3-pip && \
+#    pip install --break-system-packages pandas && \
+#    apt-get clean && apt-get --yes --quiet autoremove --purge && \
+#    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

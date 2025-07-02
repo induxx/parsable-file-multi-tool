@@ -43,11 +43,32 @@ class ListMapperAction implements OptionsInterface, ActionItemInterface
         }
     }
 
+    /**
+     * @param  array<string, mixed> $item
+     * @return array<string, mixed>
+     */
     public function apply(array $item): array
     {
-        $value = $item[$this->options['field']] ?? null;
-        if ($value && array_key_exists($value, $this->options['list'])) {
-            $item[$this->getOption('store_field', $this->getOption('field'))] = $this->options['list'][$value];
+        if ([] === $this->getOption('list')) {
+            return $item;
+        }
+
+        // Cache option lookups once
+        $field      = $this->getOption('field');
+        $storeField = $this->getOption('store_field', $field);
+        $list       = $this->getOption('list');
+
+        // Nothing to apply if options are missing or list is empty
+        if (null === $field || null === $storeField || empty($list)) {
+            return $item;
+        }
+
+        // Grab the incoming value (or null if missing)
+        $value = $item[$field] ?? null;
+
+        // Only write back when we actually have a known key in the map
+        if ($value !== null && isset($list[$value])) {
+            $item[$storeField] = $list[$value];
         }
 
         return $item;

@@ -49,6 +49,12 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Api\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
+    new Misery\Component\Converter\Akeneo\Api\ReferenceEntities(
+        new Misery\Component\Converter\AkeneoCsvHeaderContext()
+    ),
+    new Misery\Component\Converter\Akeneo\Api\Assets(
+        new Misery\Component\Converter\AkeneoCsvHeaderContext()
+    ),
     new Misery\Component\Converter\AkeneoFlatProductModelToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatProductToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
@@ -62,10 +68,12 @@ $converterRegistry->registerAllByName(
 
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
     new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
+    new Misery\Component\Converter\Akeneo\Api\Family(),
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
     new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator(),
     new Misery\Component\Converter\ReadLoopItemCollectionConverter(),
     new Misery\Component\Converter\ObelinkPurchaseLoop($productApi),
+    new Misery\Component\Converter\Akeneo\AkeneoOptionExtractor(),
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
@@ -79,6 +87,7 @@ $modifierRegistry
     ->register(Misery\Component\Modifier\ArrayUnflattenModifier::NAME, new Misery\Component\Modifier\ArrayUnflattenModifier())
     ->register(Misery\Component\Modifier\ArrayFlattenModifier::NAME, new Misery\Component\Modifier\ArrayFlattenModifier())
     ->register(Misery\Component\Modifier\NullifyEmptyStringModifier::NAME, new Misery\Component\Modifier\NullifyEmptyStringModifier())
+    ->register(Misery\Component\Modifier\CleanseModifier::NAME, new Misery\Component\Modifier\CleanseModifier())
     ->register(Misery\Component\Modifier\ReplaceCharacterModifier::NAME, new Misery\Component\Modifier\ReplaceCharacterModifier())
     ->register(Misery\Component\Modifier\FilterEmptyStringModifier::NAME, new Misery\Component\Modifier\FilterEmptyStringModifier())
     ->register(Misery\Component\Modifier\FilterWhiteSpacesModifier::NAME, new Misery\Component\Modifier\FilterWhiteSpacesModifier())
@@ -91,6 +100,7 @@ $modifierRegistry
     ->register(Misery\Component\Modifier\UrlEncodeModifier::NAME, new Misery\Component\Modifier\UrlEncodeModifier())
     ->register(Misery\Component\Modifier\StripTagsModifier::NAME, new Misery\Component\Modifier\StripTagsModifier())
     ->register(Misery\Component\Modifier\CapitalizeModifier::NAME, new Misery\Component\Modifier\CapitalizeModifier())
+    ->register(Misery\Component\Modifier\SlugModifier::NAME, new Misery\Component\Modifier\SlugModifier())
 
     //->register(Misery\Component\Modifier\StructureModifier::NAME, new Misery\Component\Modifier\StructureModifier())
 ;
@@ -122,6 +132,7 @@ $actionRegistry
     ->register(Misery\Component\Action\KeyMapperAction::NAME, new Misery\Component\Action\KeyMapperAction())
     ->register(Misery\Component\Action\ExpandAction::NAME, new Misery\Component\Action\ExpandAction())
     ->register(Misery\Component\Action\StatementAction::NAME, new Misery\Component\Action\StatementAction())
+    ->register(Misery\Component\Action\CompareAction::NAME, new Misery\Component\Action\CompareAction())
     ->register(Misery\Component\Action\MergeAction::NAME, new Misery\Component\Action\MergeAction())
     ->register(Misery\Component\Action\UnsetAction::NAME, new Misery\Component\Action\UnsetAction())
     ->register(Misery\Component\Action\EmptyAction::NAME, new Misery\Component\Action\EmptyAction())

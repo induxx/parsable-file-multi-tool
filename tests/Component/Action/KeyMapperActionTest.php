@@ -48,7 +48,7 @@ class KeyMapperActionTest extends TestCase
                 'data' => 'value1',
             ],
             'new_key2' => [
-                'matcher' => Matcher::create('key2'),
+                'matcher' => Matcher::create('new_key2'),
                 'data' => 'value2',
             ],
             'key3' => 'value3',
@@ -111,5 +111,105 @@ class KeyMapperActionTest extends TestCase
                 'data' => 'value2',
             ],
         ], $result);
+    }
+
+    public function testApplyWithAllowJoinMergesStringValues()
+    {
+        $item = [
+            'A' => 'foo',
+            'B' => 'bar',
+            'C' => 'baz',
+        ];
+
+        $action = new KeyMapperAction();
+        $action->setOptions([
+            'list' => [
+                'A' => 'X',
+                'B' => 'X',
+                'C' => 'Y',
+            ],
+            'allow_join' => true,
+            'separator' => ',',
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals([
+            'X' => 'foo,bar',
+            'Y' => 'baz',
+        ], $result);
+    }
+
+    public function testApplyWithAllowJoinSkipsEmptyStrings()
+    {
+        $item = [
+            'A' => '',
+            'B' => 'bar',
+            'C' => '',
+        ];
+
+        $action = new KeyMapperAction();
+        $action->setOptions([
+            'list' => [
+                'A' => 'X',
+                'B' => 'X',
+                'C' => 'X',
+            ],
+            'allow_join' => true,
+            'separator' => ';',
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals([
+            'X' => 'bar',
+        ], $result);
+    }
+
+    public function testApplyWithAllowJoinSkipsNonStringValues()
+    {
+        $item = [
+            'A' => 123,
+            'B' => 'bar',
+            'C' => null,
+            'D' => ['array'],
+        ];
+
+        $action = new KeyMapperAction();
+        $action->setOptions([
+            'list' => [
+                'A' => 'X',
+                'B' => 'X',
+                'C' => 'X',
+                'D' => 'X',
+            ],
+            'allow_join' => true,
+            'separator' => '|',
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals([
+            'X' => 'bar',
+        ], $result);
+    }
+
+    public function testApplyReturnsOriginalItemWhenNoReverseNoAllowJoinAndEmptyList()
+    {
+        $item = [
+            'foo' => 'bar',
+            'baz' => 'qux',
+        ];
+
+        $action = new KeyMapperAction();
+        $action->setOptions([
+            'list' => [],
+            'reverse' => false,
+            'allow_join' => false,
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertSame($item, $result);
     }
 }

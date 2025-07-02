@@ -26,7 +26,7 @@ class FormatAction implements OptionsInterface
 
     public function apply(array $item): array
     {
-        $field = $this->getOption('field');
+        $field = $this->getOption('field', $this->getOption('list'));
 
         if (is_array($field)) {
             foreach ($field as $fieldValue) {

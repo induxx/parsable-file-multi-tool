@@ -6,6 +6,8 @@ use Misery\Component\Common\Client\ApiEndpointInterface;
 
 class BasicApiEndpoint implements ApiEndpointInterface
 {
+    public const NAME = 'basic-api';
+
     private string $endpoint;
 
     public function __construct(string $endpoint)

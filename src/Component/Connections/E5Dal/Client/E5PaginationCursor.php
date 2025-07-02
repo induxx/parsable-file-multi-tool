@@ -23,7 +23,7 @@ class E5PaginationCursor extends PaginationCursor
         // Use a regular expression to extract the URL
         $pattern = '/<([^>]*)>; rel=next/';
         $linkHeader = $response->getHeaders('link');
-        if (preg_match($pattern, $linkHeader, $matches)) {
+        if ($linkHeader && preg_match($pattern, $linkHeader, $matches)) {
             $url = $matches[1];
             $this->link = $url;
         }

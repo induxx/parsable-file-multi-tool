@@ -6,8 +6,9 @@ use Misery\Component\Converter\AkeneoProductApiConverter;
 
 class ProductModel extends AkeneoProductApiConverter
 {
+    protected const IDENTIFIER = 'code';
     private array $options = [
-        'identifier' => 'sku',
+        'identifier' => 'code',
         'structure' => 'matcher', # matcher OR flat
         'container' => 'values',
         'render_associations' => true,
@@ -23,5 +24,10 @@ class ProductModel extends AkeneoProductApiConverter
     public function getName(): string
     {
         return 'akeneo/product_model/api';
+    }
+
+    protected function getIdentifierKey(): string
+    {
+        return self::IDENTIFIER;
     }
 }

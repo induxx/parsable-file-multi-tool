@@ -10,6 +10,8 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
 {
     use OptionsTrait;
 
+    protected const IDENTIFIER = 'identifier';
+
     private $options = [
         'identifier' => 'sku',
         'structure' => 'matcher', # matcher OR flat
@@ -52,24 +54,37 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
         $allowEmptyStringValues = $this->getOption('allow_empty_string_values');
 
         if (isset($item[$identifier])) {
-            $item['identifier'] = $item[$identifier];
-            unset($item[$identifier]);
+            $identifierKey = $this->getIdentifierKey();
+            $item[$identifierKey] = $item[$identifier];
+
+            if ($identifierKey !== $identifier) {
+                unset($item[$identifier]);
+            }
         }
         if (array_key_exists('categories', $item)) {
             // NULL is not an excepted value
             if ($item['categories'] === [] && false === $allowEmptyStringValues) {
                 unset($item['categories']);
-            }elseif ($item['categories'] === null) {
+            } elseif ($item['categories'] === null) {
                 unset($item['categories']);
             }
         }
 
+        if (empty($item['family']) && false === $allowEmptyStringValues) {
+            unset($item['family']);
+        }
+
         foreach ($item ?? [] as $key => $itemValue) {
             $matcher = $itemValue['matcher'] ?? null;
-            $value = $itemValue['data']['amount'] ?? $itemValue['data'] ?? null;
-            if ($matcher && false === $allowEmptyStringValues && $value === '') {
-                unset($item[$key]);
-                continue;
+            if (false === $allowEmptyStringValues && $matcher) {
+                $value = $itemValue['data'] ?? null;
+                if (is_array($value)) {
+                    $value = $value['amount'] ?? null;
+                }
+                if ($value === '' || $value === null || $value === []) {
+                    unset($item[$key]);
+                    continue;
+                }
             }
 
             if ($matcher && $matcher->matches($container)) {
@@ -92,5 +107,10 @@ class AkeneoProductApiConverter implements ConverterInterface, RegisteredByNameI
     public function getName(): string
     {
         return 'akeneo/product/api';
+    }
+
+    protected function getIdentifierKey(): string
+    {
+        return self::IDENTIFIER;
     }
 }

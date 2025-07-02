@@ -58,4 +58,26 @@ class UnsetActionTest extends TestCase
 
         $this->assertEquals(['field' => ['key1' => 'value1', 'key2' => 'value2']], $action->apply($item));
     }
+
+    public function testApplyRemoveKeysOption()
+    {
+        $item = [
+            'attributes' => [
+                'field1',
+                'field2',
+                'field3',
+            ],
+        ];
+
+        $action = new UnsetAction();
+        $action->setOptions([
+            'field' => 'attributes',
+            'list' => ['field1', 'field3'],
+            'unset_list_keys' => true,
+        ]);
+
+        $result = $action->apply($item);
+
+        $this->assertEquals(['attributes' => ['field2']], $result);
+    }
 }
