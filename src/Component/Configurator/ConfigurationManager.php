@@ -151,10 +151,10 @@ class ConfigurationManager
                 if (isset($transformationFile['once_with'])) {
                     $this->addTransformationSteps([$file], $masterConfiguration, array_merge($context, $transformationFile['once_with']));
 
-                    // Handle 'all_with' directive
-                } elseif (isset($transformationFile['all_with'])) {
+                    // Handle 'with' directive
+                } elseif (isset($transformationFile['with'])) {
                     // Iterate over each combination of parameters
-                    foreach ($this->arrayCartesianItem($transformationFile['all_with']) as $comboContext) {
+                    foreach ($this->arrayCartesianItem($transformationFile['with']) as $comboContext) {
                         $this->addTransformationSteps([$file], $masterConfiguration, array_merge($context, $comboContext));
                     }
                 }
