@@ -121,7 +121,7 @@ class StatementBuilder
         $andFields = explode(' AND ', $whenString) ?? [];
         if (count($andFields) > 1) {
             $collection = new StatementCollection();
-            foreach ($andFields as $i => $andField) {
+            foreach ($andFields as $andField) {
                 $fields = explode(' ', $andField);
                 $statement = self::buildFromOperator($fields[1], $context);
                 $statement->when($fields[0], $fields[2] ?? null);
