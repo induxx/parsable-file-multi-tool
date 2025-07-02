@@ -4,7 +4,6 @@ namespace Misery\Component\Action;
 
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
-use Misery\Component\Converter\Matcher;
 use Misery\Component\Mapping\ColumnMapper;
 use Misery\Model\DataStructure\ItemInterface;
 

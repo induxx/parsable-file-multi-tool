@@ -2,7 +2,6 @@
 
 namespace Misery\Component\Action;
 
-use JetBrains\PhpStorm\NoReturn;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Model\DataStructure\ItemInterface;

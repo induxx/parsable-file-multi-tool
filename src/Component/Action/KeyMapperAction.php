@@ -35,7 +35,6 @@ class KeyMapperAction implements OptionsInterface, ActionItemInterface
         $reverse = $this->getOption('reverse');
         $allowJoin = $this->getOption('allow_join');
         $separator = $this->getOption('separator');
-
         $list = array_filter($this->getOption('list'));
 
         if ($reverse) {
