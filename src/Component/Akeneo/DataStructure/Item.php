@@ -2,16 +2,15 @@
 
 namespace Misery\Component\Akeneo\DataStructure;
 
-use App\Component\Akeneo\Api\Objects\Scope;
-use Assert\Assert;
 use Misery\Component\Converter\Matcher;
+use Misery\Model\DataStructure\ScopeInterface;
 
 class Item
 {
     private Matcher $matcher;
     private string $type = 'generic';
 
-    public function __construct(private readonly string $code, private $value, private readonly Scope $scope)
+    public function __construct(private readonly string $code, private $value, private readonly ScopeInterface $scope)
     {
         $this->matcher = Matcher::create($this->code, $this->scope->getLocale(), $this->scope->getChannel());
         if ($this->matcher->isProperty()) {
@@ -31,9 +30,9 @@ class Item
 
     public static function withContext(string $code, $value, array $context = [])
     {
-        $scope = new Scope();
+        $scope = new AkeneoScope();
         if (array_key_exists('locale', $context) && array_key_exists('scope', $context)) {
-            $scope = Scope::fromArray($context);
+            $scope = AkeneoScope::fromArray($context);
         }
 
         return new self($code, $value, $scope);
@@ -49,7 +48,7 @@ class Item
         ];
     }
 
-    public function getScope(): Scope
+    public function getScope(): ScopeInterface
     {
         return $this->scope;
     }

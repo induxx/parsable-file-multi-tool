@@ -130,6 +130,15 @@ class Item implements ItemInterface
         return array_keys($this->itemNodes);
     }
 
+    public function flatten(): array
+    {
+        $flattened = [];
+        foreach ($this->itemNodes as $code => $item) {
+            $flattened[$code] = $item->getDataValue();
+        }
+        return $flattened;
+    }
+
     public function getItemsByScope(ScopeInterface $scope): \Generator
     {
         foreach ($this->itemNodes as $code => $item) {

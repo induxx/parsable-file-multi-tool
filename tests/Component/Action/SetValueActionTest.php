@@ -3,7 +3,9 @@
 namespace Tests\Misery\Component\Action;
 
 use Misery\Component\Action\SetValueAction;
+use Misery\Component\Akeneo\DataStructure\GenericItemBuilder;
 use Misery\Component\Converter\Matcher;
+use Misery\Model\DataStructure\Item;
 use PHPUnit\Framework\TestCase;
 
 class SetValueActionTest extends TestCase
@@ -24,12 +26,19 @@ class SetValueActionTest extends TestCase
             'value' => '1',
         ]);
 
-        $this->assertEquals([
+        $expected = [
             'brand' => 'louis',
             'description' => 'LV',
             'sku' => '1',
             'enabled' => '1',
-        ], $format->apply($item));
+        ];
+
+        $this->assertEquals($expected, $format->apply($item));
+
+        $item = GenericItemBuilder::fromFlatData($item);
+        $format->applyAsItem($item);
+
+        $this->assertEquals($expected, $item->flatten());
     }
 
     public function test_it_should_not_set_a_new_value_action(): void
