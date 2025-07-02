@@ -5,13 +5,15 @@ namespace Misery\Component\Configurator;
 use App\Component\ChangeManager\ChangeManager;
 use App\Component\Common\Resource\NamedResourceInterface;
 use App\Component\Common\Resource\ResourceCollectionInterface;
+#use App\Component\Common\Resource\NamedResourceInterface;
+#use App\Component\Common\Resource\ResourceCollectionInterface;
 use Misery\Component\Action\ItemActionProcessorFactory;
+use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Logger\ItemLoggerAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\BluePrint\BluePrint;
-use App\Component\Common\Client\ApiClient;
 use App\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Collection\ArrayCollection;
 use Misery\Component\Common\FileManager\LocalFileManager;
@@ -48,10 +50,10 @@ class Configuration
     private $sources;
     private $context = [];
     private $shellCommands;
-    /** @var ApiClient[] */
-    private $accounts = [];
-    private $isMultiStep = false;
     public ChangeManager $changeManager;
+    /** @var ApiClientInterface[] */
+    private array $accounts = [];
+    private bool $isMultiStep = false;
     private array $resourceCollections = [];
     public ItemActionProcessorFactory $actionFactory;
 
@@ -131,15 +133,15 @@ class Configuration
         return $this->sources;
     }
 
-    public function addResourceCollection(ResourceCollectionInterface|NamedResourceInterface $resourceCollection): void
-    {
-        $this->resourceCollections[$resourceCollection->getName()] = $resourceCollection;
-    }
-
-    public function getResourceCollection(string $name):? ResourceCollectionInterface
-    {
-        return $this->resourceCollections[$name] ?? null;
-    }
+//    public function addResourceCollection(ResourceCollectionInterface|NamedResourceInterface $resourceCollection): void
+//    {
+//        $this->resourceCollections[$resourceCollection->getName()] = $resourceCollection;
+//    }
+//
+//    public function getResourceCollection(string $name):? ResourceCollectionInterface
+//    {
+//        return $this->resourceCollections[$name] ?? null;
+//    }
 
     public function getResourceCollections(): array
     {
@@ -151,7 +153,7 @@ class Configuration
         return $this->accounts;
     }
 
-    public function addAccount(string $name, ApiClientInterface $apiClient)
+    public function addAccount(string $name, ApiClientInterface $apiClient): void
     {
         $this->accounts[$name] = $apiClient;
     }

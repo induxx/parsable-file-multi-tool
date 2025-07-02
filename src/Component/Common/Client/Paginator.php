@@ -79,7 +79,7 @@ class Paginator
         return $this->hasNextPage() ? $this->getPage($this->next) : null;
     }
 
-    public function getClient(): ApiClient
+    public function getClient(): ApiClientInterface
     {
         return $this->client;
     }
