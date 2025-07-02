@@ -22,6 +22,11 @@ class CollectionStatement implements PredeterminedStatementInterface
         $this->conditions[$this->key]['when'] = null;
     }
 
+    public function getCollection(): StatementCollection
+    {
+        return $this->collection;
+    }
+
     public function whenField($field, $item = null): bool
     {
         return $this->isApplicable($item);
