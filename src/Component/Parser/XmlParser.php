@@ -2,28 +2,29 @@
 
 namespace Misery\Component\Parser;
 
-use Assert\Assert;
 use Misery\Component\Common\Cursor\CursorInterface;
 
 class XmlParser implements CursorInterface
 {
-    public const CONTAINER = 'Container';
-
-    /** @var string */
-    private $container;
+    /** @var string[] */
+    private array $path = [];
     private $xml;
     /** @var int|null */
     private $count;
     private $i = 0;
 
-    public function __construct(
-        string $file,
-        string $container = null
-    ) {
-        $this->container = $container;
-
+    /**
+     * @param string      $file
+     * @param string|null $container  e.g. "Records/Product" or just "Records"
+     */
+    public function __construct(string $file, string $container = null)
+    {
         $this->xml = new \XMLReader();
         $this->xml->open($file);
+
+        if (null !== $container) {
+            $this->path = explode('/', $container);
+        }
     }
 
     public static function create(string $filename, string $container = null): self
@@ -31,15 +32,6 @@ class XmlParser implements CursorInterface
         return new self($filename, $container);
     }
 
-    public function setContainer(string $container): void
-    {
-        // once's set, you can't chang the container
-        $this->container = $this->container ?? $container;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function loop(callable $callable): void
     {
         foreach ($this->getIterator() as $row) {
@@ -47,73 +39,65 @@ class XmlParser implements CursorInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getIterator(): \Generator
     {
         while ($this->valid()) {
             yield $this->key() => $this->current();
             $this->next();
         }
-
+        // rewind after finishing
         $this->rewind();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return false|array
-     *
-     * @throws \Exception
-     */
     public function current(): mixed
     {
-        // this part is responsible for setting the start element correctly
-        while ($this->i === 0 && $this->xml->read() && $this->xml->name !== $this->container) {
-            // digging;
-            Assert::that($this->container, 'XML parser needs a container name')->notEmpty();
-        }
-        $this->i++;
-
-        try {
-            if ($this->xml->name === $this->container) {
-                return json_decode(json_encode(new \SimpleXMLElement($this->xml->readOuterXML())), true);
+        // on first fetch, drill down through all segments
+        if ($this->i === 0) {
+            foreach ($this->path as $segment) {
+                while (
+                    $this->xml->read() &&
+                    !($this->xml->nodeType === \XMLReader::ELEMENT &&
+                        $this->xml->localName === $segment)
+                ) {
+                    // skip
+                }
+                // once you hit a segment that's not the last, go one level deeper
+                if ($segment !== end($this->path)) {
+                    $this->xml->read();
+                }
             }
-        } catch (\Exception $exception) {
-            throw new \Exception($exception->getMessage());
+        }
+
+        // now at the last segment
+        if ($this->xml->nodeType === \XMLReader::ELEMENT
+            && $this->xml->localName === end($this->path)
+        ) {
+            $this->i++;
+            $xmlStr = $this->xml->readOuterXML();
+            $simple = new \SimpleXMLElement($xmlStr);
+            return json_decode(json_encode($simple), true);
         }
 
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function next(): void
     {
-        $this->xml->next($this->container);
+        // jump to next <childTag>
+        $childTag = $this->path[count($this->path) - 1];
+        $this->xml->next($childTag);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function key(): mixed
     {
         return $this->i;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function valid(): bool
     {
         return false !== $this->current();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rewind(): void
     {
         if (false === $this->valid()) {
@@ -123,25 +107,30 @@ class XmlParser implements CursorInterface
         $this->count();
         $this->seek(0);
 
-        // move 1 up for the headers
+        // position at first data element
         $this->next();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function seek($offset): void
     {
-        $this->xml->moveToAttributeNo($offset);
+        // move reader back to start + offset: we just re-open
+        $this->xml->close();
+        $this->xml->open($this->xml->URI);
+        $this->i = $offset;
+        // skip offset items
+        for ($k = 0; $k < $offset; $k++) {
+            $this->next();
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function count(): int
     {
         if (null === $this->count) {
-            $this->loop(function (){});
+            $this->count = 0;
+            // count by consuming
+            $this->loop(function () {
+                $this->count++;
+            });
         }
 
         return $this->count;
@@ -149,6 +138,6 @@ class XmlParser implements CursorInterface
 
     public function clear(): void
     {
-        // TODO: Implement clear() method.
+        // no-op
     }
 }

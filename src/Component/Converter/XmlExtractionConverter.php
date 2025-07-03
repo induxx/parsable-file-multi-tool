@@ -2,7 +2,6 @@
 
 namespace Misery\Component\Converter;
 
-use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
@@ -12,17 +11,18 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
     use OptionsTrait;
 
     private $options = [
+        'separator' => '|',
         'extract' => [],
     ];
 
     public function convert(array $item): array
     {
-        return self::flatten($item, $this->getOption('extract'));
+        return $this->flatten($item, $this->getOption('extract'));
     }
 
-    public static function flatten(array $array, array $extractList): array
+    public function flatten(array $array, array $extractList): array
     {
-        $separator = '.';
+        $separator = $this->getOption('separator');
         $result = [];
 
         foreach ($extractList as $path => $extractKey) {
