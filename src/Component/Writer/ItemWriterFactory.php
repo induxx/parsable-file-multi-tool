@@ -39,7 +39,7 @@ class ItemWriterFactory implements RegisteredByNameInterface
             );
         }
         if ($configuration['type'] === 'json' || $configuration['type'] === 'buffer' || $configuration['type'] === 'jsonl') {
-            return new JsonWriter($filename);
+            return new JsonlWriter($filename);
         }
         if ($configuration['type'] === 'buffer_csv') {
             $configuration['filename'] = $filename;
