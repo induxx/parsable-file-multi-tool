@@ -100,13 +100,30 @@ class ApiReader implements ReaderInterface
             return $items;
         }
 
+        $timeCondition = $this->context['time_condition'] ?? null;
+        $conditionValue = $this->context['time_condition_value'] ?? null;
+
+        if ($timeCondition === 'updated_since_last_completed_job' && isset($this->context['last_completed_operation_datetime'])) {
+            $filter = ['updated' => [['operator' => '>', 'value' => $this->context['last_completed_operation_datetime']]]];
+        } elseif ($timeCondition === 'updated_over_the_last_n_days' && $conditionValue) {
+            $filter = ['updated' => [['operator' => '>', 'value' => date('Y-m-d 00:00:00', strtotime('-' . $conditionValue . ' days'))]]];
+        } elseif ($timeCondition === 'updated_n_minutes_ago' && $conditionValue) {
+            $filter = ['updated' => [['operator' => '>', 'value' => date('Y-m-d H:i:00', strtotime('-' . $conditionValue . ' minutes'))]]];
+        } elseif ($timeCondition === 'no_date_condition') {
+            $filter = [];
+        } else {
+            $filter = [];
+        }
+
+        $filter = 'search=' . json_encode($filter) . '&';
+
         $url = $this->client->getUrlGenerator()->generate($endpoint);
         if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
             if (!strpos($url, 'pagination_type')) {
                 if (isset($this->context['limiters']['querystring'])) {
-                    $url = sprintf('%s&pagination_type=search_after', $url);
+                    $url = sprintf('%s&%spagination_type=search_after', $url, $filter);
                 } else {
-                    $url = sprintf('%s?pagination_type=search_after', $url);
+                    $url = sprintf('%s?%spagination_type=search_after', $url, $filter);
                 }
             }
         }
