@@ -7,7 +7,7 @@ abstract class FileWriter implements ItemWriterInterface
     protected $handle;
     private $filename;
 
-    public function __construct(string $filename)
+    public function __construct(string $filename, string $mode = 'wb+')
     {
         $this->filename = $filename;
         $this->handle = fopen($filename, 'wb+');

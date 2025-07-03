@@ -75,10 +75,59 @@ class XmlParser implements CursorInterface
             $this->i++;
             $xmlStr = $this->xml->readOuterXML();
             $simple = new \SimpleXMLElement($xmlStr);
-            return json_decode(json_encode($simple), true);
+
+            // convert recursively—and *always* preserve attributes on leaves
+            return $this->simpleXmlToArray($simple);
         }
 
         return false;
+    }
+
+    /**
+     * Recursively convert a SimpleXMLElement into a PHP array,
+     * preserving attributes under '@attributes', text under '@value',
+     * and grouping same-named children into arrays.
+     *
+     * @param \SimpleXMLElement $node
+     * @return string|array  string if leaf-without-attributes, or array otherwise
+     */
+    private function simpleXmlToArray(\SimpleXMLElement $node): string|array
+    {
+        $result = [];
+
+        // 1) attributes
+        foreach ($node->attributes() as $name => $value) {
+            $result['@attributes'][$name] = (string) $value;
+        }
+
+        // 2) child elements
+        foreach ($node->children() as $child) {
+            $childName = $child->getName();
+            $childValue = $this->simpleXmlToArray($child);
+
+            // if we already have one, turn it into a numeric array
+            if (isset($result[$childName])) {
+                if (! is_array($result[$childName]) || ! array_key_exists(0, $result[$childName])) {
+                    $result[$childName] = [ $result[$childName] ];
+                }
+                $result[$childName][] = $childValue;
+            } else {
+                $result[$childName] = $childValue;
+            }
+        }
+
+        // 3) leaf text content
+        $text = trim((string) $node);
+        if ($text !== '') {
+            if (count($result) === 0) {
+                // pure text, no attrs/no children → return string directly
+                return $text;
+            }
+            // mixed element (has attrs or children) → store under '@value'
+            $result['@value'] = $text;
+        }
+
+        return $result;
     }
 
     public function next(): void

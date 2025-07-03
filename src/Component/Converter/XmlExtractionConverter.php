@@ -7,122 +7,137 @@ use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 
 /**
- * Flattens and extracts nested XML-like arrays into a simple key/value structure.
+ * Flattens and extracts nested XML-style arrays.
+ *
+ * Supports two modes of extraction:
+ *
+ * 1. **Key/Value lists** (e.g. PRODUCT_FEATURES):
+ *    - specify 'k' and 'v' in your extract rule
+ * 2. **Attribute-based lists** (e.g. multilingual PRODUCT_DETAILS):
+ *    - specify 'k' => '@attributes.lang'
+ *    - (optional) 'v' => '@value'  (defaults to '@value')
  *
  * Options:
- *   - separator (string): delimiter for nested path segments (default: '|')
- *   - extract  (array):  map of path => extraction rules
+ *   - separator: string delimiter for paths (default: '|')
+ *   - extract:   map of path => extraction config
  */
 class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
 
-    /** @var array{separator:string, extract:array<string, mixed>} */
     protected array $options = [
         'separator' => '|',
         'extract'   => [],
     ];
 
     /**
-     * Convert an input item by flattening according to configured extract rules.
-     *
-     * @param array<mixed> $item
-     * @return array<mixed>
+     * {@inheritdoc}
      */
     public function convert(array $item): array
     {
-        $paths = $this->getOption('extract', []);
-        return $this->applyExtractionRules($item, $paths);
+        $rules = $this->getOption('extract', []);
+        return $this->applyExtractionRules($item, $rules);
     }
 
     /**
-     * @param array<mixed> $data
-     * @param array<string, array{ k?: string, v?: string }> $rules
+     * Loop over each configured path and apply either:
+     *  - attribute-based extraction, or
+     *  - standard k/v list extraction, or
+     *  - full flatten if no rule provided.
+     *
+     * @param  array<mixed> $data
+     * @param  array<string, array{ k?: string, v?: string }> $rules
      * @return array<mixed>
      */
     private function applyExtractionRules(array $data, array $rules): array
     {
-        $separator = $this->getOption('separator');
+        $sep    = $this->getOption('separator');
         $output = [];
 
         foreach ($rules as $path => $rule) {
-            $segments = explode($separator, $path);
-            $segmentValue = $this->getNestedValue($data, $segments);
-
-            if ($segmentValue === null) {
+            $sub = $this->getNestedValue($data, explode($sep, $path));
+            if ($sub === null) {
                 continue;
             }
 
-            // No extraction key: flatten this subtree entirely
-            if (empty($rule['k']) && empty($rule['v'])) {
-                $output[$path] = $this->flattenSubtree($segmentValue);
-                continue;
-            }
+            // 1) Attribute-based mode: rule['k'] == '@attributes.xxx'
+            if (!empty($rule['k']) && str_starts_with($rule['k'], '@attributes.')) {
+                $attrName  = substr($rule['k'], strlen('@attributes.'));
+                $valuePath = $rule['v'] ?? '@value';
 
-            // Extract list items by key/value
-            foreach ((array) $segmentValue as $entry) {
-                if (!is_array($entry) || !isset($entry[$rule['k']])) {
-                    continue;
+                // Expect $sub to be assoc of child-tag => list of entries
+                foreach ((array)$sub as $childTag => $entries) {
+                    if (!is_array($entries)) {
+                        continue;
+                    }
+                    foreach ($entries as $entry) {
+                        if (
+                            !is_array($entry)
+                            || !isset($entry['@attributes'][$attrName])
+                        ) {
+                            continue;
+                        }
+                        $lang = $entry['@attributes'][$attrName];
+                        $value = $this->getNestedValue(
+                            $entry,
+                            explode('.', ltrim($valuePath, '.'))
+                        );
+                        $output["{$path}{$sep}{$childTag}{$sep}{$lang}"] = $value;
+                    }
                 }
-
-                $key = (string) $entry[$rule['k']];
-                $value = $this->extractValueFromEntry($entry, $rule);
-                $output[$path][$key] = $value;
+                continue;
             }
+
+            // 2) Standard list extraction: needs both k and v
+            if (!empty($rule['k'])) {
+                foreach ((array)$sub as $entry) {
+                    if (!is_array($entry) || !isset($entry[$rule['k']])) {
+                        continue;
+                    }
+                    $key = (string)$entry[$rule['k']];
+                    $value = $this->extractByKvRule($entry, $rule);
+                    $output[$path][$key] = $value;
+                }
+                continue;
+            }
+
+            // 3) No rule ⇒ full subtree flatten
+            $flattened = $this->flattenRecursive((array)$sub);
+            $output[$path] = count($flattened) === 1
+                ? reset($flattened)
+                : $flattened;
         }
 
         return $output;
     }
 
     /**
-     * Flatten any array or scalar into a simple value or list.
+     * For a single list entry and a ['k'=>…, 'v'=>…] rule,
+     * return either the direct v-field, or flatten the rest.
      *
-     * @param mixed $value
+     * @param  array<mixed> $entry
+     * @param  array{ k: string, v?: string } $rule
      * @return mixed
      */
-    private function flattenSubtree($value)
+    private function extractByKvRule(array $entry, array $rule)
     {
-        $array = (array) $value;
-        $flat   = $this->flattenRecursive($array);
-
-        // If single scalar, return it directly
-        if (count($flat) === 1) {
-            return reset($flat);
-        }
-
-        return $flat;
-    }
-
-    /**
-     * Extract the "value" from a single list entry, either by its 'v' key
-     * or by flattening the remainder of the array.
-     *
-     * @param array<mixed> $entry
-     * @param array{ k: string, v?: string } $rule
-     * @return mixed
-     */
-    private function extractValueFromEntry(array $entry, array $rule)
-    {
-        // Direct mapping
         if (isset($rule['v'], $entry[$rule['v']])) {
             return $entry[$rule['v']];
         }
 
-        // Otherwise, flatten all other fields
         unset($entry[$rule['k']]);
         $flat = $this->flattenRecursive($entry);
-
-        return count($flat) === 1
-            ? reset($flat)
-            : $flat;
+        return count($flat) === 1 ? reset($flat) : $flat;
     }
 
     /**
-     * Recursively flatten a nested associative array into a flat map of
-     * "path" => value, where numeric-only lists become arrays.
+     * Recursively flatten an associative array into
+     * [ 'A|B|C' => scalar|array, … ].
      *
-     * @param array<mixed> $data
-     * @param string $prefix  current path prefix
+     * Numeric lists of scalars become full arrays.
+     *
+     * @param array<mixed>  $data
+     * @param string        $prefix
      * @return array<string, mixed>
      */
     private function flattenRecursive(array $data, string $prefix = ''): array
@@ -131,7 +146,7 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
         $flat  = [];
 
         foreach ($data as $key => $value) {
-            $fullKey = $prefix === '' ? $key : $prefix . $sep . $key;
+            $fullKey = $prefix === '' ? $key : "{$prefix}{$sep}{$key}";
 
             if (is_array($value)) {
                 if ($this->isAssoc($value)) {
@@ -139,7 +154,7 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
                 } elseif ($this->isListOfScalars($value)) {
                     $flat[$fullKey] = $value;
                 }
-                // ignore nested lists of arrays at this level
+                // nested lists of arrays are dropped
             } else {
                 $flat[$fullKey] = $value;
             }
@@ -149,40 +164,37 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
     }
 
     /**
-     * Safely retrieve a nested value from an array by a list of keys.
+     * Safe nested lookup via a sequence of keys or attribute-paths.
      *
-     * @param array<mixed> $data
-     * @param array<string> $keys
+     * @param  mixed        $data
+     * @param  string[]     $keys
      * @return mixed|null
      */
-    private function getNestedValue(array $data, array $keys)
+    private function getNestedValue($data, array $keys)
     {
-        foreach ($keys as $key) {
-            if (!is_array($data) || !array_key_exists($key, $data)) {
+        foreach ($keys as $k) {
+            if (
+                !is_array($data)
+                || !array_key_exists($k, $data)
+            ) {
                 return null;
             }
-            $data = $data[$key];
+            $data = $data[$k];
         }
         return $data;
     }
 
-    /**
-     * Determine if an array is associative.
-     */
+    /** Check if an array has string keys anywhere. */
     private function isAssoc(array $arr): bool
     {
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
 
-    /**
-     * Check if an array is a flat list of scalar values.
-     *
-     * @param array<mixed> $arr
-     */
+    /** Check if every element is non-array (a list of scalars). */
     private function isListOfScalars(array $arr): bool
     {
-        foreach ($arr as $item) {
-            if (is_array($item)) {
+        foreach ($arr as $i) {
+            if (is_array($i)) {
                 return false;
             }
         }
@@ -192,7 +204,6 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
     /** {@inheritdoc} */
     public function revert(array $item): array
     {
-        // No-op for XML extraction
         return $item;
     }
 
