@@ -39,7 +39,11 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
                     $separator,
                     ''
                 );
-                $result[$path] = $flattened;
+                $value = count($flattened) === 1
+                    ? reset($flattened)
+                    : $flattened;
+
+                $result[$path] = $value;
                 continue;
             }
 
