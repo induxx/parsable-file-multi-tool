@@ -121,7 +121,8 @@ class ApiReader implements ReaderInterface
         if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
             if (!strpos($url, 'pagination_type')) {
                 if (isset($this->context['limiters']['querystring'])) {
-                    $url = sprintf('%s&%spagination_type=search_after', $url, $filter);
+                    // Let querystring override the applied filters
+                    $url = sprintf('%s&pagination_type=search_after', $url);
                 } else {
                     $url = sprintf('%s?%spagination_type=search_after', $url, $filter);
                 }
