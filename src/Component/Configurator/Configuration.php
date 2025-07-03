@@ -2,6 +2,9 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Component\ChangeManager\ChangeManager;
+use App\Component\Common\Resource\NamedResourceInterface;
+use App\Component\Common\Resource\ResourceCollectionInterface;
 #use App\Component\Common\Resource\NamedResourceInterface;
 #use App\Component\Common\Resource\ResourceCollectionInterface;
 use Misery\Component\Action\ItemActionProcessorFactory;
@@ -11,6 +14,7 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\BluePrint\BluePrint;
+use App\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Collection\ArrayCollection;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Pipeline\Pipeline;
@@ -46,6 +50,7 @@ class Configuration
     private $sources;
     private $context = [];
     private $shellCommands;
+    public ChangeManager $changeManager;
     /** @var ApiClientInterface[] */
     private array $accounts = [];
     private bool $isMultiStep = false;

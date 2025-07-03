@@ -38,7 +38,7 @@ $converterRegistry->registerAllByName(
 //    new Misery\Component\Converter\AkeneoCsvToStructuredDataConverter(
 //        new Misery\Component\Converter\AkeneoCsvHeaderContext()
 //    ),
-    new Misery\Component\Converter\AkeneoProductApiConverter(),
+    $productApi = new Misery\Component\Converter\AkeneoProductApiConverter(),
     new Misery\Component\Converter\Akeneo\Api\ProductModel(),
     new Misery\Component\Converter\BCItemsApiConverter(),
     new Misery\Component\Converter\GenerateLineageCategoriesConverter(),
@@ -58,19 +58,21 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\AkeneoFlatProductModelToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatProductToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
-
+    new Misery\Component\Converter\Item\Product(),
     new Misery\Component\Converter\Akeneo\Csv\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
     new Misery\Component\Converter\Akeneo\Csv\ProductModel(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
+
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
     new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
     new Misery\Component\Converter\Akeneo\Api\Family(),
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
     new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator(),
     new Misery\Component\Converter\ReadLoopItemCollectionConverter(),
+    new Misery\Component\Converter\ObelinkPurchaseLoop($productApi),
     new Misery\Component\Converter\Akeneo\AkeneoOptionExtractor(),
     new Misery\Component\Converter\XmlExtractionConverter(),
 );
