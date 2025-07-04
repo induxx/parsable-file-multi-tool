@@ -19,7 +19,7 @@ class ReferenceBuilder
 
     public static function buildValues(ReaderInterface $reader, string ...$references)
     {
-        return current(static::build($reader, ...$references));
+        return current(static::build($reader, ...$references)) ?: [];
     }
 
     public static function buildIndexList(ReaderInterface $reader, string ...$references):array
