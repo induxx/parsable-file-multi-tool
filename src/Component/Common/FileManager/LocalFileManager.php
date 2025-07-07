@@ -38,7 +38,9 @@ class LocalFileManager implements FileManagerInterface
 
     public function provisionPath(string $filename): string
     {
-        return $this->getAbsolutePath($filename);
+        $absolutePath = $this->getAbsolutePath($filename);
+        $this->makePath(dirname($absolutePath));
+        return $absolutePath;
     }
 
     public function copyFile(string $filename, string $newFilename)
