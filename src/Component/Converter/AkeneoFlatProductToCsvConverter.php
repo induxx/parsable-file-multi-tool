@@ -67,6 +67,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 $matcher = Matcher::create($container.'|'.$masterKey, $value['locale'], $value['scope']);
                 $k = $matcher->getMainKey();
                 if (isset($tmp[$k])) {
+                    unset($item[$key]);
                     continue; # don't let -unit overwrite the main key
                 }
                 $tmp[$k] = $value;
