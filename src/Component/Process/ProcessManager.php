@@ -64,21 +64,21 @@ class ProcessManager
     {
         $memoryUsageMB = round(memory_get_usage() / 1024 / 1024, 2);
         $peakMemoryUsageMB = round(memory_get_peak_usage() / 1024 / 1024);
-        $usage = "Memory Usage: $memoryUsageMB/$peakMemoryUsageMB MB";
+        $usage = "$memoryUsageMB/$peakMemoryUsageMB MB";
 
         $stopTimeStamp = microtime(true);
         $executionTime = round($stopTimeStamp - $this->startTimeStamp, 1);
-        $executionTime = "Execution Time: {$executionTime}s";
+        $executionTime = "{$executionTime}s";
 
         $path = $this->configuration->getContext('workpath').'/invalid_items.csv';
         if (file_exists($path)) {
             $this->invalidItems = $this->getLines($path) - $this->invalidItems;
-            $invalidItems = "Invalid Items: $this->invalidItems";
+            $invalidItems = "$this->invalidItems invalid";
         }
 
         if ($this->invalidItems > 0) {
             $this->logger->warning(sprintf(
-                "Finished Step :: %s (%s, %s, %s)",
+                "Finished Step :: %s (%s | %s | %s)",
                 basename($this->configuration->getContext('transformation_file')),
                 $usage,
                 $executionTime,
@@ -86,7 +86,7 @@ class ProcessManager
             ));
         } else {
             $this->logger->info(sprintf(
-                "Finished Step :: %s (%s, %s, %s)",
+                "Finished Step :: %s (%s | %s | %s)",
                 basename($this->configuration->getContext('transformation_file')),
                 $usage,
                 $executionTime,

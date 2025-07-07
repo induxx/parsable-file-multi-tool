@@ -43,7 +43,7 @@ class HttpReaderFactory implements RegisteredByNameInterface
             $context['container'] = $configuration['container'] ?? null;
             $configContext = $config->getContext();
 
-            if (isset($configuration['identifier_filter_list'])) {
+            if (!empty($configuration['identifier_filter_list'])) {
                 $context['multiple'] = true;
                 $context['list'] = is_array($configuration['identifier_filter_list']) ? $configuration['identifier_filter_list'] : $config->getList($configuration['identifier_filter_list']);
             }
