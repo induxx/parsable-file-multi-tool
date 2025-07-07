@@ -25,10 +25,15 @@ class Pipeline
     /** @var NullItemDebugger */
     private $debugger;
 
+    public function __construct()
+    {
+        $this->input = new NullPipeReader();
+        $this->debugger = new NullItemDebugger();
+    }
+
     public function input(PipeReaderInterface $reader): self
     {
         $this->input = $reader;
-        $this->debugger = new NullItemDebugger();
 
         return $this;
     }
