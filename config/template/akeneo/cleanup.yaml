@@ -3,4 +3,4 @@ shell:
   - name: remove extra files
     cmd: |+
       rm -f "%workpath%"/akeneo_{*.jsonl,*.buffer} 
-      rm -f "%workpath%"/read/*
+      rm -rf "%workpath%"/read
