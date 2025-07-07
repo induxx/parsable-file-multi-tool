@@ -2,22 +2,25 @@
 
 namespace Misery\Component\Akeneo\Client;
 
-use App\Component\Common\Resource\EntityResourceInterface;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\Paginator;
-use Misery\Component\Common\Cursor\CursorInterface;
-use Misery\Component\Common\Cursor\ItemCursor;
 use Misery\Component\Common\Utils\ValueFormatter;
 use Misery\Component\Reader\ItemReader;
 use Misery\Component\Reader\ReaderInterface;
 
-class ApiReader implements ReaderInterface
+class ApiReaderOld implements ReaderInterface
 {
+    private $client;
+    private $page;
+    private $endpoint;
+    private $context;
+    private $activeEndpoint;
+
     public function __construct(
-        ApiClientInterface   $client,
+        ApiClientInterface $client,
         ApiEndpointInterface $endpoint,
-        array                $context
+        array $context
     ) {
         $this->client = $client;
         $this->endpoint = $endpoint;
@@ -31,22 +34,12 @@ class ApiReader implements ReaderInterface
         }
 
         // todo - create function for this. Check how filtering must be applied.
-        if (isset($this->context['limiters']['query_array'])) {
+        if(isset($this->context['limiters']['query_array'])) {
             $endpoint = $this->client->getUrlGenerator()->generate($endpoint);
 
             $params = ['search' => json_encode($this->context['limiters']['query_array'])];
             if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
                 $params['pagination_type'] = 'search_after';
-                $params['limit'] = 100;
-            }
-
-            if ($this->endpoint instanceof ApiCategoriesEndpoint
-                || $this->endpoint instanceof ApiFamiliesEndpoint
-                || $this->endpoint instanceof ApiFamilyVariantsEndpoint
-                || $this->endpoint instanceof ApiAttributesEndpoint
-                || $this->endpoint instanceof ApiOptionsEndpoint
-            ) {
-                $params['limit'] = 100;
             }
 
             return $this->client
@@ -55,7 +48,7 @@ class ApiReader implements ReaderInterface
                 ->getContent();
         }
 
-        if (isset($this->context['limiters']['querystring'])) {
+        if(isset($this->context['limiters']['querystring'])) {
             $querystring = preg_replace('/\s+/', '+', $this->context['limiters']['querystring']);
             $querystring = ValueFormatter::format($querystring, $this->context);
             $endpoint = sprintf($querystring, $endpoint);
@@ -69,7 +62,7 @@ class ApiReader implements ReaderInterface
                 $endpoint = sprintf('%s?search=', $endpoint);
             }
             foreach ($this->context['filters'] as $attrCode => $filterValues) {
-                $valueChunks = array_chunk(array_values($filterValues), 100);
+                $valueChunks = array_chunk(array_values($filterValues),100);
                 foreach ($valueChunks as $filterChunk) {
                     $filter = [$attrCode => [['operator' => 'IN', 'value' => $filterChunk]]];
                     $chunkEndpoint = sprintf('%s%s&limit=100', $endpoint, json_encode($filter));
@@ -79,7 +72,7 @@ class ApiReader implements ReaderInterface
                         ->getResponse()
                         ->getContent();
 
-                    if (empty($items)) {
+                    if (empty($items)){
                         $items = $result;
 
                         continue;
@@ -97,8 +90,8 @@ class ApiReader implements ReaderInterface
 
         $url = $this->client->getUrlGenerator()->generate($endpoint);
         if ($this->endpoint instanceof ApiProductModelsEndpoint || $this->endpoint instanceof ApiProductsEndpoint) {
-            if (!strpos($url, 'pagination_type')) {
-                if (isset($this->context['limiters']['querystring'])) {
+            if(!strpos($url, 'pagination_type')) {
+                if(isset($this->context['limiters']['querystring'])) {
                     $url = sprintf('%s&pagination_type=search_after', $url);
                 } else {
                     $url = sprintf('%s?pagination_type=search_after', $url);
@@ -125,7 +118,7 @@ class ApiReader implements ReaderInterface
     public function read()
     {
         if (isset($this->context['multiple'])) {
-            return $this->readMultiple();
+           return $this->readMultiple();
         }
 
         // TODO we need to align all readers together into this version
@@ -136,13 +129,61 @@ class ApiReader implements ReaderInterface
             }
             $item = $this->page->current();
             $this->page->next();
+            return $item;
+        }
+
+        if (null === $this->page) {
+            $this->page = Paginator::create($this->client, $this->request());
+        }
+
+        $item = $this->page->getItems()->current();
+        if (!$item) {
+            $this->page = $this->page->getNextPage();
+            if (!$this->page) {
+                return false;
+            }
+            $item = $this->page->getItems()->current();
+        }
+        $this->page->getItems()->next();
+
+        unset($item['_links']);
+
+        return $item;
+    }
+
+    public function readMultiple()
+    {
+        foreach ($this->context['list'] as $key => $endpointItem) {
+            if ($this->activeEndpoint !== $endpointItem || null === $this->page) {
+                $endpoint = sprintf($this->endpoint->getAll(), $endpointItem);
+                $this->page = Paginator::create($this->client, $this->request($endpoint));
+                $this->activeEndpoint = $endpointItem;
+            }
+
+            $item = $this->page->getItems()->current();
+            if (!$item) {
+                $this->page = $this->page->getNextPage();
+                if (!$this->page) {
+                    unset($this->context['list'][$key]);
+
+                    return $this->readMultiple();
+                }
+                $item = $this->page->getItems()->current();
+            }
+
+            $this->page->getItems()->next();
+            if (!$item) {
+                unset($this->context['list'][$key]);
+
+                return $this->readMultiple();
+            }
+
+            unset($item['_links']);
 
             return $item;
         }
-        $item = $this->cursor->current();
-        $this->cursor->next();
 
-        return $item;
+        return false;
     }
 
     public function getIterator(): \Iterator
@@ -154,17 +195,24 @@ class ApiReader implements ReaderInterface
 
     public function find(array $constraints): ReaderInterface
     {
-        throw new \RuntimeException('Not implemented');
+        // TODO we need to implement a find or search int the API
+        $reader = $this;
+        foreach ($constraints as $columnName => $rowValue) {
+            if (is_string($rowValue)) {
+                $rowValue = [$rowValue];
+            }
+
+            $reader = $reader->filter(static function ($row) use ($rowValue, $columnName) {
+                return in_array($row[$columnName], $rowValue);
+            });
+        }
+
+        return $reader;
     }
 
     public function filter(callable $callable): ReaderInterface
     {
         return new ItemReader($this->processFilter($callable));
-    }
-
-    public function getCursor(): CursorInterface
-    {
-        return (new ItemReader($this->getIterator()))->getCursor();
     }
 
     private function processFilter(callable $callable): \Generator
@@ -178,7 +226,14 @@ class ApiReader implements ReaderInterface
 
     public function map(callable $callable): ReaderInterface
     {
-        throw new \RuntimeException('Not implemented');
+        return new ItemReader($this->processMap($callable));
+    }
+
+    private function processMap(callable $callable): \Generator
+    {
+        foreach ($this->getIterator() as $key => $row) {
+            yield $key => $callable($row);
+        }
     }
 
     public function getItems(): array

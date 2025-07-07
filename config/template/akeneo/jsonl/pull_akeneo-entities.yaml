@@ -11,6 +11,7 @@ pipeline:
       method: GET
       filter: '%filter%'
       identifier_filter_list: '%identifier_filter_list%'
+
   output:
     writer:
       type: jsonl

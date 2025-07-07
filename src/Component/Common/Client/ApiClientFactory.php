@@ -2,14 +2,21 @@
 
 namespace Misery\Component\Common\Client;
 
-use Misery\Component\Akeneo\Client\AkeneoApiClientAccount;
+use App\Component\Akeneo\Api\Client\AkeneoApiClientAccount;
+use App\Component\Common\Client\ApiClient;
+use App\Component\Common\Client\ApiCurlClient;
+use App\Component\Common\Client\ApiClientInterface;
+use Misery\Component\Common\Client\ApiClientInterface as BaseApiClientInterface;
 use Misery\Component\Connections\BusinessCentral\Client\MicrosoftDynamicsOauthAccount;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Connections\E5Dal\Client\E5DalAPIAccount;
 
+/**
+ * This Factory looks like a specific multi-tool implementation
+ */
 class ApiClientFactory implements RegisteredByNameInterface
 {
-    public function createFromConfiguration(array $account): ApiClientInterface
+    public function createFromConfiguration(array $account): ApiClientInterface|BaseApiClientInterface
     {
         $type = $account['type'] ?? null;
         $domain =  rtrim($account['domain'], '/');
@@ -64,13 +71,15 @@ class ApiClientFactory implements RegisteredByNameInterface
             $client = new ApiCurlClient($domain);
 
             $account = new AkeneoApiClientAccount(
+                rtrim($account['domain'], '/'),
                 $account['username'],
                 $account['password'],
                 $account['client_id'],
                 $account['secret'] ?? $account['client_secret']
             );
 
-            $client->authorize($account);
+            $client = new ApiClient($account);
+            $client->authorize();
 
             return $client;
         } catch (\Exception $e) {
