@@ -30,6 +30,6 @@ class JsonlWriter extends FileWriter
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
 
         // Ensure exactly one newline terminator per record
-        fwrite($this->handle, $json . PHP_EOL);
+        $this->writeRaw($json. PHP_EOL);
     }
 }
