@@ -60,10 +60,16 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 continue;
             }
 
+            $context['item'] = $item; # pass the item to the context, for [metrics, price-collections, etc]
+
             $value = $this->getAkeneoDataStructure($masterKey, $value, $context);
             if (is_array($value) && array_key_exists('data', $value)) {
                 $matcher = Matcher::create($container.'|'.$masterKey, $value['locale'], $value['scope']);
-                $tmp[$k = $matcher->getMainKey()] = $value;
+                $k = $matcher->getMainKey();
+                if (isset($tmp[$k])) {
+                    continue;
+                }
+                $tmp[$k] = $value;
                 $tmp[$k]['matcher'] = $matcher;
                 unset($item[$key]);
             }
@@ -75,6 +81,8 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
 
     /**
      * short_description-en_US-print
+     *
+     * @internal Doesn't work with metrics + price-collections, you need type context
      *
      * becomes
      * masterKey short_description
@@ -96,6 +104,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
     {
         $referenceCode = $this->getOption('reference_code');
         $lowerCased = $this->getOption('lower_cased');
+        $item = $context['item'] ?? [];
 
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
         if (null === $type) {
@@ -196,7 +205,9 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 if (is_numeric($value)) {
                     $amount = $this->numberize($value);
                 }
-                if (is_array($value)) {
+                if (isset($item[$attributeCode.'-unit'])) {
+                    $unit = $item[$attributeCode.'-unit'];
+                } elseif (is_array($value)) {
                     if (array_key_exists('amount', $value)) {
                         $amount = $value['amount'];
                     }
