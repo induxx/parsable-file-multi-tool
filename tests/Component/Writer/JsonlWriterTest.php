@@ -49,6 +49,7 @@ class JsonlWriterTest extends TestCase
         foreach ($this->items as $item) {
             $writer->write($item);
         }
+        $writer->close();
 
         $file = new \SplFileObject($filePath);
 
