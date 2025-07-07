@@ -71,10 +71,8 @@ class ProcessManager
         $executionTime = "{$executionTime}s";
 
         $path = $this->configuration->getContext('workpath').'/invalid_items.csv';
-        if (file_exists($path)) {
-            $this->invalidItems = $this->getLines($path) - $this->invalidItems;
-            $invalidItems = "$this->invalidItems invalid";
-        }
+        $this->invalidItems = $this->getLines($path) - $this->invalidItems;
+        $invalidItems = "$this->invalidItems invalid";
 
         if ($this->invalidItems > 0) {
             $this->logger->warning(sprintf(
@@ -97,6 +95,9 @@ class ProcessManager
 
     private function getLines($file): int
     {
+        if (!file_exists($file)) {
+            return 0;
+        }
         $f = fopen($file, 'rb');
         $lines = 0;
         while (!feof($f)) {
