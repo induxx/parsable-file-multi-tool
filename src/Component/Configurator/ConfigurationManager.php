@@ -123,6 +123,11 @@ class ConfigurationManager
         $this->config->addSources($this->sources);
     }
 
+    public function addContextEntry(string $key, string $value): void
+    {
+        $this->config->addContext([$key => $value]);
+    }
+
     public function addContext(array $configuration): void
     {
         $this->config->addContext($configuration);
@@ -174,13 +179,14 @@ class ConfigurationManager
                 return $value !== null;
             });
             $configuration = array_replace_recursive($transformationContent, $masterConfiguration);
-            $configuration['context'] = array_merge($configuration['context'], $context);
+            $configuration['context'] = array_merge($configuration['context'], $context, $transformationContent['context'] ?? []);
             $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
             // Start the process if the transformation file has a pipeline or shell
             if (!isset($transformationContent['pipeline']) && !isset($transformationContent['shell'])) {
                 continue;
             }
+            $this->addContextEntry('transformation_file', $filePath);
 
             (new ProcessManager($configuration))->startProcess();
 
