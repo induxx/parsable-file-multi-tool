@@ -2,7 +2,7 @@
 
 namespace Tests\Misery\Component\Common\Client;
 
-use Misery\Component\Common\Client\ApiClient;
+use Misery\Component\Common\Client\ApiCurlClient;
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiEndPointsInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
@@ -31,8 +31,8 @@ class ApiClientTest extends TestCase
 
     private function getApiClientWithHandle()
     {
-        $client = new ApiClient('http://example.com');
-        $ref = new \ReflectionProperty(ApiClient::class, 'handle');
+        $client = new ApiCurlClient('http://example.com');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'handle');
         $ref->setAccessible(true);
         $ref->setValue($client, $this->curlHandle);
         return $client;
@@ -44,12 +44,12 @@ class ApiClientTest extends TestCase
         if ($withHandle) {
             return $this->getApiClientWithHandle();
         }
-        return new ApiClient('http://example.com');
+        return new ApiCurlClient('http://example.com');
     }
 
     public function testAuthorizeSetsHandleAndAccount()
     {
-        $client = new ApiClient('http://example.com');
+        $client = new ApiCurlClient('http://example.com');
         $account = $this->createMock(ApiClientAccountInterface::class);
         $endpoints = $this->createMock(ApiEndPointsInterface::class);
         $authenticated = $this->createMock(AuthenticatedAccount::class);
@@ -59,7 +59,7 @@ class ApiClientTest extends TestCase
 
         $client->authorize($account);
 
-        $ref = new \ReflectionProperty(ApiClient::class, 'handle');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'handle');
         $ref->setAccessible(true);
         $this->assertNotNull($ref->getValue($client));
     }
@@ -72,7 +72,7 @@ class ApiClientTest extends TestCase
 
         $endpoints->expects($this->once())->method('getEndPoint')->with('foo')->willReturn($endpoint);
 
-        $ref = new \ReflectionProperty(ApiClient::class, 'endpoints');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'endpoints');
         $ref->setAccessible(true);
         $ref->setValue($client, $endpoints);
 
@@ -88,7 +88,7 @@ class ApiClientTest extends TestCase
         $authenticated->expects($this->once())->method('getAccount')->willReturn($account);
         $account->expects($this->once())->method('refresh')->with($client, $authenticated)->willReturn($authenticated);
 
-        $ref = new \ReflectionProperty(ApiClient::class, 'authenticatedAccount');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'authenticatedAccount');
         $ref->setAccessible(true);
         $ref->setValue($client, $authenticated);
 
@@ -102,7 +102,7 @@ class ApiClientTest extends TestCase
 
         $urlGen = $this->createMock(UrlGenerator::class);
         $urlGen->expects($this->once())->method('createParams')->with(['foo' => 'bar'])->willReturn('?foo=bar');
-        $ref = new \ReflectionProperty(ApiClient::class, 'urlGenerator');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'urlGenerator');
         $ref->setAccessible(true);
         $ref->setValue($client, $urlGen);
 
@@ -151,7 +151,7 @@ class ApiClientTest extends TestCase
         $client->setHeaders(['A' => 'B']);
         $client->setHeaders(['C' => 'D']);
 
-        $ref = new \ReflectionProperty(ApiClient::class, 'headers');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'headers');
         $ref->setAccessible(true);
         $this->assertEquals(['A' => 'B', 'C' => 'D'], $ref->getValue($client));
     }
@@ -159,7 +159,7 @@ class ApiClientTest extends TestCase
     public function testGenerateHeadersClearsHeaders()
     {
         $client = $this->getApiClientWithHandle();
-        $ref = new \ReflectionProperty(ApiClient::class, 'headers');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'headers');
         $ref->setAccessible(true);
         $ref->setValue($client, ['A' => 'B']);
 
@@ -178,14 +178,14 @@ class ApiClientTest extends TestCase
     {
         $client = $this->getApiClientWithHandle();
         $client->close();
-        $ref = new \ReflectionProperty(ApiClient::class, 'handle');
+        $ref = new \ReflectionProperty(ApiCurlClient::class, 'handle');
         $ref->setAccessible(true);
         $this->assertNull($ref->getValue($client));
     }
 
     public function testGetUrlGeneratorReturnsUrlGenerator()
     {
-        $client = new ApiClient('http://example.com');
+        $client = new ApiCurlClient('http://example.com');
         $this->assertInstanceOf(UrlGenerator::class, $client->getUrlGenerator());
     }
 }

@@ -15,27 +15,32 @@ class Pipeline
     use ItemLoggerAwareTrait;
 
     /** @var PipeReaderInterface */
-    private $in;
+    private $input;
     /** @var PipeWriterInterface */
     private $invalid;
     /** @var PipeInterface[] */
-    private $lines = [];
+    private $pipeLines = [];
     /** @var PipeWriterInterface[] */
-    private $out = [];
+    private $outputs = [];
     /** @var NullItemDebugger */
     private $debugger;
 
+    public function __construct()
+    {
+        $this->input = new NullPipeReader();
+        $this->debugger = new NullItemDebugger();
+    }
+
     public function input(PipeReaderInterface $reader): self
     {
-        $this->in = $reader;
-        $this->debugger = new NullItemDebugger();
+        $this->input = $reader;
 
         return $this;
     }
 
     public function line(PipeInterface $pipe): self
     {
-        $this->lines[] = $pipe;
+        $this->pipeLines[] = $pipe;
 
         return $this;
     }
@@ -49,12 +54,12 @@ class Pipeline
 
     public function output(PipeWriterInterface $writer): self
     {
-        $this->out[] = $writer;
+        $this->outputs[] = $writer;
 
         return $this;
     }
 
-    public function runInDebugMode(int $amount = -1, int $lineNumber = -1)
+    public function runInDebugMode(int $amount = -1, int $lineNumber = -1): void
     {
         $this->debugger = new ItemDebugger();
         $this->run($amount, $lineNumber);
@@ -82,22 +87,22 @@ class Pipeline
         //$this->logger->error($exception->getMessage(), $exception->getInvalidItem());
     }
 
-    public function run(int $amount = -1, int $lineNumber = -1)
+    public function run(int $amount = -1, int $lineNumber = -1): void
     {
         $i = 0;
         // looping
-        while ($i !== $amount && $item = $this->in->read()) {
+        while ($i !== $amount && $item = $this->input->read()) {
             $i++;
             if ($i !== $lineNumber && $lineNumber !== -1) {
                 continue;
             }
             $this->debugger->log($item, 'original item');
             try {
-                foreach ($this->lines as $line) {
-                    $item = $line->pipe($item);
+                foreach ($this->pipeLines as $pipeLine) {
+                    $item = $pipeLine->pipe($item);
                 }
-                foreach ($this->out as $out) {
-                    $out->write($item);
+                foreach ($this->outputs as $output) {
+                    $output->write($item);
                 }
             } catch (SkipPipeLineException $exception) {
                 if (!empty($exception->getMessage())) {
@@ -112,13 +117,14 @@ class Pipeline
                 break;
             }
         }
+        unset($output);
 
         // stopping
-        $this->in->stop();
+        $this->input->stop();
 
-        foreach ($this->out as $out) {
+        foreach ($this->outputs as $output) {
             try {
-                $out->stop();
+                $output->stop();
             } catch (SkipPipeLineException $exception) {
                 continue;
 

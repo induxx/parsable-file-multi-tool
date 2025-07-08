@@ -18,6 +18,17 @@ class PipelineFactory implements RegisteredByNameInterface
         array $configuration,
         ConfigurationManager $configurationManager
     ): Pipeline {
+        // Check skip_if_exists and file existence before setting up pipeline
+        $skipIfExists = $configuration['output']['writer']['skip_if_exists'] ?? false;
+        $filename = $configuration['output']['writer']['filename'] ?? null;
+        if ($skipIfExists && $filename) {
+            $absolutePath = $configurationManager->getWorkFileManager()->provisionPath($filename);
+            if (file_exists($absolutePath)) {
+                // If the file exists and skip_if_exists is true, return an empty pipeline
+                return new Pipeline();
+            }
+        }
+
         $pipeline = $this->getPipeLine(
             $configurationManager,
             $configuration

@@ -15,7 +15,7 @@ If you like to add support to the template system, make sure you have the requir
 
 You can the API in 3 different Styles: JSON, CSV & as ITEM.
 
-### [JSON]
+### [JSONL]
 Will not change anything, all Payloads are as is.
 Multidimensional Payload Structure is kept (We don't use any converters).
 The Style is not very flexible, to make structural changes or the read multidimensional data.
