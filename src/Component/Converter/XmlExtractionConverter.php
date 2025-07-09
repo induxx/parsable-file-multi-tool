@@ -5,6 +5,12 @@ namespace Misery\Component\Converter;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Common\Registry\Registry;
+use Misery\Component\Decoder\ItemDecoder;
+use Misery\Component\Encoder\ItemEncoder;
+use Misery\Component\Encoder\ItemEncoderFactory;
+use Misery\Component\Modifier\ArrayFlattenModifier;
+use Misery\Component\Modifier\ArrayUnflattenModifier;
 
 /**
  * Flattens and extracts nested XML-style arrays.
@@ -25,10 +31,35 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
 {
     use OptionsTrait;
 
-    protected array $options = [
+    private ItemEncoder $encoder;
+    private ItemDecoder $decoder;
+
+    private array $options = [
         'separator' => '|',
         'extract'   => [],
+        'parse' => [
+            'flatten' => [
+                'separator' => '|',
+            ]
+        ],
+        'properties' => [],
     ];
+
+    public function __construct()
+    {
+        $encoder = new ItemEncoderFactory();
+        $modifierRegistry = new Registry('modifier');
+        $modifierRegistry
+            ->register(ArrayUnflattenModifier::NAME, new ArrayUnflattenModifier())
+            ->register(ArrayFlattenModifier::NAME, new ArrayFlattenModifier())
+        ;
+
+        $encoder->addRegistry($modifierRegistry);
+        $this->encoder = $encoder->createItemEncoder([
+            'encode' => $this->getOption('properties'),
+            'parse' => $this->getOption('parse'),
+        ]);
+    }
 
     /**
      * {@inheritdoc}
@@ -36,7 +67,21 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
     public function convert(array $item): array
     {
         $rules = $this->getOption('extract', []);
-        return $this->applyExtractionRules($item, $rules);
+        $item = $this->applyExtractionRules($item, $rules);
+
+        $item = $this->encoder->encode($item);
+
+        return $item;
+    }
+
+    /** {@inheritdoc} */
+    public function revert(array $item): array
+    {
+        $rules = $this->getOption('extract', []);
+
+        $item = $this->encoder->encode($item);
+
+        return $item;
     }
 
     /**
@@ -149,7 +194,10 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
             $fullKey = $prefix === '' ? $key : "{$prefix}{$sep}{$key}";
 
             if (is_array($value)) {
-                if ($this->isAssoc($value)) {
+                if (isset($value['@attributes']) || isset($value['@value'])) {
+                    // Group @attributes and @value under the parent key
+                    $flat[$fullKey] = $value;
+                } elseif ($this->isAssoc($value)) {
                     $flat += $this->flattenRecursive($value, $fullKey);
                 } elseif ($this->isListOfScalars($value)) {
                     $flat[$fullKey] = $value;
@@ -199,12 +247,6 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
             }
         }
         return true;
-    }
-
-    /** {@inheritdoc} */
-    public function revert(array $item): array
-    {
-        return $item;
     }
 
     /** {@inheritdoc} */

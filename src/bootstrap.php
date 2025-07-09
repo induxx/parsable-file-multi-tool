@@ -58,7 +58,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\AkeneoFlatProductModelToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatProductToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
-
+    new Misery\Component\Converter\Item\Product(),
     new Misery\Component\Converter\Akeneo\Csv\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),

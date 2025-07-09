@@ -16,7 +16,7 @@ class XmlWriter implements ItemWriterInterface
     private $header = [
         'version' => '1.0',
         'encoding' => 'UTF-8',
-        'indent' => 4,
+        'indent' => 2,
         'indent_string' => ' ',
     ];
 
@@ -46,17 +46,14 @@ class XmlWriter implements ItemWriterInterface
 
         $this->writer = $XMLWriter;
         // write the start
-        foreach ($start as $elemName => $elemAttributes) {
-            $XMLWriter->startElement($elemName);
-            foreach ($elemAttributes['@attributes'] ?? [] as $attributeName => $attributeValue) {
-                $XMLWriter->writeAttribute($attributeName, $attributeValue);
-            }
-        }
+        $this->write($start);
 
         // open the container
         foreach ($options as $elemName => $elemAttributes) {
             if ($elemName === self::CONTAINER) {
-                $this->writer->startElement($elemAttributes);
+                foreach (explode('|', $elemAttributes) as $containerName) {
+                    $this->writer->startElement($containerName);
+                }
             }
         }
     }
@@ -128,7 +125,9 @@ class XmlWriter implements ItemWriterInterface
 
         // close the container
         if (isset($this->options[self::CONTAINER])) {
-            $writer->endElement();
+            foreach (explode('|', $this->options[self::CONTAINER]) as $c) {
+                $writer->endElement();
+            }
         }
 
         // close the start
