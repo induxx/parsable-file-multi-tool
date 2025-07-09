@@ -168,4 +168,44 @@ class XmlExtractionConverterTest extends TestCase
 
         $this->assertEquals($expected, $result);
     }
+
+    public function testRevertUserDefinedExtensions()
+    {
+        $converter = new XmlExtractionConverter();
+        $converter->setOptions([
+            'separator' => '|',
+            'extract' => [
+                'USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME' => [
+                    'k' => 'UDX.EDXF.MIME_CODE',
+                    'v' => 'UDX.EDXF.MIME_FILENAME',
+                ],
+            ],
+        ]);
+
+        $input = [
+            "USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME|MD01" => "FDW_VA.jpg",
+            "USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME|MD04" => "DE_index_1105.html?grpid=c2bfb2bd-fbe2-4a53-8efb-8e528ff18444",
+            "USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME|MD05" => "DE_index_3012.html",
+            "USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME|MD49" => "RoHS_deutsch.pdf",
+            "USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME|MD99" => "flexa.partcommunity.com?info=flexa%2Fspecial%5Fconduits%2Ffdw%5Fva%2Eprj&varset=%7BART%3D10131801002%7D&encoding=%25",
+        ];
+
+        $expected = [
+            'USER_DEFINED_EXTENSIONS' => [
+                'UDX.EDXF.MIME_INFO' => [
+                    'UDX.EDXF.MIME' => [
+                        ['UDX.EDXF.MIME_CODE' => 'MD01', 'UDX.EDXF.MIME_FILENAME' => 'FDW_VA.jpg'],
+                        ['UDX.EDXF.MIME_CODE' => 'MD04', 'UDX.EDXF.MIME_FILENAME' => 'DE_index_1105.html?grpid=c2bfb2bd-fbe2-4a53-8efb-8e528ff18444'],
+                        ['UDX.EDXF.MIME_CODE' => 'MD05', 'UDX.EDXF.MIME_FILENAME' => 'DE_index_3012.html'],
+                        ['UDX.EDXF.MIME_CODE' => 'MD49', 'UDX.EDXF.MIME_FILENAME' => 'RoHS_deutsch.pdf'],
+                        ['UDX.EDXF.MIME_CODE' => 'MD99', 'UDX.EDXF.MIME_FILENAME' => 'flexa.partcommunity.com?info=flexa%2Fspecial%5Fconduits%2Ffdw%5Fva%2Eprj&varset=%7BART%3D10131801002%7D&encoding=%25'],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $converter->revert($input);
+
+        $this->assertEquals($expected, $result);
+    }
 }

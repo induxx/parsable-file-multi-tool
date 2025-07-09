@@ -7,6 +7,7 @@ use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Common\Registry\Registry;
 use Misery\Component\Decoder\ItemDecoder;
+use Misery\Component\Decoder\ItemDecoderFactory;
 use Misery\Component\Encoder\ItemEncoder;
 use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Modifier\ArrayFlattenModifier;
@@ -48,6 +49,7 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
     public function __construct()
     {
         $encoder = new ItemEncoderFactory();
+        $decoder = new ItemDecoderFactory();
         $modifierRegistry = new Registry('modifier');
         $modifierRegistry
             ->register(ArrayUnflattenModifier::NAME, new ArrayUnflattenModifier())
@@ -55,8 +57,13 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
         ;
 
         $encoder->addRegistry($modifierRegistry);
+        $decoder->addRegistry($modifierRegistry);
         $this->encoder = $encoder->createItemEncoder([
             'encode' => $this->getOption('properties'),
+            'parse' => $this->getOption('parse'),
+        ]);
+        $this->decoder = $decoder->createItemDecoder([
+            'decode' => $this->getOption('properties'),
             'parse' => $this->getOption('parse'),
         ]);
     }
@@ -78,10 +85,65 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
     public function revert(array $item): array
     {
         $rules = $this->getOption('extract', []);
+        $sep = $this->getOption('separator');
+        $result = [];
 
-        $item = $this->encoder->encode($item);
+        foreach ($item as $flatKey => $value) {
+            $matched = false;
+            foreach ($rules as $path => $rule) {
+                $prefix = $path . $sep;
+                if (strpos($flatKey, $prefix) !== 0) {
+                    continue;
+                }
 
-        return $item;
+                $matched = true;
+                $subKey = substr($flatKey, strlen($prefix));
+
+                // 1) Attribute-based extraction
+                if (!empty($rule['k']) && str_starts_with($rule['k'], '@attributes.')) {
+                    $parts = explode($sep, $subKey, 2);
+                    $childTag = $parts[0];
+                    $lang = $parts[1] ?? null;
+                    $attrName = substr($rule['k'], strlen('@attributes.'));
+
+                    $entry = ['@attributes' => [$attrName => $lang]];
+                    $valuePath = $rule['v'] ?? '@value';
+                    if ($valuePath === '@value') {
+                        $entry['@value'] = $value;
+                    } else {
+                        $entry[$valuePath] = $value;
+                    }
+
+                    $result[$path][$childTag][] = $entry;
+                }
+                // 2) Standard key/value list extraction
+                elseif (!empty($rule['k'])) {
+                    $parts = explode($sep, $subKey, 2);
+                    $entryKey = $parts[0];
+
+                    $entry = [$rule['k'] => $entryKey];
+                    if (isset($rule['v'])) {
+                        $entry[$rule['v']] = $value;
+                    }
+
+                    $result[$path][] = $entry;
+                }
+                // 3) No rule ⇒ preserve flat key
+                else {
+                    $result[$flatKey] = $value;
+                }
+
+                break;
+            }
+
+            if (!$matched) {
+                // Keys not covered by any extract rule
+                $result[$flatKey] = $value;
+            }
+        }
+
+        // Use decoder to unflatten the combined structure
+        return $this->decoder->decode($result);
     }
 
     /**
