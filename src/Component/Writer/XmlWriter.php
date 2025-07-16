@@ -74,6 +74,10 @@ class XmlWriter implements ItemWriterInterface
             $this->writer->text($data['@data']);
             return;
         }
+        if (isset($data['@value'])) {
+            $this->writer->text($data['@value']);
+            return;
+        }
         if (isset($data['@CDATA'])) {
             $this->writer->writeCdata($data['@CDATA']);
             return;

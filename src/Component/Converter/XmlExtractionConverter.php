@@ -143,7 +143,17 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
         }
 
         // Use decoder to unflatten the combined structure
-        return $this->decoder->decode($result);
+        $decoded = $this->decoder->decode($result);
+
+        // @todo Remove any leftover flat keys that contain the separator
+        foreach ($decoded as $key => $val) {
+            if (str_contains($key, $sep)) {
+                unset($decoded[$key]);
+            }
+        }
+        //dd($decoded);
+
+        return $decoded;
     }
 
     /**
