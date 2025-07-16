@@ -34,8 +34,14 @@ Note that you can't make a match with multiple files yet. Each alias must refere
 
 ```yaml
 # possible input file
-/sources/input_data_20231112.csv
 
 aliases:
   input_file: 'input_data_*.csv'
+```
+
+```yaml
+
+aliases:
+    product_import_file: products_*.csv
+    family_import_file: families_*.csv
 ```
