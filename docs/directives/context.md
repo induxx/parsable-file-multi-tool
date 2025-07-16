@@ -85,4 +85,50 @@ The following keys are reserved for internal use and should not be used as custo
 - `line` # the line number to debug
 - `show_mappings` # the show generated mappings flag
 
+#### Debugging with Markers
 
+The `debug.marker` option allows you to capture and inspect specific data points during transformation execution. This is particularly useful for debugging specific parts of your transformation pipeline.
+
+**Basic Usage:**
+```yaml
+context:
+  debug:
+    marker: <marker_definition>
+```
+
+Available Marker Formats:
+
+1. Capture specific output by line number:
+  ```yaml
+  context:
+    debug:
+      marker: "filename.yaml:line_number"
+  ```
+Example: get_products.yaml:5 - Captures output at line 5
+
+2. Capture first output from a file:
+  ```yaml
+  context:
+    debug:
+      marker: "filename.yaml"
+  ```
+Example: get_products.yaml - Captures first output
+
+3. Capture specific item by ID:
+  ```yaml
+  context:
+    debug:
+      marker: "filename.yaml:id:item_id"
+  ```
+Example: get_products.yaml:id:nike - Captures item where id is "nike"
+
+Note: The debug marker works in conjunction with the --debug flag. When running your transformation, include the debug flag to see the captured output:
+
+```bash
+bin/console transformation --file your_transformation.yaml --debug
+```
+Best Practices:
+
+- Use specific markers to target exact data points
+- For large files, use line numbers or IDs to avoid excessive output
+- Remove or comment out debug markers when not in use for better performance
