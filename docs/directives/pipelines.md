@@ -34,6 +34,8 @@ pipeline:
       filename: processed_customer_data.csv
 ```
 
+for more information see [reader](../data_source/read.md) and [writer](../data_source/write.md)
+
 Example 2:
 
 Reading from a CSV file and writing to a JSONL file
@@ -51,3 +53,5 @@ pipeline:
 ```
 
 This pipeline reads in a CSV file with customer data, retains only the name, age, and gender fields, renames the name field to customer_name, and formats the age field as a two-digit integer with leading zeros. The resulting data is then written to a new CSV file.
+
+for more information see [reader](../data_source/read.md) and [writer](../data_source/write.md)
