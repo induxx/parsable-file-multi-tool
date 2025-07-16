@@ -35,7 +35,20 @@ These keys define filenames that are used in the transformation steps for readin
 ```yaml
 context:
   querystring: '%s?scope=nuorder&search={"categories":[{"operator":"IN","value":["nuorder"]}],"sales_status":[{"operator":"NOT IN","value":["8","08"]}]}'
+
+# a different transformation step file
+
+pipeline:
+  input:
+    http:
+      type: rest_api
+      account: target_resource
+      endpoint: products
+      method: GET
+      limiters:
+        querystring: '%querystring%'
 ```
+
 This example specifies a query string used for API calls, enabling dynamic filtering and data retrieval.
 
 #### Date Formatting
@@ -53,4 +66,23 @@ context:
   akeneo_read_connection: target_resource
   akeneo_write_connection: target_resource
 ```
+
 These keys specify API account names and connections for interacting with external systems.
+
+#### Reserved Context Keys
+
+The following keys are reserved for internal use and should not be used as custom context keys:
+
+
+- `transformation_file` # the initial transformation file
+- `last_completed_operation_datetime` # the last completed operation datetime
+- `operation_create_datetime` # the operation create datetime
+- `app_querystring` # the query string used for API calls coming from the app filters
+- `datetime_file_format` # the datetime file format
+- `date_format` # the date format
+- `debug` # the debug flag
+- `try` # a limit to try
+- `line` # the line number to debug
+- `show_mappings` # the show generated mappings flag
+
+
