@@ -192,17 +192,54 @@ actions:
 - No significant performance difference based on number of fields retained
 - Consider memory usage when processing large datasets
 
-## Related Actions
+## Related Topics
 
-- [Remove Action](./remove_action.md) - Remove specific fields (opposite of retain)
-- [Copy Action](./copy_action.md) - Create backups before retaining specific fields
-- [Statement Action](./statement_action.md) - Add conditional logic around field retention
+### Core Field Operations
+- **[Remove Action](./remove_action.md)** - Remove specific fields (opposite of retain) and eliminate unwanted data
+- **[Copy Action](./copy_action.md)** - Create backups before retaining specific fields and preserve original data
+- **[Statement Action](./statement_action.md)** - Add conditional logic around field retention and validate field selection
+- **[Debug Action](./debug_action.md)** - Debug retention operations and verify field filtering
+
+### Data Processing Actions
+- **[Rename Action](./rename_action.md)** - Rename retained fields and standardize field names
+- **[Format Action](./format_action.md)** - Format retained fields and clean up data values
+- **[Calculate Action](./calculate_action.md)** - Use retained fields in calculations and create derived values
+- **[Concat Action](./concat_action.md)** - Combine retained fields and create composite values
+
+### Value Transformation Actions
+- **[Value Mapping Action](./value_mapping_in_list_action.md)** - Map values in retained fields and standardize content
+- **[Key Mapping Action](./key_mapping_action.md)** - Use retained fields in mapping operations
+- **[Field Field Action](./field_field_action.md)** - Perform field operations on retained data
+
+### Configuration and Context
+- **[Context Directive](../directives/context.md)** - Define retention patterns and field lists using context variables
+- **[Mapping Directive](../directives/mapping.md)** - Use mappings to determine which fields to retain
+- **[Pipeline Configuration](../directives/pipelines.md)** - Integrate field retention in data processing workflows
+- **[Aliases Directive](../directives/aliases.md)** - Define reusable field lists for consistent retention
+
+### Data Management and Filtering
+- **[Transformation Steps](../directives/transformation_steps.md)** - Multi-step workflows with field retention and data filtering
+- **[Field Management](../user-guide/transformations.md#field-management)** - Best practices for field selection and organization
+- **[Data Privacy Guidelines](../user-guide/transformations.md#data-privacy)** - Retain only necessary fields and protect sensitive data
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Retain essential fields to improve performance
+
+### Debugging and Validation
+- **[Debugging Guide](../user-guide/debugging.md)** - Debug retention operations and troubleshoot field issues
+- **[CLI Commands](../reference/cli-commands.md)** - Test retention operations with limited data and debug mode
+- **[Error Handling](../user-guide/debugging.md#common-error-scenarios-and-solutions)** - Handle retention errors and field conflicts
+- **[Data Validation](../user-guide/transformations.md#data-validation)** - Validate data integrity after field retention
+
+### Export and Integration
+- **[API Integration](../user-guide/transformations.md#api-integration)** - Retain fields for external system compatibility
+- **[Data Export](../user-guide/transformations.md#data-export)** - Prepare data for export by retaining relevant fields
+- **[Format Conversion](../converters/)** - Use retention with data format converters
 
 ## See Also
 
-- [Transformation Steps](../directives/transformation_steps.md)
-- [Field Management](../user-guide/field-management.md)
-- [Data Privacy Guidelines](../user-guide/data-privacy.md)
+- **[Actions Reference](./index.md)** - Complete list of all available actions and field operations
+- **[Transformation Examples](../examples/)** - Practical field retention examples and data filtering patterns
+- **[Quick Start Guide](../getting-started/quick-start.md)** - Basic field manipulation techniques for beginners
+- **[Data Minimization Guide](../examples/data-minimization.md)** - Field retention strategies and best practices
 
 ---
 

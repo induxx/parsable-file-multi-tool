@@ -727,8 +727,8 @@ lookup_data:
 After mastering these basic examples:
 
 1. Explore [Advanced Workflow Examples](advanced-workflows.md)
-2. Learn about [API Integration](../user-guide/api-integration.md)
-3. Study [Performance Optimization](../user-guide/performance.md)
+2. Learn about [API Integration](../user-guide/transformations.md#api-integration)
+3. Study [Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)
 4. Review [Action Reference](../reference/actions/) for all available actions
 
 ## Related Topics

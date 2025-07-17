@@ -146,15 +146,15 @@ If applicable, explain variable scoping and availability.
 
 ## Related Directives
 
-- [Related Directive 1](./related_directive_1.md) - Brief description of relationship
-- [Related Directive 2](./related_directive_2.md) - Brief description of relationship
+- [Context Directive](../directives/context.md) - Brief description of relationship
+- [Mapping Directive](../directives/mapping.md) - Brief description of relationship
 
 ## See Also
 
 - [Directive Overview](../directives.md)
-- [Configuration Guide](../user-guide/configuration.md)
-- [Context Variables](./context.md)
-- [Transformation Pipeline](../user-guide/transformation-workflow.md)
+- [Configuration Guide](../getting-started/configuration.md)
+- [Context Directive](../directives/context.md)
+- [Transformations Guide](../user-guide/transformations.md)
 
 ---
 

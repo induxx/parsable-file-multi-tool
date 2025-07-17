@@ -468,9 +468,9 @@ actions:
 
 ## Related Topics
 
-- [Actions Reference](../reference/actions/) - Complete list of available actions
-- [Directives Reference](../reference/directives/) - Pipeline configuration options
-- [CLI Commands](../reference/cli-commands.md) - Complete command reference
-- [Debugging Guide](debugging.md) - Troubleshooting and optimization
+- [Actions Reference](./reference/actions/) - Complete list of available actions
+- [Directives Reference](./reference/directives/) - Pipeline configuration options
+- [CLI Commands](./reference/cli-commands.md) - Complete command reference
+- [Debugging Guide](./user-guide/debugging.md) - Troubleshooting and optimization
 - [Examples](../examples/) - Practical transformation examples
 

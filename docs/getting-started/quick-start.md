@@ -327,20 +327,61 @@ pipeline:
 
 Now that you've completed your first transformation, explore these topics:
 
-### Learn More Actions
-- [Actions Reference](../actions/) - Complete list of available actions
-- [Directives Documentation](../directives/) - Advanced configuration options
-- [Converters Guide](../converters/) - Working with different data formats
+## Related Topics
 
-### Advanced Topics
-- [Configuration Guide](configuration.md) - Account setup and context parameters
-- [User Guide](../user-guide/) - Comprehensive usage documentation
-- [Examples](../examples/) - Real-world transformation scenarios
+### Getting Started Workflow
+- **[Installation Guide](./installation.md)** - Complete setup instructions and system requirements
+- **[Configuration Guide](./configuration.md)** - Account setup, context parameters, and security best practices
+- **[Getting Started Overview](./index.md)** - Complete getting started roadmap and learning path
 
-### Integration Examples
-- [Akeneo PIM Integration](../examples/akeneo-integration.md)
-- [API Data Processing](../examples/api-processing.md)
-- [Multi-format Conversions](../examples/format-conversions.md)
+### Core Actions and Processing
+- **[Actions Reference](../reference/actions/)** - Complete list of available actions and transformation capabilities
+- **[Copy Action](../actions/copy_action.md)** - Field copying and data backup techniques used in examples
+- **[Format Action](../actions/format_action.md)** - Data formatting and value transformation methods
+- **[Statement Action](../actions/statement_action.md)** - Conditional logic and data validation patterns
+
+### Data Processing and Transformation
+- **[Pipeline Configuration](../directives/pipelines.md)** - Advanced pipeline setup and data flow management
+- **[Transformation Workflow](../user-guide/transformations.md)** - Understanding data processing concepts and best practices
+- **[Data Sources](../data_source/reader.md)** - Configure various input formats and data sources
+- **[Data Writers](../data_source/writer.md)** - Set up output destinations and export formats
+
+### Configuration and Context
+- **[Context Directive](../directives/context.md)** - Dynamic variables and environment-specific configuration
+- **[Mapping Directive](../directives/mapping.md)** - Field mapping and value transformation lookup tables
+- **[Aliases Directive](../directives/aliases.md)** - Reusable references and file path management
+- **[Converters Guide](../converters/)** - Working with different data formats and specialized transformations
+
+### Debugging and Optimization
+- **[Debugging Guide](../user-guide/debugging.md)** - Troubleshoot transformations and optimize performance
+- **[CLI Commands](../reference/cli-commands.md)** - Command-line options, debug flags, and processing controls
+- **[Debug Action](../actions/debug_action.md)** - Debug transformation steps and inspect data flow
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Optimize processing for large datasets
+
+### Advanced Usage and Integration
+- **[Multi-step Transformations](../directives/transformation_steps.md)** - Complex workflows and transformation chains
+- **[API Integration](../user-guide/transformations.md#api-integration)** - Connect to external APIs and web services
+- **[Extension Development](../developer-guide/extending.md)** - Create custom actions and extend functionality
+- **[Architecture Overview](../developer-guide/architecture.md)** - Understanding system components and design
+
+### Practical Examples and Patterns
+- **[Transformation Examples](../examples/)** - Real-world transformation scenarios and use cases
+- **[Basic Transformation](../examples/basic-transformation.md)** - Simple transformation patterns and techniques
+- **[Integration Examples](../examples/integration-patterns.md)** - External system integration and data exchange patterns
+- **[Data Processing Patterns](../examples/data-processing.md)** - Common data processing workflows and solutions
+
+### Specialized Integration
+- **[Akeneo PIM Integration](../converters/akeneo_product_converter.md)** - E-commerce product information management integration
+- **[API Data Processing](../user-guide/transformations.md#api-integration)** - REST API data consumption and transformation
+- **[Multi-format Processing](../examples/basic-transformation.md#example-4-multi-format-data-processing)** - Convert between different data formats and structures
+- **[Batch Processing](../user-guide/transformations.md#batch-processing)** - Large dataset processing and optimization techniques
+
+## See Also
+
+- **[User Guide](../user-guide/)** - Comprehensive usage documentation and advanced workflows
+- **[Reference Documentation](../reference/)** - Complete technical reference and API documentation
+- **[Developer Guide](../developer-guide/)** - Advanced development and customization topics
+- **[Community Examples](../examples/)** - Community-contributed examples and best practices
 
 ## Troubleshooting
 

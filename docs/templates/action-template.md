@@ -125,13 +125,13 @@ actions:
 
 ## Related Actions
 
-- [Related Action 1](./related_action_1.md) - Brief description of relationship
-- [Related Action 2](./related_action_2.md) - Brief description of relationship
+- [Format Action](../actions/format_action.md) - Brief description of relationship
+- [Calculate Action](../actions/calculate_action.md) - Brief description of relationship
 
 ## See Also
 
 - [Transformation Steps](../directives/transformation_steps.md)
-- [Action Configuration Guide](../user-guide/action-configuration.md)
+- [Configuration Guide](../getting-started/configuration.md)
 - [Debugging Actions](../user-guide/debugging.md)
 
 ---

@@ -68,14 +68,14 @@ If applicable, document any configuration options in a clear table format:
 
 ## Related Topics
 
-- [Link to related documentation](../path/to/related-doc.md)
-- [Another related topic](../path/to/another-doc.md)
+- [User Guide](../user-guide/)
+- [Getting Started](../getting-started/)
 - [External resource](https://example.com) (if applicable)
 
 ## See Also
 
-- [Cross-reference to complementary documentation](../path/to/complementary-doc.md)
-- [Reference documentation](../reference/relevant-reference.md)
+- [Reference Documentation](../reference/)
+- [Actions Reference](../reference/actions/)
 
 ---
 

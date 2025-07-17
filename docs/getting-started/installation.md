@@ -1,5 +1,13 @@
 # Installation Guide
 
+---
+**Navigation:** [🏠 Home](../index.md) | [📚 Getting Started](./) | [👥 User Guide](../user-guide/) | [📖 Reference](../reference/) | [🔧 Developer Guide](../developer-guide/) | [💡 Examples](../examples/)
+
+**📍 You are here:** [Home](../index.md) > [Getting Started](./) > Installation Guide
+
+**📚 Getting Started:** [Installation](./installation.md) | [Quick Start](./quick-start.md) | [Configuration](./configuration.md)
+---
+
 This guide will walk you through installing and setting up the Parsable File Multi-Tool on your system.
 
 ## Prerequisites
@@ -282,3 +290,59 @@ rm -rf parsable-file-multi-tool/
 # Remove project directory
 rm -rf parsable-file-multi-tool/
 ```
+
+---
+
+## Quick Navigation
+
+- **🏠 [Documentation Home](../index.md)** - Main documentation index
+- **🔍 [Search Tips](../index.md#search-tips)** - How to find information quickly
+- **❓ [Getting Help](../user-guide/debugging.md#getting-help)** - Support and troubleshooting resources
+
+### Related Topics
+
+### Getting Started Workflow
+- **[Quick Start Tutorial](./quick-start.md)** - Your first transformation with working examples and step-by-step guidance
+- **[Configuration Guide](./configuration.md)** - Setting up accounts, contexts, security, and environment variables
+- **[Getting Started Overview](./index.md)** - Complete getting started roadmap and learning path
+
+### System Requirements and Setup
+- **[Development Setup](../developer-guide/contributing.md#development-setup)** - Advanced development environment configuration
+- **[Docker Configuration](../developer-guide/contributing.md#docker-development)** - Containerized development setup and best practices
+- **[Environment Variables](./configuration.md#environment-variables)** - Configure environment-specific settings and credentials
+- **[System Architecture](../developer-guide/architecture.md)** - Understanding system components and dependencies
+
+### Command Line and Usage
+- **[CLI Commands](../reference/cli-commands.md)** - Complete command-line reference and usage examples
+- **[Debugging Guide](../user-guide/debugging.md)** - Troubleshoot installation and runtime issues
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Optimize system performance and resource usage
+- **[Error Handling](../user-guide/debugging.md#common-error-scenarios-and-solutions)** - Handle common installation and configuration errors
+
+### Data Processing and Integration
+- **[Pipeline Configuration](../directives/pipelines.md)** - Set up data processing pipelines and workflows
+- **[Data Sources](../data_source/reader.md)** - Configure input data sources and file formats
+- **[Data Writers](../data_source/writer.md)** - Set up output destinations and export formats
+- **[API Integration](../user-guide/transformations.md#api-integration)** - Connect to external APIs and services
+
+### Examples and Practical Usage
+- **[Transformation Examples](../examples/)** - Practical examples and real-world use cases
+- **[Basic Transformation](../examples/basic-transformation.md)** - Simple transformation patterns and techniques
+- **[Integration Examples](../examples/integration-patterns.md)** - External system integration and data exchange
+- **[Performance Examples](../examples/performance-optimization.md)** - Large dataset processing and optimization
+
+### Security and Best Practices
+- **[Security Best Practices](./configuration.md#security-best-practices)** - Secure installation and configuration guidelines
+- **[Credential Management](./configuration.md#credential-management)** - Secure handling of API keys and passwords
+- **[File Permissions](./configuration.md#file-permissions)** - Proper file and directory security settings
+- **[Environment Security](./configuration.md#environment-variables)** - Secure environment variable management
+
+## See Also
+
+- **[User Guide](../user-guide/)** - Comprehensive usage documentation and workflows
+- **[Reference Documentation](../reference/)** - Complete technical reference and API documentation
+- **[Developer Guide](../developer-guide/)** - Advanced development and customization topics
+- **[Troubleshooting Guide](../user-guide/debugging.md#troubleshooting)** - Common issues and solutions
+
+---
+*Category: getting-started*  
+*Tags: installation, setup, docker, php, prerequisites*

@@ -212,18 +212,60 @@ context:
 - Use environment-specific context files for different deployment environments
 - Remove debug markers in production configurations for better performance
 
-## Related Directives
+## Related Topics
 
-- [Aliases](./aliases.md) - For file path placeholders
-- [Pipeline](./pipelines.md) - Where context variables are commonly used
-- [Transformation Steps](./transformation_steps.md) - Multi-step transformation configuration
+### Core Configuration Directives
+- **[Aliases Directive](./aliases.md)** - Create file path placeholders and reusable references that work with context variables
+- **[Pipeline Configuration](./pipelines.md)** - Use context variables throughout pipeline definitions and data processing workflows
+- **[Transformation Steps](./transformation_steps.md)** - Apply context variables across multi-step transformation configurations
+- **[Mapping Directive](./mapping.md)** - Use context variables in mapping file paths and dynamic mapping configuration
+
+### Data Processing Integration
+- **[List Directive](./list.md)** - Reference context variables in list configurations and data collections
+- **[Converters Directive](./converters.md)** - Use context variables in converter configurations and format specifications
+
+### Context-Aware Actions
+- **[Statement Action](../actions/statement_action.md)** - Use context variables in conditional logic and decision-making processes
+- **[Debug Action](../actions/debug_action.md)** - Reference context variables in debug operations and conditional debugging
+- **[Format Action](../actions/format_action.md)** - Use context variables in formatting operations and template strings
+- **[Copy Action](../actions/copy_action.md)** - Apply context variables for default values and field assignments
+
+### Data Transformation Actions
+- **[Calculate Action](../actions/calculate_action.md)** - Use context variables for calculation parameters and mathematical constants
+- **[Concat Action](../actions/concat_action.md)** - Reference context variables in concatenation templates and format strings
+- **[Value Mapping Action](../actions/value_mapping_in_list_action.md)** - Use context variables to specify mapping sources and configurations
+- **[Extension Action](../actions/extension_action.md)** - Pass context variables to custom extensions and external integrations
+
+### Configuration and Setup
+- **[Configuration Guide](../getting-started/configuration.md)** - Set up environment variables, secrets management, and context configuration
+- **[Environment Setup](../getting-started/configuration.md#environment-variables)** - Configure environment-specific context variables and deployment settings
+- **[Quick Start Guide](../getting-started/quick-start.md)** - Basic context variable usage and configuration examples
+- **[Installation Guide](../getting-started/installation.md)** - Environment setup and context variable configuration
+
+### API and External Integration
+- **[API Integration](../user-guide/transformations.md#api-integration)** - Use context variables for API endpoints, authentication, and connection management
+- **[Data Sources](../data_source/reader.md)** - Configure data source connections using context variables
+- **[Data Writers](../data_source/writer.md)** - Set up output destinations with context variable configuration
+- **[External Services](../user-guide/transformations.md#external-services)** - Manage external service connections and credentials
+
+### Development and Debugging
+- **[Debugging Guide](../user-guide/debugging.md)** - Use context variables for conditional debugging and environment-specific logging
+- **[CLI Commands](../reference/cli-commands.md)** - Pass context variables through command-line options and environment settings
+- **[Extension Development](../developer-guide/extending.md)** - Access context variables in custom extensions and development workflows
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Use context variables for performance tuning and resource management
+
+### Security and Best Practices
+- **[Security Best Practices](../user-guide/transformations.md#security)** - Secure context variable usage and credential management
+- **[Secrets Management](../getting-started/configuration.md#secrets-management)** - Store sensitive context variables securely
+- **[Environment Configuration](../getting-started/configuration.md#environment-configuration)** - Manage context variables across different environments
+- **[Error Handling](../user-guide/debugging.md#common-error-scenarios-and-solutions)** - Handle context variable resolution errors and missing variables
 
 ## See Also
 
-- [Directive Overview](../directives.md)
-- [Configuration Guide](../getting-started/configuration.md)
-- [Debugging Guide](../user-guide/debugging.md)
-- [API Integration](../user-guide/transformations.md)
+- **[Directives Reference](./index.md)** - Complete list of all available directives and configuration options
+- **[Actions Reference](../actions/index.md)** - Actions that work with context variables and dynamic configuration
+- **[Transformation Examples](../examples/)** - Practical context variable examples and configuration patterns
+- **[Environment Configuration Guide](../examples/environment-setup.md)** - Advanced context variable strategies and deployment patterns
 
 ---
 

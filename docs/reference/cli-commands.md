@@ -473,11 +473,11 @@ jobs:
 
 ## Related Topics
 
-- [Transformation Workflow Guide](../user-guide/transformations.md) - Understanding transformation concepts
-- [Debugging Guide](../user-guide/debugging.md) - Troubleshooting and optimization
-- [Getting Started](../getting-started/quick-start.md) - First steps with the tool
-- [Configuration](../getting-started/configuration.md) - Setting up your environment
-- [Examples](../examples/) - Practical usage examples
+- [Transformation Workflow Guide](../../../user-guide/transformations.md) - Understanding transformation concepts
+- [Debugging Guide](../../../user-guide/debugging.md) - Troubleshooting and optimization
+- [Getting Started](../../../getting-started/quick-start.md) - First steps with the tool
+- [Configuration](../../../getting-started/configuration.md) - Setting up your environment
+- [Examples](../../../examples/) - Practical usage examples
 
 ## Quick Reference
 
