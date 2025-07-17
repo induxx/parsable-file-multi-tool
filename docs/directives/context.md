@@ -1,43 +1,93 @@
-The `context` directive is used to define the environment and resources required for executing transformation steps. It provides essential configuration details that are shared across multiple steps in the transformation process.
+# Context Directive
 
-### Example Usage
-In the transformation file `main-STEPS.yaml`, the `context` directive is used as follows:
+## Overview
+
+The context directive defines environment variables, shared configurations, and resources required for executing transformation steps. It provides a centralized location for configuration details that are accessible throughout the entire transformation process, ensuring consistency and reducing redundancy across multiple steps.
+
+## Syntax
 
 ```yaml
 context:
-  akeneo_connection: target_resource
+  variable_name: value
+  connection_name: resource_identifier
+  debug:
+    marker: debug_specification
 ```
 
-This example specifies a connection to a target resource, which is likely used by subsequent transformation steps to interact with external systems or APIs.
+## Configuration Options
 
-### Purpose
-The `context` directive:
-- Sets up shared configurations or variables that are accessible throughout the transformation process.
-- Ensures consistency and reduces redundancy by centralizing common settings.
-- Facilitates integration with external systems, such as APIs or databases, by defining connection details.
+| Option | Type | Required | Default | Description |
+|--------|------|----------|---------|-------------|
+| variable_name | string/object | No | - | User-defined variable accessible throughout transformation |
+| connection_name | string | No | - | Resource connection identifier for external systems |
+| debug | object | No | - | Debug configuration for transformation monitoring |
 
-### Practical Application
-In the example provided, the `context` directive defines an `akeneo_connection` key, which might be used to establish a connection to an Akeneo resource. This connection can then be referenced in transformation steps like data retrieval, transformation, and pushing data to the target system.
+### Configuration Details
 
-### Additional Examples
-The `context` directive can include various keys that are later matched and replaced during the transformation process. Here are more examples:
+#### Custom Variables
+- Can be any valid YAML key-value pair
+- Values can be strings, numbers, objects, or arrays
+- Accessible throughout the transformation using `%variable_name%` syntax
+- Case-sensitive variable names
 
-#### File Naming
+#### Connection Identifiers
+- Reference external system connections (APIs, databases)
+- Must match configured resource names in your environment
+- Used by transformation steps to establish connections
+
+#### Debug Configuration
+Special configuration object for debugging transformations:
+
 ```yaml
+debug:
+  marker: "filename.yaml:line_number"  # Capture specific line
+  marker: "filename.yaml"              # Capture first output
+  marker: "filename.yaml:id:item_id"   # Capture specific item
+```
+
+## Examples
+
+### Basic Variable Definition
+
+```yaml
+# Simple context variables
+context:
+  environment: production
+  batch_size: 1000
+  output_format: csv
+```
+
+### API Connection Configuration
+
+```yaml
+# External system connections
+context:
+  akeneo_connection: target_resource
+  akeneo_api_account_name: source_resource
+  akeneo_read_connection: read_resource
+  akeneo_write_connection: write_resource
+```
+
+### File and Format Configuration
+
+```yaml
+# File naming and formatting
 context:
   akeneo_file_csv_filename: akeneo_full_products.jsonl
   product_file: akeneo_products.jsonl
   attribute_file: akeneo_attributes.jsonl
+  datetime_file_format: 'ymd-His'
+  date_format: 'YmdHis'
 ```
-These keys define filenames that are used in the transformation steps for reading or writing data.
 
-#### Query Strings
+### Query String Configuration
+
 ```yaml
+# API query configuration
 context:
   querystring: '%s?scope=nuorder&search={"categories":[{"operator":"IN","value":["nuorder"]}],"sales_status":[{"operator":"NOT IN","value":["8","08"]}]}'
 
-# a different transformation step file
-
+# Usage in pipeline
 pipeline:
   input:
     http:
@@ -49,86 +99,134 @@ pipeline:
         querystring: '%querystring%'
 ```
 
-This example specifies a query string used for API calls, enabling dynamic filtering and data retrieval.
+### Debug Configuration
 
-#### Date Formatting
 ```yaml
+# Debug marker examples
 context:
-  datetime_file_format: 'ymd-His'
-  date_format: 'YmdHis'
-```
-These keys define date formats used in filenames or data processing.
-
-#### API Connections
-```yaml
-context:
-  akeneo_api_account_name: 'source_resource'
-  akeneo_read_connection: target_resource
-  akeneo_write_connection: target_resource
+  debug:
+    marker: "get_products.yaml:5"        # Capture line 5
+    # marker: "get_products.yaml"        # Capture first output
+    # marker: "get_products.yaml:id:nike" # Capture specific item
 ```
 
-These keys specify API account names and connections for interacting with external systems.
+## Use Cases
 
-#### Reserved Context Keys
+### Use Case 1: Environment-Specific Configuration
+Define different settings for development, staging, and production environments.
+
+### Use Case 2: API Integration
+Centralize connection details and query parameters for external API interactions.
+
+### Use Case 3: File Processing Configuration
+Define consistent file naming patterns and format specifications.
+
+## Behavior and Processing
+
+### Processing Order
+Context variables are resolved during configuration parsing and remain available throughout the entire transformation execution.
+
+### Data Flow
+Context variables can be referenced in any transformation step using the `%variable_name%` syntax.
+
+### Variable Scope
+All context variables are globally available across all transformation steps and pipeline configurations.
+
+## Common Patterns
+
+### Pattern 1: Environment Configuration
+```yaml
+context:
+  environment: "{{ ENV }}"
+  api_base_url: "https://api.{{ environment }}.example.com"
+  batch_size: 500
+```
+
+### Pattern 2: Connection Management
+```yaml
+context:
+  source_connection: source_system
+  target_connection: target_system
+  backup_connection: backup_system
+```
+
+## Reserved Context Keys
 
 The following keys are reserved for internal use and should not be used as custom context keys:
 
+| Reserved Key | Description |
+|--------------|-------------|
+| `transformation_file` | The initial transformation file path |
+| `last_completed_operation_datetime` | Timestamp of last completed operation |
+| `operation_create_datetime` | Timestamp when operation was created |
+| `app_querystring` | Query string from application filters |
+| `datetime_file_format` | Internal datetime formatting |
+| `date_format` | Internal date formatting |
+| `debug` | Debug flag and configuration |
+| `try` | Retry limit configuration |
+| `line` | Line number for debugging |
+| `show_mappings` | Flag to display generated mappings |
 
-- `transformation_file` # the initial transformation file
-- `last_completed_operation_datetime` # the last completed operation datetime
-- `operation_create_datetime` # the operation create datetime
-- `app_querystring` # the query string used for API calls coming from the app filters
-- `datetime_file_format` # the datetime file format
-- `date_format` # the date format
-- `debug` # the debug flag
-- `try` # a limit to try
-- `line` # the line number to debug
-- `show_mappings` # the show generated mappings flag
+## Common Issues and Solutions
 
-#### Debugging with Markers
+### Issue: Variable Not Resolved
 
-The `debug.marker` option allows you to capture and inspect specific data points during transformation execution. This is particularly useful for debugging specific parts of your transformation pipeline.
+**Symptoms:** Variables appear as literal `%variable_name%` in output instead of resolved values.
 
-**Basic Usage:**
+**Cause:** Variable not defined in context or incorrect syntax.
+
+**Solution:** Ensure variable is properly defined and referenced.
+
 ```yaml
+# Correct variable definition and usage
 context:
-  debug:
-    marker: <marker_definition>
+  api_endpoint: "https://api.example.com"
+
+pipeline:
+  input:
+    http:
+      endpoint: "%api_endpoint%/products"  # Correct syntax
 ```
 
-Available Marker Formats:
+### Issue: Reserved Key Conflict
 
-1. Capture specific output by line number:
-  ```yaml
-  context:
-    debug:
-      marker: "filename.yaml:line_number"
-  ```
-Example: get_products.yaml:5 - Captures output at line 5
+**Symptoms:** Unexpected behavior or system errors.
 
-2. Capture first output from a file:
-  ```yaml
-  context:
-    debug:
-      marker: "filename.yaml"
-  ```
-Example: get_products.yaml - Captures first output
+**Cause:** Using reserved context keys for custom variables.
 
-3. Capture specific item by ID:
-  ```yaml
-  context:
-    debug:
-      marker: "filename.yaml:id:item_id"
-  ```
-Example: get_products.yaml:id:nike - Captures item where id is "nike"
+**Solution:** Use different variable names that don't conflict with reserved keys.
 
-Note: The debug marker works in conjunction with the --debug flag. When running your transformation, include the debug flag to see the captured output:
-
-```bash
-bin/console transformation --file your_transformation.yaml --debug
+```yaml
+# Avoid reserved keys
+context:
+  custom_debug_flag: true  # Instead of 'debug'
+  transformation_name: "my_transform"  # Instead of 'transformation_file'
 ```
-Best Practices:
 
-- Use specific markers to target exact data points
-- For large files, use line numbers or IDs to avoid excessive output
-- Remove or comment out debug markers when not in use for better performance
+## Best Practices
+
+- Use descriptive variable names that clearly indicate their purpose
+- Group related variables together for better organization
+- Avoid using reserved context keys for custom variables
+- Document complex variable structures and their expected values
+- Use environment-specific context files for different deployment environments
+- Remove debug markers in production configurations for better performance
+
+## Related Directives
+
+- [Aliases](./aliases.md) - For file path placeholders
+- [Pipeline](./pipelines.md) - Where context variables are commonly used
+- [Transformation Steps](./transformation_steps.md) - Multi-step transformation configuration
+
+## See Also
+
+- [Directive Overview](../directives.md)
+- [Configuration Guide](../getting-started/configuration.md)
+- [Debugging Guide](../user-guide/debugging.md)
+- [API Integration](../user-guide/transformations.md)
+
+---
+
+*Last updated: 2024-12-19*
+*Category: reference*
+*Directive Type: configuration*
