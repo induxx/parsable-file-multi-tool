@@ -1,47 +1,181 @@
-The aliases directive is used to define aliases for file paths or filenames that are used in a pipeline configuration. This can be useful when you want to reuse the same file or filename in multiple places in the pipeline configuration, or when you want to make the pipeline configuration more flexible by using placeholder values.
+# Aliases Directive
 
-The aliases directive is a dictionary where each key is an alias name, and each value is a file path or filename.
+## Overview
 
-Here's an example:
+The aliases directive defines reusable placeholders for file paths or filenames used throughout pipeline configurations. This directive enhances configuration flexibility by allowing you to define file references once and reuse them multiple times, making configurations more maintainable and adaptable to different environments.
+
+## Syntax
 
 ```yaml
 aliases:
-  input_file: 'input_data.csv'
-  output_file: 'output_data.csv'
+  alias_name1: 'file_path_or_pattern'
+  alias_name2: 'another_file_path'
+  alias_name3: 'file_with_*.csv'
 ```
 
-In this example, the aliases directive defines two aliases: input_file and output_file. The values of these aliases are file paths that contain placeholder values. These placeholder values are %sources% and %workpath%, which can be replaced with values from other parts of the pipeline configuration.
+## Configuration Options
 
-To use an alias in the pipeline configuration, you can simply reference the alias name, like this:
+| Option | Type | Required | Default | Description |
+|--------|------|----------|---------|-------------|
+| alias_name | string | Yes | - | User-defined name for the alias |
+| file_path | string | Yes | - | File path, filename, or pattern to be aliased |
+
+### Configuration Details
+
+#### alias_name
+- Must be a valid YAML key
+- Should be descriptive and meaningful
+- Can be referenced throughout the configuration using the alias name
+- Case-sensitive identifier
+
+#### file_path
+- Can be a complete file path or just a filename
+- Supports wildcard patterns using `*` for dynamic file matching
+- Can include placeholder variables like `%sources%` and `%workpath%`
+- Must resolve to a single file when wildcards are used
+
+## Examples
+
+### Basic File Aliases
 
 ```yaml
+# Simple file path aliases
+aliases:
+  input_file: 'input_data.csv'
+  output_file: 'output_data.csv'
+  config_file: 'transformation_config.yaml'
+```
+
+### Wildcard Patterns
+
+```yaml
+# Using wildcards for dynamic file matching
+aliases:
+  timestamped_input: 'input_data_*.csv'
+  product_import_file: 'products_*.csv'
+  family_import_file: 'families_*.csv'
+```
+
+### Integration with Pipeline
+
+```yaml
+# Define aliases
+aliases:
+  source_data: 'customer_data.csv'
+  processed_output: 'processed_customers.csv'
+
+# Use aliases in pipeline
 pipeline:
   input:
     reader:
       type: csv
-      filename: 'input_file'
+      filename: 'source_data'
+  actions:
+    clean_data:
+      action: retain
+      keys: [name, email, phone]
   output:
     writer:
       type: csv
-      filename: 'output_file'
+      filename: 'processed_output'
 ```
 
-In this example, the filename property of the reader and writer directives reference the input_file and output_file aliases, respectively.
+## Use Cases
 
-### Wildcards
-Aliases directive also support wildcards when you have a file that uses for example a timestamp.
-Note that you can't make a match with multiple files yet. Each alias must reference to a single file.
+### Use Case 1: Environment-Specific File Paths
+Define different file paths for development, staging, and production environments without changing the main pipeline configuration.
+
+### Use Case 2: Timestamped File Processing
+Handle files with dynamic timestamps or version numbers using wildcard patterns.
+
+### Use Case 3: Configuration Reusability
+Create reusable transformation configurations that can work with different input files by simply changing the alias definitions.
+
+## Behavior and Processing
+
+### Processing Order
+Aliases are resolved during the configuration parsing phase, before pipeline execution begins.
+
+### Data Flow
+Aliases do not directly affect data flow but determine which files are accessed during pipeline execution.
+
+### Variable Scope
+Aliases are globally available throughout the entire configuration file and can be referenced in any directive that accepts file paths.
+
+## Common Patterns
+
+### Pattern 1: Source and Output Pairing
+```yaml
+aliases:
+  raw_data: 'raw_customer_data.csv'
+  clean_data: 'cleaned_customer_data.csv'
+  final_output: 'final_customer_export.csv'
+```
+
+### Pattern 2: Wildcard File Processing
+```yaml
+aliases:
+  daily_export: 'export_*_daily.csv'
+  monthly_report: 'report_*_monthly.xlsx'
+```
+
+## Common Issues and Solutions
+
+### Issue: Wildcard Matches Multiple Files
+
+**Symptoms:** Error messages about ambiguous file matches or unexpected file selection.
+
+**Cause:** Wildcard pattern matches more than one file in the directory.
+
+**Solution:** Make wildcard patterns more specific or ensure only one matching file exists.
 
 ```yaml
-# possible input file
-
+# More specific wildcard pattern
 aliases:
-  input_file: 'input_data_*.csv'
+  specific_export: 'export_2024_01_15_*.csv'  # More specific than 'export_*.csv'
 ```
+
+### Issue: Alias Not Found
+
+**Symptoms:** Configuration errors about undefined aliases.
+
+**Cause:** Referencing an alias name that wasn't defined in the aliases section.
+
+**Solution:** Ensure all referenced aliases are properly defined.
 
 ```yaml
-
+# Correct alias definition and usage
 aliases:
-    product_import_file: products_*.csv
-    family_import_file: families_*.csv
+  input_data: 'source.csv'
+
+pipeline:
+  input:
+    reader:
+      filename: 'input_data'  # Must match alias name exactly
 ```
+
+## Best Practices
+
+- Use descriptive alias names that clearly indicate the file's purpose
+- Group related aliases together for better organization
+- Avoid overly complex wildcard patterns that might match unintended files
+- Document the expected file format or structure when using wildcards
+- Test wildcard patterns in your target environment to ensure they match correctly
+
+## Related Directives
+
+- [Context](./context.md) - For defining variables and environment settings
+- [Pipeline](./pipelines.md) - Where aliases are commonly referenced
+- [Sources](../data_source/reader.md) - File input configuration
+
+## See Also
+
+- [Directive Overview](../directives.md)
+- [Configuration Guide](../getting-started/configuration.md)
+- [File Processing](../user-guide/transformations.md)
+
+---
+
+*Last updated: 2024-12-19*
+*Category: reference*
+*Directive Type: configuration*
