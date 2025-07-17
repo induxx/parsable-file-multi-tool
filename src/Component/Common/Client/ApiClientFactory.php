@@ -12,12 +12,13 @@ class ApiClientFactory implements RegisteredByNameInterface
     public function createFromConfiguration(array $account): ApiClientInterface
     {
         $type = $account['type'] ?? null;
+        $domain =  rtrim($account['domain'], '/');
         if ($type === 'basic_auth') {
             try {
                 // no need to authorize a basic auth
 
                 return new BasicAuthApiClient(
-                    $account['domain'],
+                    $domain,
                     $account['username'],
                     $account['password']
                 );
@@ -28,7 +29,7 @@ class ApiClientFactory implements RegisteredByNameInterface
         if ($type === 'microsoft_oauth') {
             try {
                 // no need to authorize a basic auth
-                $client = new ApiClient($account['domain']);
+                $client = new ApiCurlClient($domain);
 
                 $account = new MicrosoftDynamicsOauthAccount(
                     $account['client_id'],
@@ -48,7 +49,7 @@ class ApiClientFactory implements RegisteredByNameInterface
         if ($type === 'e5_dal_token') {
             try {
                 // no need to authorize token is fixed
-                $client = new ApiClient($account['domain']);
+                $client = new ApiCurlClient($domain);
 
                 $account = new E5DalAPIAccount($account['token']);
                 $client->authorize($account);
@@ -60,7 +61,7 @@ class ApiClientFactory implements RegisteredByNameInterface
         }
 
         try {
-            $client = new ApiClient($account['domain']);
+            $client = new ApiCurlClient($domain);
 
             $account = new AkeneoApiClientAccount(
                 $account['username'],

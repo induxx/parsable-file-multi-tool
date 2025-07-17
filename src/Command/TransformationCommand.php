@@ -77,6 +77,16 @@ class TransformationCommand extends Command
         $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {
             return $value !== NULL;
         });
+
+        // reading the context file
+        $transformationDir = pathinfo($file, PATHINFO_DIRNAME);
+        $contextFile = $transformationDir.DIRECTORY_SEPARATOR.'secrets.yaml';
+        if (is_file($contextFile)) {
+            $context = Yaml::parseFile($contextFile);
+            // merging it with the original MAIN-step.yaml, after this point the two are merged
+            $transformationFile = ArrayFunctions::array_merge_recursive($context, $transformationFile);
+        }
+
         $configuration = $configurationFactory->parseDirectivesFromConfiguration(
             array_replace_recursive($transformationFile, [
                 'context' => [

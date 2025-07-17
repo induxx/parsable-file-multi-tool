@@ -6,7 +6,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlWriter extends FileWriter
 {
-    private $items = [];
+    private array $items = [];
 
     public function write(array $data): void
     {
@@ -15,7 +15,7 @@ class YamlWriter extends FileWriter
 
     public function close(): void
     {
-        file_put_contents($this->getFilename(), Yaml::dump($this->items));
+        $this->writeRaw(Yaml::dump($this->items));
         parent::close();
     }
 }
