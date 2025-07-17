@@ -1,5 +1,13 @@
 # Debug Action
 
+---
+**Navigation:** [🏠 Home](../index.md) | [📚 Getting Started](../getting-started/) | [👥 User Guide](../user-guide/) | [📖 Reference](./) | [🔧 Developer Guide](../developer-guide/) | [💡 Examples](../examples/)
+
+**📍 You are here:** [Home](../index.md) > [Reference](./) > [Actions](./) > Debug Action
+
+**📖 Reference:** [Actions](./) | [Directives](../directives/) | [Converters](../converters/) | [Tools](../tools/) | [CLI Commands](../reference/cli-commands.md)
+---
+
 ## Overview
 
 The debug action is a utility designed to facilitate debugging during data transformation processes. It provides mechanisms to inspect and output specific parts of the data being processed, enabling developers to identify issues, verify transformation correctness, and understand data flow at various pipeline stages.
@@ -211,21 +219,61 @@ Where:
 - `parameter` shows the specific parameter used
 - `value` is the actual data being debugged
 
-## Related Actions
+## Related Topics
 
-- [Statement Action](./statement_action.md) - Add conditional logic around debug actions
-- [Copy Action](./copy_action.md) - Create debug-specific fields for monitoring
-- [Format Action](./format_action.md) - Format data before debugging for better readability
+### Core Debugging Actions
+- **[Statement Action](./statement_action.md)** - Add conditional logic around debug actions and create debug triggers
+- **[Copy Action](./copy_action.md)** - Create debug-specific fields for monitoring and backup original values
+- **[Format Action](./format_action.md)** - Format data before debugging for better readability and analysis
+- **[Extension Action](./extension_action.md)** - Create custom debugging extensions and advanced diagnostic tools
+
+### Data Processing Actions
+- **[Calculate Action](./calculate_action.md)** - Debug calculation results and intermediate mathematical values
+- **[Concat Action](./concat_action.md)** - Debug string concatenation and field combination results
+- **[Rename Action](./rename_action.md)** - Debug field renaming operations and track field changes
+- **[Remove Action](./remove_action.md)** - Debug field removal operations and verify data cleanup
+
+### Debugging and Troubleshooting
+- **[Debugging Guide](../user-guide/debugging.md)** - Comprehensive debugging strategies, techniques, and best practices
+- **[CLI Commands](../reference/cli-commands.md)** - Debug mode, limited processing, and command-line debugging options
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Debug performance issues and bottlenecks
+- **[Error Handling](../user-guide/debugging.md#common-error-scenarios-and-solutions)** - Handle and debug common transformation errors
+
+### Configuration and Setup
+- **[Configuration Guide](../getting-started/configuration.md)** - Set up proper logging levels and debug settings
+- **[Context Directive](../directives/context.md)** - Use context variables for conditional debugging and environment-specific settings
+- **[Pipeline Configuration](../directives/pipelines.md)** - Integrate debug actions in transformation pipelines
+- **[Environment Variables](../getting-started/configuration.md#environment-variables)** - Configure debug modes and logging levels
+
+### Development and Best Practices
+- **[Development Setup](../developer-guide/contributing.md)** - Debug action usage in development workflows
+- **[Extension Development](../developer-guide/extending.md)** - Create custom debugging tools and diagnostic extensions
+- **[Transformation Workflow](../user-guide/transformations.md)** - Debug transformation pipelines and data flow
+- **[Architecture Overview](../developer-guide/architecture.md)** - Understanding system components for effective debugging
 
 ## See Also
 
-- [Debugging Guide](../user-guide/debugging.md) - Comprehensive debugging strategies
-- [Troubleshooting](../user-guide/troubleshooting.md) - Common issues and solutions
-- [Logging Configuration](../getting-started/configuration.md#logging) - Set up proper logging levels
-- [Development Best Practices](../developer-guide/best-practices.md) - Debug action usage guidelines
+- **[Actions Reference](./index.md)** - Complete list of all available actions and their debugging capabilities
+- **[Transformation Examples](../examples/)** - Practical debugging examples and common patterns
+- **[Quick Start Guide](../getting-started/quick-start.md)** - Basic debugging techniques for beginners
 
 ---
 
-*Last updated: 2024-01-16*
-*Category: reference*
-*Action Type: utility*
+## Quick Navigation
+
+- **🏠 [Documentation Home](../index.md)** - Main documentation index
+- **🔍 [Search Tips](../index.md#search-tips)** - How to find information quickly
+- **❓ [Getting Help](../user-guide/debugging.md#getting-help)** - Support and troubleshooting resources
+
+### Related Actions
+- **[Statement Action](./statement_action.md)** - Add conditional logic around debug actions
+- **[Copy Action](./copy_action.md)** - Create debug-specific fields for monitoring
+- **[Format Action](./format_action.md)** - Format data before debugging
+
+### Navigation
+- [Previous: Date Time Action](./date_time_action.md) | [Next: Expand Action](./expand_action.md)
+- [Back to Actions Index](./index.md)
+
+---
+*Category: reference*  
+*Tags: debug, utility, troubleshooting, development, actions*

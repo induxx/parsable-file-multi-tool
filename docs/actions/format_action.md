@@ -241,17 +241,48 @@ actions:
 - Consider batching similar formatting operations
 - Regular expressions in replace operations may be slower than simple string replacement
 
-## Related Actions
+## Related Topics
 
-- [Copy Action](./copy_action.md) - Copy fields before formatting to preserve originals
-- [Calculate Action](./calculate_action.md) - Perform calculations before number formatting
-- [Statement Action](./statement_action.md) - Apply conditional formatting logic
+### Core Data Processing Actions
+- **[Copy Action](./copy_action.md)** - Copy fields before formatting to preserve originals and create backups
+- **[Calculate Action](./calculate_action.md)** - Perform calculations before number formatting and format calculation results
+- **[Statement Action](./statement_action.md)** - Apply conditional formatting logic and validate formatting results
+- **[Debug Action](./debug_action.md)** - Debug formatted values, intermediate results, and formatting operations
+
+### Field Manipulation Actions
+- **[Rename Action](./rename_action.md)** - Rename fields after formatting operations and organize formatted data
+- **[Remove Action](./remove_action.md)** - Remove temporary fields used in formatting and clean up processed data
+- **[Concat Action](./concat_action.md)** - Combine formatted fields with other data and create composite values
+- **[Retain Action](./retain_action.md)** - Keep only formatted fields and remove unprocessed data
+
+### Value Transformation Actions
+- **[Value Mapping Action](./value_mapping_in_list_action.md)** - Map formatted values to predefined options
+- **[Key Mapping Action](./key_mapping_action.md)** - Use formatted values as mapping keys
+- **[Date Time Action](./date_time_action.md)** - Specialized formatting for date and time fields
+
+### Data Processing and Transformation
+- **[Transformation Steps](../directives/transformation_steps.md)** - Multi-step formatting workflows and complex transformations
+- **[Pipeline Configuration](../directives/pipelines.md)** - Integrate formatting in data processing pipelines
+- **[Data Type Handling](../user-guide/transformations.md#data-types)** - Understanding data types in formatting operations
+- **[String Functions Reference](../functions/modifiers.md)** - Available formatting functions and modifiers
+
+### Configuration and Context
+- **[Context Directive](../directives/context.md)** - Use context variables in formatting operations and define formatting parameters
+- **[Mapping Directive](../directives/mapping.md)** - Use mappings for value replacement and lookup-based formatting
+- **[Aliases Directive](../directives/aliases.md)** - Define reusable field aliases for consistent formatting
+
+### Debugging and Optimization
+- **[Debugging Guide](../user-guide/debugging.md)** - Debug formatting operations and troubleshoot formatting issues
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Optimize formatting performance for large datasets
+- **[Error Handling](../user-guide/debugging.md#common-error-scenarios-and-solutions)** - Handle formatting errors and edge cases
+- **[CLI Commands](../reference/cli-commands.md)** - Test formatting operations with limited data
 
 ## See Also
 
-- [Transformation Steps](../directives/transformation_steps.md)
-- [Data Type Handling](../user-guide/data-types.md)
-- [String Functions Reference](../functions/modifiers.md)
+- **[Actions Reference](./index.md)** - Complete list of all available actions and their formatting capabilities
+- **[Data Transformation Guide](../user-guide/transformations.md)** - Understanding transformation workflows and best practices
+- **[Transformation Examples](../examples/)** - Practical formatting examples and common patterns
+- **[Quick Start Guide](../getting-started/quick-start.md)** - Basic formatting techniques for beginners
 
 ---
 

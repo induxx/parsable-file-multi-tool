@@ -1,6 +1,14 @@
 
 # Calculate Action
 
+---
+**Navigation:** [🏠 Home](../index.md) | [📚 Getting Started](../getting-started/) | [👥 User Guide](../user-guide/) | [📖 Reference](./) | [🔧 Developer Guide](../developer-guide/) | [💡 Examples](../examples/)
+
+**📍 You are here:** [Home](../index.md) > [Reference](./) > [Actions](./) > Calculate Action
+
+**📖 Reference:** [Actions](./) | [Directives](../directives/) | [Converters](../converters/) | [Tools](../tools/) | [CLI Commands](../reference/cli-commands.md)
+---
+
 ## Overview
 
 The calculate action performs arithmetic operations on two or more fields and stores the result in a specified field. It supports basic mathematical operations including addition, subtraction, multiplication, and division, making it essential for data transformation workflows that require computed values.
@@ -211,21 +219,53 @@ actions:
 - Division operations may be slightly slower than other arithmetic operations
 - Null value handling adds minimal overhead
 
-## Related Actions
+## Related Topics
 
-- [Format Action](./format_action.md) - Convert field types before calculation
-- [Copy Action](./copy_action.md) - Set default values for missing fields
-- [Statement Action](./statement_action.md) - Add conditional logic around calculations
+### Data Processing Actions
+- **[Format Action](./format_action.md)** - Convert field types before calculation and format numeric results
+- **[Copy Action](./copy_action.md)** - Set default values for missing fields and create backup copies
+- **[Statement Action](./statement_action.md)** - Add conditional logic around calculations and validate results
+- **[Debug Action](./debug_action.md)** - Debug calculation results and intermediate values
+
+### Mathematical Operations
+- **[Concat Action](./concat_action.md)** - Combine calculated values with other data
+- **[Value Mapping Action](./value_mapping_in_list_action.md)** - Map calculated results to predefined values
+- **[Field Field Action](./field_field_action.md)** - Perform field-to-field calculations
+
+### Configuration and Context
+- **[Context Directive](../directives/context.md)** - Define calculation parameters and constants
+- **[Mapping Directive](../directives/mapping.md)** - Use mappings for calculation lookup values
+- **[Pipeline Configuration](../directives/pipelines.md)** - Integrate calculations in data processing workflows
+
+### Debugging and Optimization
+- **[Debugging Guide](../user-guide/debugging.md)** - Debug calculation errors and performance issues
+- **[Transformation Workflow](../user-guide/transformations.md)** - Understanding calculation placement in workflows
+- **[CLI Commands](../reference/cli-commands.md)** - Test calculations with limited data using --try flag
 
 ## See Also
 
-- [Transformation Steps](../directives/transformation_steps.md)
-- [Data Type Handling](../user-guide/data-types.md)
-- [Error Handling](../user-guide/error-handling.md)
+- **[Actions Reference](./index.md)** - Complete list of all available actions
+- **[Transformation Examples](../examples/)** - Practical calculation examples and patterns
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Optimize calculation performance
 
 ---
 
-*Last updated: 2024-01-16*
-*Category: reference*
-*Action Type: transformation*
+## Quick Navigation
+
+- **🏠 [Documentation Home](../index.md)** - Main documentation index
+- **🔍 [Search Tips](../index.md#search-tips)** - How to find information quickly
+- **❓ [Getting Help](../user-guide/debugging.md#getting-help)** - Support and troubleshooting resources
+
+### Related Actions
+- **[Format Action](./format_action.md)** - Convert field types before calculation
+- **[Copy Action](./copy_action.md)** - Set default values for missing fields
+- **[Statement Action](./statement_action.md)** - Add conditional logic around calculations
+
+### Navigation
+- [Previous: Akeneo Value Formatter](./akeneo_value_formatter_action.md) | [Next: Concat Action](./concat_action.md)
+- [Back to Actions Index](./index.md)
+
+---
+*Category: reference*  
+*Tags: calculate, arithmetic, math, transformation, actions*
 

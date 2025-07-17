@@ -134,9 +134,9 @@ transformation_steps:
 ## Related Topics
 
 - [Actions Reference](../actions/) - Processing operations used within pipelines
-- [Data Sources](../data_source/) - Input and output configuration options
-- [Configuration Guide](../getting-started/configuration.md) - Setting up transformation configurations
-- [Transformation Guide](../user-guide/transformations.md) - Complete workflow examples
+- [Data Sources](../../../data_source/) - Input and output configuration options
+- [Configuration Guide](../../../getting-started/configuration.md) - Setting up transformation configurations
+- [Transformation Guide](../../../user-guide/transformations.md) - Complete workflow examples
 
 ---
 

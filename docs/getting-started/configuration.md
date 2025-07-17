@@ -587,9 +587,58 @@ if (isset($config['account'])) {
 echo "Configuration is valid\n";
 ```
 
-## Next Steps
+## Related Topics
 
-- Learn about [Pipeline Configuration](../user-guide/pipelines.md)
-- Explore [Action Configuration](../actions/)
-- Review [Security Guidelines](../user-guide/security.md)
-- Check [Environment Setup Examples](../examples/environments.md)
+### Getting Started Workflow
+- **[Installation Guide](./installation.md)** - Complete setup instructions and environment preparation
+- **[Quick Start Guide](./quick-start.md)** - Your first transformation with configuration examples
+- **[Getting Started Overview](./index.md)** - Complete getting started roadmap and learning path
+
+### Core Configuration Directives
+- **[Context Directive](../directives/context.md)** - Dynamic variables, environment settings, and parameter management
+- **[Aliases Directive](../directives/aliases.md)** - Reusable references, file paths, and configuration shortcuts
+- **[Pipeline Configuration](../directives/pipelines.md)** - Data processing workflows and transformation pipelines
+- **[Mapping Directive](../directives/mapping.md)** - Field mapping, value transformation, and lookup tables
+
+### Security and Credential Management
+- **[Environment Variables](./configuration.md#environment-variables)** - Secure credential storage and environment-specific settings
+- **[Security Best Practices](./configuration.md#security-best-practices)** - Protect sensitive information and secure configurations
+- **[File Permissions](./configuration.md#file-permissions)** - Proper file and directory security settings
+- **[Credential Management](./configuration.md#credential-management)** - API keys, passwords, and authentication setup
+
+### Data Sources and Integration
+- **[Data Sources](../data_source/reader.md)** - Configure input data sources and connection parameters
+- **[Data Writers](../data_source/writer.md)** - Set up output destinations and export configurations
+- **[API Integration](../user-guide/transformations.md#api-integration)** - External API connections and authentication
+- **[Converters](../converters/)** - Data format conversion and specialized processing
+
+### Development and Debugging
+- **[CLI Commands](../reference/cli-commands.md)** - Command-line options, configuration flags, and execution parameters
+- **[Debugging Guide](../user-guide/debugging.md)** - Debug configuration issues and troubleshoot setup problems
+- **[Development Setup](../developer-guide/contributing.md#development-setup)** - Advanced development environment configuration
+- **[Extension Development](../developer-guide/extending.md)** - Custom configuration options and extension parameters
+
+### Advanced Configuration Topics
+- **[Multi-step Transformations](../directives/transformation_steps.md)** - Complex workflow configuration and step orchestration
+- **[Performance Optimization](../user-guide/debugging.md#performance-optimization-guidelines)** - Configuration tuning for large datasets and high performance
+- **[Error Handling](../user-guide/debugging.md#common-error-scenarios-and-solutions)** - Configuration error handling and recovery strategies
+- **[Batch Processing](../user-guide/transformations.md#batch-processing)** - Configure batch operations and throughput optimization
+
+### Practical Examples and Patterns
+- **[Configuration Examples](../examples/configuration-patterns.md)** - Real-world configuration examples and best practices
+- **[Environment Configuration](./configuration.md#environment-variables)** - Multi-environment configuration and deployment patterns
+- **[Integration Examples](../examples/integration-patterns.md)** - External system integration configuration patterns
+- **[Security Best Practices](./configuration.md#security-best-practices)** - Secure configuration patterns and credential management
+
+### System Architecture and Components
+- **[Architecture Overview](../developer-guide/architecture.md)** - Understanding system components and configuration relationships
+- **[System Requirements](./installation.md#system-requirements)** - Hardware and software requirements for optimal configuration
+- **[Docker Configuration](./installation.md#docker-installation)** - Containerized deployment and configuration management
+- **[Native Installation](./installation.md#native-php-installation)** - Direct system installation and configuration
+
+## See Also
+
+- **[User Guide](../user-guide/)** - Comprehensive usage documentation and configuration workflows
+- **[Reference Documentation](../reference/)** - Complete technical reference and configuration options
+- **[Developer Guide](../developer-guide/)** - Advanced configuration and customization topics
+- **[Transformation Examples](../examples/)** - Practical configuration examples and real-world use cases

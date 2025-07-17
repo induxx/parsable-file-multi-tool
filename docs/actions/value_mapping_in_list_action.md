@@ -1,5 +1,13 @@
 # Value Mapping in List Action
 
+---
+**Navigation:** [🏠 Home](../index.md) | [📚 Getting Started](../getting-started/) | [👥 User Guide](../user-guide/) | [📖 Reference](./) | [🔧 Developer Guide](../developer-guide/) | [💡 Examples](../examples/)
+
+**📍 You are here:** [Home](../index.md) > [Reference](./) > [Actions](./) > Value Mapping in List Action
+
+**📖 Reference:** [Actions](./) | [Directives](../directives/) | [Converters](../converters/) | [Tools](../tools/) | [CLI Commands](../reference/cli-commands.md)
+---
+
 ## Overview
 
 The value_mapping_in_list action allows you to replace field values with corresponding values from a predefined mapping list. It's essential for data standardization workflows where you need to transform coded values into human-readable labels or convert between different value systems.
@@ -271,6 +279,5 @@ actions:
 
 ---
 
-*Last updated: 2024-01-16*
 *Category: reference*
 *Action Type: transformation*

@@ -1,5 +1,13 @@
 # Debugging and Troubleshooting Guide
 
+---
+**Navigation:** [🏠 Home](../index.md) | [📚 Getting Started](../getting-started/) | [👥 User Guide](./) | [📖 Reference](../reference/) | [🔧 Developer Guide](../developer-guide/) | [💡 Examples](../examples/)
+
+**📍 You are here:** [Home](../index.md) > [User Guide](./) > Debugging and Troubleshooting Guide
+
+**👥 User Guide:** [Transformations](./transformations.md) | [Debugging](./debugging.md) | [CLI Commands](../reference/cli-commands.md)
+---
+
 This comprehensive guide covers debugging techniques, common error scenarios, and performance optimization strategies for the parsable-file-multi-tool. Whether you're developing new transformations or troubleshooting production issues, this guide provides the tools and techniques you need.
 
 ## Overview
@@ -600,14 +608,72 @@ grep -i "time" debug.log
 
 ## Related Topics
 
-- [Debug Action Reference](../actions/debug_action.md) - Complete debug action documentation
-- [CLI Commands](../reference/cli-commands.md) - All available command options
-- [Performance Optimization](../developer-guide/performance.md) - Advanced optimization techniques
-- [Error Handling](../reference/error-handling.md) - Comprehensive error handling strategies
-- [Transformation Workflow](./transformations.md) - Understanding data flow and pipeline concepts
+### Core Debugging Tools and Actions
+- **[Debug Action Reference](../actions/debug_action.md)** - Complete debug action documentation and usage examples
+- **[Statement Action](../actions/statement_action.md)** - Add conditional debugging logic and validation checks
+- **[Extension Action](../actions/extension_action.md)** - Create custom debugging extensions and diagnostic tools
+- **[Copy Action](../actions/copy_action.md)** - Create debug backups and preserve original data for analysis
+
+### Command Line and Configuration
+- **[CLI Commands](../reference/cli-commands.md)** - All available command options, debug flags, and processing controls
+- **[Configuration Guide](../getting-started/configuration.md)** - Set up logging levels, debug settings, and environment configuration
+- **[Context Directive](../directives/context.md)** - Use context variables for conditional debugging and environment-specific settings
+- **[Pipeline Configuration](../directives/pipelines.md)** - Debug pipeline execution and data flow issues
+
+### Data Processing and Transformation
+- **[Transformation Workflow](./transformations.md)** - Understanding data flow, pipeline concepts, and transformation debugging
+- **[Format Action](../actions/format_action.md)** - Debug formatting operations and data type issues
+- **[Calculate Action](../actions/calculate_action.md)** - Debug mathematical operations and calculation errors
+- **[Value Mapping Actions](../actions/value_mapping_in_list_action.md)** - Debug mapping operations and value transformation issues
+
+### Performance and Optimization
+- **[Performance Optimization](../user-guide/transformations.md#performance-optimization)** - Advanced optimization techniques and resource management
+- **[Memory Management](../user-guide/transformations.md#memory-management)** - Handle memory issues and large dataset processing
+- **[Batch Processing](../user-guide/transformations.md#batch-processing)** - Optimize batch operations and throughput
+- **[Streaming Processing](../user-guide/transformations.md#streaming)** - Debug streaming workflows and real-time processing
+
+### Error Handling and Troubleshooting
+- **[Error Handling Strategies](../user-guide/transformations.md#error-handling)** - Comprehensive error handling and recovery strategies
+- **[Data Validation](../user-guide/transformations.md#data-validation)** - Validate data integrity and handle quality issues
+- **[File and Path Issues](../getting-started/configuration.md#file-paths)** - Troubleshoot file access and path resolution problems
+- **[API Integration Issues](../user-guide/transformations.md#api-troubleshooting)** - Debug external service connections and API errors
+
+### Development and Extension
+- **[Extension Development](../developer-guide/extending.md)** - Create custom debugging tools and diagnostic functionality
+- **[Architecture Overview](../developer-guide/architecture.md)** - Understanding system components for effective debugging
+- **[Contributing Guidelines](../developer-guide/contributing.md)** - Debug development workflows and testing procedures
+- **[Development Setup](../developer-guide/contributing.md#development-setup)** - Set up debugging environment and tools
+
+### Data Sources and Integration
+- **[Data Source Configuration](../data_source/reader.md)** - Debug data input issues and source connectivity
+- **[Data Writer Configuration](../data_source/writer.md)** - Debug output issues and destination problems
+- **[Converter Issues](../converters/)** - Debug data format conversion and transformation problems
+- **[External Tool Integration](../tools/)** - Debug external tool connectivity and integration issues
+
+### Examples and Patterns
+- **[Debugging Examples](../examples/debugging-patterns.md)** - Practical debugging examples and common troubleshooting patterns
+- **[Error Recovery Patterns](../examples/error-handling.md)** - Common error scenarios and recovery strategies
+- **[Performance Tuning Examples](../examples/performance-optimization.md)** - Real-world performance optimization case studies
+- **[Integration Debugging](../examples/integration-debugging.md)** - Debug complex integration scenarios and multi-system workflows
 
 ---
 
-*Last updated: 2024-01-16*
-*Category: user-guide*
+## Quick Navigation
+
+- **🏠 [Documentation Home](../index.md)** - Main documentation index
+- **🔍 [Search Tips](../index.md#search-tips)** - How to find information quickly
+- **❓ [Getting Help](#getting-help)** - Support and troubleshooting resources
+
+### Related User Guide Topics
+- **[Running Transformations](./transformations.md)** - Complete workflow guide and best practices
+- **[CLI Commands](../reference/cli-commands.md)** - Complete command-line reference with examples
+- **[Debug Action](../actions/debug_action.md)** - Debug action reference documentation
+
+### Navigation
+- [Previous: Transformations](./transformations.md) | [Next: CLI Commands](../reference/cli-commands.md)
+- [Back to User Guide](./index.md)
+
+---
+*Last updated: 2024-01-16*  
+*Category: user-guide*  
 *Tags: debugging, troubleshooting, performance, optimization*
