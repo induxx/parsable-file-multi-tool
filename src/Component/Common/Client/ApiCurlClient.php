@@ -211,31 +211,35 @@ class ApiCurlClient implements ApiClientInterface
         $content = \curl_exec($this->handle);
         $status = \curl_getinfo($this->handle, CURLINFO_HTTP_CODE);
 
+        if ($content === false) {
+            throw new \RuntimeException(curl_error($this->handle), curl_errno($this->handle));
+        }
+
         // extract body
         $headerSize = curl_getinfo($this->handle, CURLINFO_HEADER_SIZE);
         $headers = substr($content, 0, $headerSize);
-        $content = substr($content, $headerSize);
+        $body = substr($content, $headerSize);
         $headers = $this->getResponseHeaders($headers);
 
         $this->resetHandle();
 
-        if (in_array($status, [200, 204]) && !$content) {
+        if (in_array($status, [200, 204]) && !$body) {
             return ApiResponse::create([], $status);
         }
 
         $multi = [];
-        foreach (explode("\n", $content) as $c) {
+        foreach (explode("\n", $body) as $c) {
             $multi[] = \json_decode($c, true);
         }
 
         if ($status === 404) {
-            throw new Exception\PageNotFoundException($content['message'] ?? 'Page Not Found 404');
+            throw new Exception\PageNotFoundException($body['message'] ?? 'Page Not Found 404');
         }
         if ($status === 401) {
-            throw new Exception\UnauthorizedException($content['message'] ?? 'Unauthorized');
+            throw new Exception\UnauthorizedException($body['message'] ?? 'Unauthorized');
         }
 
-        if (!$content) {
+        if (!$body) {
             throw new \RuntimeException(curl_error($this->handle), curl_errno($this->handle));
         }
         $multi = array_filter($multi);
