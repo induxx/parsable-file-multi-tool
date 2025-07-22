@@ -56,7 +56,6 @@ class ApiReader implements ReaderInterface
 
             return $this->client
                 ->search($endpoint, $params)
-                ->getResponse()
                 ->getContent();
         }
 
@@ -81,7 +80,6 @@ class ApiReader implements ReaderInterface
 
                     $result = $this->client
                         ->get($this->client->getUrlGenerator()->generate($chunkEndpoint))
-                        ->getResponse()
                         ->getContent();
 
                     if (empty($items)) {
@@ -131,7 +129,6 @@ class ApiReader implements ReaderInterface
 
         $items = $this->client
             ->get($url)
-            ->getResponse()
             ->getContent();
 
         // when supplying a container we jump inside that container to find loopable items

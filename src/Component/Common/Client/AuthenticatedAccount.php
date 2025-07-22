@@ -50,6 +50,18 @@ class AuthenticatedAccount
         $this->expiresIn = null;
     }
 
+    /**
+     * Inject the Bearer token into a cURL header array.
+     *
+     * @param string[] &$headers  List of header lines (e.g. ["Accept: application/json"])
+     */
+    public function useTokenOn(array &$headers): void
+    {
+        if ($this->accessToken) {
+            $headers['Authorization'] = 'Bearer ' . $this->accessToken;
+        }
+    }
+
     public function useToken(ApiClientInterface $client): void
     {
         if ($this->accessToken) {

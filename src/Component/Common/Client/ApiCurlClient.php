@@ -3,17 +3,14 @@
 namespace Misery\Component\Common\Client;
 
 use Misery\Component\Common\Generator\UrlGenerator;
+use Misery\Component\Common\Client\Exception\PageNotFoundException;
+use Misery\Component\Common\Client\Exception\UnauthorizedException;
 
 class ApiCurlClient implements ApiClientInterface
 {
-    private $handle;
-    /** @var UrlGenerator */
-    private $urlGenerator;
-    /** @var AuthenticatedAccount */
-    private $authenticatedAccount;
-    /** @var array */
-    private $headers = [];
+    private UrlGenerator $urlGenerator;
     private ?ApiEndPointsInterface $endpoints = null;
+    private AuthenticatedAccount $authenticatedAccount;
 
     public function __construct(string $domain)
     {
@@ -22,19 +19,8 @@ class ApiCurlClient implements ApiClientInterface
 
     public function authorize(ApiClientAccountInterface $account): void
     {
-        if (null === $this->handle) {
-            $this->resetHandle();
-            $this->endpoints = $account->getSupporterEndPoints();
-            $this->authenticatedAccount = $account->authorize($this);
-        }
-    }
-
-    private function resetHandle(): void
-    {
-        if ($this->handle) {
-            \curl_close($this->handle);
-        }
-        $this->handle = \curl_init();
+        $this->endpoints = $account->getSupporterEndPoints();
+        $this->authenticatedAccount = $account->authorize($this);
     }
 
     public function getApiEndpoint(string $apiEndpoint): ApiEndpointInterface
@@ -44,122 +30,136 @@ class ApiCurlClient implements ApiClientInterface
 
     public function refreshToken(): void
     {
-        $account = $this->authenticatedAccount->getAccount();
-        $authenticatedAccount = $this->authenticatedAccount;
-        $this->authenticatedAccount = null;
-        $this->authenticatedAccount = $account->refresh($this, $authenticatedAccount);
+        $acct      = $this->authenticatedAccount->getAccount();
+        $oldAuth   = $this->authenticatedAccount;
+        $this->authenticatedAccount = $acct->refresh($this, $oldAuth);
     }
 
-    /**
-     * A GET HTTP VERB
-     */
-    public function search(string $endpoint, array $params = []): self
+    public function search(string $endpoint, array $params = []): ApiResponse
     {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/json']);
-
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint . $this->urlGenerator->createParams($params));
-
-        return $this;
+        $url = $endpoint . $this->urlGenerator->createParams($params);
+        return $this->request('GET', $url);
     }
 
-    /**
-     * A GET HTTP VERB
-     */
-    public function get(string $endpoint): self
+    public function get(string $endpoint): ApiResponse
     {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/json']);
-
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
-
-        return $this;
+        return $this->request('GET', $endpoint);
     }
 
-    /**
-     * A POST HTTP VERB
-     * $postData is a structured entity array that will be encoded to json
-     */
-    public function post(string $endpoint, array $postData): self
+    public function post(string $endpoint, array $postData, array $headers = []): ApiResponse
     {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/json']);
-
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "POST");
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-        \curl_setopt($this->handle, CURLOPT_POST, true);
-        \curl_setopt($this->handle, CURLOPT_POSTFIELDS, \json_encode($postData));
-
-        return $this;
+        $headers['Content-Type'] = 'application/json';
+        return $this->request('POST', $endpoint, $postData, $headers);
     }
 
-    public function postXForm(string $endpoint, array $postData): self
+    public function postXForm(string $endpoint, array $data): ApiResponse
     {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders([
-            'Content-Type' => 'application/x-www-form-urlencoded',
+        $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        return $this->request('POST', $endpoint, $data, $headers);
+    }
+
+    public function patch(string $endpoint, array $patchData): ApiResponse
+    {
+        $headers['Content-Type'] = 'application/json';
+        return $this->request('PATCH', $endpoint, $patchData, $headers);
+    }
+
+    public function multiPatch(string $endpoint, array $dataSet): ApiResponse
+    {
+        $body = implode("\n", array_map('json_encode', $dataSet));
+        $headers['Content-Type'] = 'application/vnd.akeneo.collection+json';
+        return $this->rawRequest('PATCH', $endpoint, $body, $headers);
+    }
+
+    public function delete(string $endpoint): ApiResponse
+    {
+        return $this->request('DELETE', $endpoint);
+    }
+
+    private function request(string $method, string $url, array $data = null, array $headers = []): ApiResponse
+    {
+        $body = null;
+        if ($data !== null) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $body = json_encode($data);
+            } else {
+                $body = http_build_query($data);
+            }
+        }
+        return $this->rawRequest($method, $url, $body, $headers);
+    }
+
+    private function rawRequest(string $method, string $url, ?string $body, array $headers = []): ApiResponse
+    {
+        $ch = curl_init();
+        $headers = $this->buildHeaders($headers);
+        curl_setopt_array($ch, [
+            CURLOPT_URL             => $url,
+            CURLOPT_CUSTOMREQUEST   => $method,
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_FOLLOWLOCATION  => true,
+            CURLOPT_MAXREDIRS       => 10,
+            CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_2TLS, // HTTP/2 over TLS with HTTP/1.1 fallback
+            CURLOPT_SSL_VERIFYPEER  => true,
+            CURLOPT_SSL_VERIFYHOST  => 2,
+            CURLOPT_ENCODING        => '',    // auto-decode gzip/deflate
         ]);
 
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "POST");
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-        \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
-        \curl_setopt($this->handle, CURLOPT_POST, true);
-        \curl_setopt($this->handle, CURLOPT_POSTFIELDS, http_build_query($postData));
+        \curl_setopt($ch, CURLOPT_HTTPHEADER, array_map(function ($key, $value) {
+            return $key . ': ' . $value;
+        }, array_keys($headers), $headers));
 
-        return $this;
-    }
-
-    /**
-     * HTTP PATCH VERB That supports a multi patch insert
-     * max 100 inserts per request
-     */
-    public function multiPatch(string $endpoint, array $dataSet): self
-    {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/vnd.akeneo.collection+json']);
-
-        $patchData = "";
-        foreach($dataSet as $item) {
-            $patchData .= json_encode($item)."\n";
+        if (null !== $body) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         }
 
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "PATCH");
-        \curl_setopt($this->handle, CURLOPT_POSTFIELDS, $patchData);
+        $response = curl_exec($ch);
+        $errno    = curl_errno($ch);
+        $error    = curl_error($ch);
+        $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        return $this;
+        if ($errno) {
+            throw new \RuntimeException($error, $errno);
+        }
+
+        return $this->parseResponse($response, $status);
     }
 
-    /**
-     * HTTP PATCH VERB
-     */
-    public function patch(string $endpoint, array $patchData): self
+    private function buildHeaders(array $h = []): array
     {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/json']);
+        $h['Accept'] = 'application/json';
 
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "PATCH");
-        \curl_setopt($this->handle, CURLOPT_POSTFIELDS, \json_encode($patchData));
+        // let the authenticatedAccount inject its auth header
+        if (isset($this->authenticatedAccount)) {
+            $this->authenticatedAccount->useTokenOn($h);
+        }
 
-        return $this;
+        return $h;
     }
 
-    /**
-     * A DELETE HTTP VERB
-     */
-    public function delete(string $endpoint): self
+    private function parseResponse(string $raw, int $status): ApiResponse
     {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/json']);
+        if ($status === 404) {
+            $body = @json_decode($raw, true) ?: [];
+            throw new PageNotFoundException($body['message'] ?? 'Page Not Found 404');
+        }
+        if ($status === 401) {
+            $body = @json_decode($raw, true) ?: [];
+            throw new UnauthorizedException($body['message'] ?? 'Unauthorized');
+        }
 
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "DELETE");
+        $lines = array_filter(explode("\n", $raw), fn($l) => trim($l) !== '');
+        $multi = array_map(fn($l) => json_decode($l, true), $lines);
 
-        return $this;
+        if (count($multi) > 1) {
+            return ApiResponse::createFromMulti($multi);
+        }
+        if (count($multi) === 1) {
+            return ApiResponse::create($multi[0], $status);
+        }
+
+        return ApiResponse::create([], $status);
     }
 
     public function log(string $message, int $statusCode = null, $content): void
@@ -178,80 +178,9 @@ class ApiCurlClient implements ApiClientInterface
         );
     }
 
-    /**
-     * Set HTTP Headers
-     */
-    public function setHeaders(array $headerData): self
+    public function getUrlGenerator(): UrlGenerator
     {
-        $this->headers = array_merge($this->headers, $headerData);
-
-        return $this;
-    }
-
-    public function generateHeaders(): void
-    {
-        \curl_setopt($this->handle, CURLOPT_HTTPHEADER, array_map(function ($key, $value) {
-            return $key . ': ' . $value;
-        }, array_keys($this->headers), $this->headers));
-
-        $this->headers = [];
-    }
-
-    /**
-     * Returns a Usable API response
-     */
-    public function getResponse(): ApiResponse
-    {
-        $this->generateHeaders();
-
-        \curl_setopt($this->handle, CURLOPT_HEADER, true);
-        \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
-
-        // obtain response
-        $content = \curl_exec($this->handle);
-        $status = \curl_getinfo($this->handle, CURLINFO_HTTP_CODE);
-
-        if ($content === false) {
-            throw new \RuntimeException(curl_error($this->handle), curl_errno($this->handle));
-        }
-
-        // extract body
-        $headerSize = curl_getinfo($this->handle, CURLINFO_HEADER_SIZE);
-        $headers = substr($content, 0, $headerSize);
-        $body = substr($content, $headerSize);
-        $headers = $this->getResponseHeaders($headers);
-
-        $this->resetHandle();
-
-        if (in_array($status, [200, 204]) && !$body) {
-            return ApiResponse::create([], $status);
-        }
-
-        $multi = [];
-        foreach (explode("\n", $body) as $c) {
-            $multi[] = \json_decode($c, true);
-        }
-
-        if ($status === 404) {
-            throw new Exception\PageNotFoundException($body['message'] ?? 'Page Not Found 404');
-        }
-        if ($status === 401) {
-            throw new Exception\UnauthorizedException($body['message'] ?? 'Unauthorized');
-        }
-
-        if (!$body) {
-            throw new \RuntimeException(curl_error($this->handle), curl_errno($this->handle));
-        }
-        $multi = array_filter($multi);
-
-        if (count($multi) > 1) {
-            return ApiResponse::createFromMulti($multi);
-        }
-        if (count($multi) === 1) {
-            return ApiResponse::create($multi[0], $status, $headers);
-        }
-
-        return ApiResponse::create([], $status);
+        return $this->urlGenerator;
     }
 
     public function getPaginator(string $startUrl): PaginationCursor
@@ -259,87 +188,35 @@ class ApiCurlClient implements ApiClientInterface
         return $this->authenticatedAccount->getAccount()->getPaginator($this, $startUrl);
     }
 
-    private function getResponseHeaders($respHeaders): array
-    {
-        $headers = [];
-        $headerText = substr($respHeaders, 0, strpos($respHeaders, "\r\n\r\n"));
-
-        foreach (explode("\r\n", $headerText) as $i => $line) {
-            if ($i === 0) {
-                continue;
-            } else {
-                list ($key, $value) = explode(': ', $line);
-
-                $headers[$key] = $value;
-            }
-        }
-
-        return $headers;
-    }
-
-    private function setAuthenticationHeaders(): void
-    {
-        if ($this->authenticatedAccount instanceof AuthenticatedAccount) {
-            $this->authenticatedAccount->useToken($this);
-        }
-    }
-
-    public function clear(): void
-    {
-        \curl_setopt($this->handle, \CURLOPT_HEADERFUNCTION, null);
-        \curl_setopt($this->handle, \CURLOPT_READFUNCTION, null);
-        \curl_setopt($this->handle, \CURLOPT_WRITEFUNCTION, null);
-        \curl_setopt($this->handle, \CURLOPT_PROGRESSFUNCTION, null);
-        \curl_reset($this->handle);
-    }
-
-    public function close(): void
-    {
-        if ($this->handle) {
-            $this->clear();
-            \curl_close($this->handle);
-            $this->handle = null;
-            $this->authenticatedAccount = null;
-        }
-    }
-
-    public function __destruct()
-    {
-        $this->close();
-    }
-
-    public function getUrlGenerator(): UrlGenerator
-    {
-        return $this->urlGenerator;
-    }
-
     /**
      * Download the raw response body from the endpoint.
      * Returns string|null on success, throws on error.
      */
-    public function download(string $endpoint): ?string
+    public function download(string $endpoint): ApiResponse
     {
-        $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/json']);
+        return $this->request('GET', $endpoint);
 
-        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
-        \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
-        \curl_setopt($this->handle, CURLOPT_HEADER, false);
-
-        $this->generateHeaders();
-
-        $response = \curl_exec($this->handle);
-        $status = \curl_getinfo($this->handle, CURLINFO_HTTP_CODE);
-
-        if ($response === false) {
-            throw new \RuntimeException(\curl_error($this->handle), \curl_errno($this->handle));
-        }
-
-        if ($status >= 200 && $status < 300) {
-            return $response !== '' ? $response : null;
-        }
-
-        throw new \RuntimeException('Download failed: HTTP ' . $status . ' - ' . $response, $status);
+//        $this->setAuthenticationHeaders();
+//        $this->setHeaders(['Content-Type' => 'application/json']);
+//
+//        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
+//        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
+//        \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
+//        \curl_setopt($this->handle, CURLOPT_HEADER, false);
+//
+//        $this->generateHeaders();
+//
+//        $response = \curl_exec($this->handle);
+//        $status = \curl_getinfo($this->handle, CURLINFO_HTTP_CODE);
+//
+//        if ($response === false) {
+//            throw new \RuntimeException(\curl_error($this->handle), \curl_errno($this->handle));
+//        }
+//
+//        if ($status >= 200 && $status < 300) {
+//            return $response !== '' ? $response : null;
+//        }
+//
+//        throw new \RuntimeException('Download failed: HTTP ' . $status . ' - ' . $response, $status);
     }
 }
