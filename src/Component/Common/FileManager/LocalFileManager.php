@@ -120,6 +120,11 @@ class LocalFileManager implements FileManagerInterface
             if (is_file($path)) {
                 yield $path;
             }
+            if (is_dir($path)) {
+                foreach ($this->listFilesRecursive($path) as $subpath) {
+                    yield $subpath;
+                }
+            }
         }
     }
 
