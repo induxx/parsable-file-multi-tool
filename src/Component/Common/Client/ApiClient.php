@@ -23,10 +23,18 @@ class ApiClient implements ApiClientInterface
     public function authorize(ApiClientAccountInterface $account): void
     {
         if (null === $this->handle) {
-            $this->handle = \curl_init();
+            $this->resetHandle();
             $this->endpoints = $account->getSupporterEndPoints();
             $this->authenticatedAccount = $account->authorize($this);
         }
+    }
+
+    private function resetHandle(): void
+    {
+        if ($this->handle) {
+            \curl_close($this->handle);
+        }
+        $this->handle = \curl_init();
     }
 
     public function getApiEndpoint(string $apiEndpoint): ApiEndpointInterface
@@ -208,6 +216,8 @@ class ApiClient implements ApiClientInterface
         $headers = substr($content, 0, $headerSize);
         $content = substr($content, $headerSize);
         $headers = $this->getResponseHeaders($headers);
+
+        $this->resetHandle();
 
         if (in_array($status, [200, 204]) && !$content) {
             return ApiResponse::create([], $status);
