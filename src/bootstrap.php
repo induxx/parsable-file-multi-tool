@@ -68,6 +68,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Csv\AttributeOption(),
     new Misery\Component\Converter\Akeneo\Api\FamilyVariant(),
     new Misery\Component\Converter\Akeneo\Api\Family(),
+    new Misery\Component\Converter\Akeneo\Api\Categories(),
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
     new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator(),
     new Misery\Component\Converter\ReadLoopItemCollectionConverter(),
