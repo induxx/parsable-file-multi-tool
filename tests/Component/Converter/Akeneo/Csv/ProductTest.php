@@ -6,7 +6,9 @@ namespace Tests\Misery\Component\Converter\Akeneo\Csv;
 
 use Misery\Component\Converter\Akeneo\Csv\Product;
 use Misery\Component\Converter\AkeneoCsvHeaderContext;
+use Misery\Component\Converter\Matcher;
 use Misery\Component\Parser\CsvParser;
+use Misery\Component\Parser\JsonParser;
 use PHPUnit\Framework\TestCase;
 
 class ProductTest extends TestCase
@@ -30,6 +32,19 @@ class ProductTest extends TestCase
             throw new \RuntimeException("Test CSV file not found: $file");
         }
         $parser = CsvParser::create($file);
+
+        $parser->seek($i);
+
+        return $parser->current(); // Use the first row for testing
+    }
+
+    private function getAkeneoProductPayload(int $i = 1): array
+    {
+        $file = __DIR__ . '/../../../../examples/akeneo_products_payload.jsonl';
+        if (!file_exists($file)) {
+            throw new \RuntimeException("Test Json payload file not found: $file");
+        }
+        $parser = JsonParser::create($file);
 
         $parser->seek($i);
 
@@ -94,5 +109,57 @@ class ProductTest extends TestCase
         $result = $converter->convert($row);
         $this->assertArrayNotHasKey('associations', $result);
         $this->assertArrayNotHasKey('quantified_associations', $result);
+    }
+
+    public function testRevertBasicSupport(): void
+    {
+        $converter = $this->getProductConverter([
+            'attribute_types:list' => null, # optional, if not set, we assume all attributes are supported, and we look at the data type
+        ]);
+
+        $stdTestProduct = [
+            'sku' => '0001',
+            'enabled' => true,
+            'categories' => ['1001', '1002'],
+            'values|description' => [
+                'locale' => 'nl_BE',
+                'scope' => null,
+                'data' =>  'Badkamerventilator met timer',
+                'matcher' => Matcher::create('values|description'),
+            ],
+            'values|metric' => [
+                'locale' => null,
+                'scope' => null,
+                'data' =>  [
+                    'amount' => 0,
+                    'unit' => 'METER',
+                ],
+                'matcher' => Matcher::create('values|metric'),
+            ],
+            'values|boolean' => [
+                'locale' => null,
+                'scope' => null,
+                'data' => false,
+                'matcher' => Matcher::create('values|boolean'),
+            ],
+        ];
+
+        $expected = [
+            'sku' => '0001',
+            'enabled' => '1',
+            'categories' => '1001,1002',
+            'description' => 'Badkamerventilator met timer',
+            'metric' => '0',
+            'metric-unit' => 'METER',
+            'boolean' => '0',
+        ];
+
+        $this->assertSame($expected, $converter->revert($stdTestProduct));
+
+        $stdTestProduct['values|boolean']['data'] = true; // Change boolean to true
+
+        $expected['boolean'] = '1'; // Update expected value for boolean
+
+        $this->assertSame($expected, $converter->revert($stdTestProduct));
     }
 }

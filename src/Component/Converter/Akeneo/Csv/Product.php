@@ -295,8 +295,11 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
     {
         $container = $this->getOption('container');
         $identifier = $this->getOption('identifier');
+        $codes = $this->getOption('attribute_types:list');
+        $keyCodes = is_array($codes) ? array_keys($codes): null;
 
         $output = [];
+        # first isolate the properties
         $output[$identifier] = $item[$identifier] ?? $item['identifier'] ?? null;
         if (isset($item['enabled'])) {
             $output['enabled'] = $item['enabled'];
@@ -315,14 +318,19 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         }
         $output = $this->decoder->decode($output);
 
+        # now iterate over the item and match the remaining values
         foreach ($item as $key => $itemValue) {
+            if ($keyCodes && false === in_array($key, $keyCodes)) {
+                continue;
+            }
+
             $matcher = $itemValue['matcher'] ?? null;
             /** @var $matcher Matcher */
             if ($matcher && $matcher->matches($container)) {
                 unset($itemValue['matcher']);
                 unset($item[$key]);
                 if (is_array($itemValue['data']) && array_key_exists('unit', $itemValue['data'])) {
-                    $output[$matcher->getRowKey()] = $itemValue['data']['amount'];
+                    $output[$matcher->getRowKey()] = (string) $itemValue['data']['amount'];
                     $output[$matcher->getRowKey().'-unit'] = $itemValue['data']['unit'];
                     continue;
                 }
@@ -336,7 +344,11 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                     $output[$matcher->getRowKey()] = implode(',', $itemValue['data']);
                     continue;
                 }
-                if (isset($itemValue['data'])) {
+                if (is_bool($itemValue['data'])) {
+                    $output[$matcher->getRowKey()] = $itemValue['data'] ? '1' : '0';
+                    continue;
+                }
+                if (array_key_exists('data', $itemValue)) {
                     $output[$matcher->getRowKey()] = $itemValue['data'];
                 }
             }
