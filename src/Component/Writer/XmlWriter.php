@@ -46,7 +46,12 @@ class XmlWriter implements ItemWriterInterface
 
         $this->writer = $XMLWriter;
         // write the start
-        $this->write($start);
+        foreach ($start as $elemName => $elemAttributes) {
+            $XMLWriter->startElement($elemName);
+            foreach ($elemAttributes['@attributes'] ?? [] as $attributeName => $attributeValue) {
+                $XMLWriter->writeAttribute($attributeName, $attributeValue);
+            }
+        }
 
         // open the container
         foreach ($options as $elemName => $elemAttributes) {

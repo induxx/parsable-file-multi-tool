@@ -89,7 +89,7 @@ class ApiCurlClient implements ApiClientInterface
         return $this->rawRequest($method, $url, $body, $headers);
     }
 
-    private function rawRequest(string $method, string $url, ?string $body, array $headers = []): ApiResponse
+    protected function rawRequest(string $method, string $url, ?string $body, array $headers = []): ApiResponse
     {
         $ch = curl_init();
         $headers = $this->buildHeaders($headers);
@@ -132,7 +132,7 @@ class ApiCurlClient implements ApiClientInterface
 
         // let the authenticatedAccount inject its auth header
         if (isset($this->authenticatedAccount)) {
-            $this->authenticatedAccount->useTokenOn($h);
+            $this->authenticatedAccount->useToken($h);
         }
 
         return $h;
@@ -218,5 +218,17 @@ class ApiCurlClient implements ApiClientInterface
 //        }
 //
 //        throw new \RuntimeException('Download failed: HTTP ' . $status . ' - ' . $response, $status);
+    }
+
+    public function close(): void
+    {
+        $this->clear();
+    }
+
+    public function clear(): void
+    {
+        // Reset any internal state if needed
+        $this->endpoints = null;
+        $this->urlGenerator = new UrlGenerator('no-domain');
     }
 }

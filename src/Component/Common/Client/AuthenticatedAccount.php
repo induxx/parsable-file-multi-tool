@@ -55,19 +55,10 @@ class AuthenticatedAccount
      *
      * @param string[] &$headers  List of header lines (e.g. ["Accept: application/json"])
      */
-    public function useTokenOn(array &$headers): void
+    public function useToken(array &$headers): void
     {
         if ($this->accessToken) {
             $headers['Authorization'] = 'Bearer ' . $this->accessToken;
-        }
-    }
-
-    public function useToken(ApiClientInterface $client): void
-    {
-        if ($this->accessToken) {
-            $client->setHeaders([
-                'Authorization' => 'Bearer '. $this->accessToken,
-            ]);
         }
     }
 

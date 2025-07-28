@@ -8,7 +8,7 @@ use Misery\Component\Parser\XmlParser;
 
 class XmlWriterTest extends TestCase
 {
-    private $items = [
+    private array $items = [
         [
             '@attributes' => [
                 'id' => '1',

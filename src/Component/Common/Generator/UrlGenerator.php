@@ -45,4 +45,9 @@ class UrlGenerator implements GeneratorInterface
     {
         return $params !== [] ? '?' . \http_build_query($params) : '';
     }
+
+    public function getDomain(): string
+    {
+        return $this->domain;
+    }
 }
