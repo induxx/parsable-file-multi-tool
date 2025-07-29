@@ -2,7 +2,7 @@
 
 namespace Tests\Misery\Component\Writer;
 
-use Misery\Component\Writer\XmlWriter;
+use Misery\Component\Writer\XmlStreamWriter;
 use PHPUnit\Framework\TestCase;
 use Misery\Component\Parser\XmlParser;
 
@@ -28,8 +28,8 @@ class XmlWriterTest extends TestCase
     public function test_parse_xml_file(): void
     {
         $filename = __DIR__ . '/../../examples/STD_OUT';
-        $writer = new XmlWriter($filename, [
-            XmlWriter::START => [        
+        $writer = new XmlStreamWriter($filename, [
+            'root_container' => [
                 'PutRequest' => [
                     '@attributes' => [
                         'xmlns' => 'urn:xmlns:nedfox-retail3000api-com:putrequest',
@@ -37,7 +37,14 @@ class XmlWriterTest extends TestCase
                     ],
                 ],
             ],
-            XmlWriter::CONTAINER => 'Records',
+            'header_container' => [
+                'HEADER' => [
+                    '@attributes' => [
+                        'version' => '6.0',
+                    ],
+                ],
+            ],
+            'item_container' => 'Records',
         ]);
 
         foreach ($this->items as $item) {

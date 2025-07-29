@@ -11,19 +11,16 @@ class XmlWriter implements ItemWriterInterface
     public const HEADER = 'header';
     public const START = 'start';
 
-    private $options;
-    /** @var array */
-    private $header = [
+    private array $options;
+    private array $header = [
         'version' => '1.0',
         'encoding' => 'UTF-8',
         'indent' => 2,
         'indent_string' => ' ',
     ];
 
-    /**  @var \XMLWriter */
-    private $writer;
-    /** @var string */
-    private $filename;
+    private \XMLWriter $writer;
+    private string $filename;
 
     public function __construct(
         string $filename,

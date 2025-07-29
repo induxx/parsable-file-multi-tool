@@ -24,14 +24,14 @@ class ItemWriterFactory implements RegisteredByNameInterface
 
             if ($batchSize !== 0) {
                 return new BatchWriter(
-                    XmlWriter::class,
+                    XmlStreamWriter::class,
                     $filename,
                     $batchSize,
                         $configuration['options'] ?? []
                 );
             }
 
-            return new XmlWriter(
+            return new XmlStreamWriter(
                 $filename,
                 $configuration['options'] ?? []
             );
