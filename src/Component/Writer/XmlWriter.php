@@ -4,6 +4,9 @@ namespace Misery\Component\Writer;
 
 use Assert\Assertion;
 
+/**
+ * @deprecated use XmlStreamWriter instead
+ */
 class XmlWriter implements ItemWriterInterface
 {
     public const CONTAINER = 'container';
@@ -11,16 +14,19 @@ class XmlWriter implements ItemWriterInterface
     public const HEADER = 'header';
     public const START = 'start';
 
-    private array $options;
-    private array $header = [
+    private $options;
+    /** @var array */
+    private $header = [
         'version' => '1.0',
         'encoding' => 'UTF-8',
         'indent' => 2,
         'indent_string' => ' ',
     ];
 
-    private \XMLWriter $writer;
-    private string $filename;
+    /**  @var \XMLWriter */
+    private $writer;
+    /** @var string */
+    private $filename;
 
     public function __construct(
         string $filename,
