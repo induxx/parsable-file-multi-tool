@@ -86,13 +86,14 @@ class TransformationCommand extends Command
             // merging it with the original MAIN-step.yaml, after this point the two are merged
             $transformationFile = ArrayFunctions::array_merge_recursive($context, $transformationFile);
         }
+        $dateFormat = $transformationFile['context']['date_format'] ?? 'Hd-m-Y-H-i-s';
 
         $configuration = $configurationFactory->parseDirectivesFromConfiguration(
             array_replace_recursive($transformationFile, [
                 'context' => [
                     # emulated operation datetime stamps
-                    'operation_create_datetime' => (new \DateTime('NOW'))->format('Hd-m-Y-H-i-s'),
-                    'last_completed_operation_datetime' => (new \DateTime('NOW'))->modify('-2 hours')->format('Hd-m-Y-H-i-s'),
+                    'operation_create_datetime' => (new \DateTime('NOW'))->format($dateFormat),
+                    'last_completed_operation_datetime' => (new \DateTime('NOW'))->modify('-2 hours')->format($dateFormat),
                     'transformation_file' => $file,
                     'sources' => $source,
                     'scripts' => __DIR__.'/../../scripts',

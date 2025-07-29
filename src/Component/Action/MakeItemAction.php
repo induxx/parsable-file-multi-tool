@@ -19,28 +19,12 @@ class MakeItemAction implements OptionsInterface, ConfigurationAwareInterface
     /** @var array */
     private $options = [
         'domain' => 'akeneo',
+        'class' => 'item',
         'attribute_types:list' => [],
     ];
 
-    public function applyAsItem(ItemInterface $item): array
+    public function applyAsItem(ItemInterface $item): void
     {
-        $fields = [];
-        foreach ($item->getItemNodes() as $code => $fieldValue) {
-            if (null === $fieldValue) {
-                continue;
-            }
-            $matcher = $fieldValue->getMatcher();
-
-            if ($matcher->matches('values')) {
-                $fields['values'][$matcher->getPrimaryKey()][] = $fieldValue->getValue();
-            } elseif ($matcher->matches('labels')) {
-                $fields['labels'][$matcher->getPrimaryKey()][] = $fieldValue->getValue();
-            } else {
-                $fields[$code] = $fieldValue->getValue();
-            }
-        }
-
-        return $fields;
     }
 
     public function apply(array $item): ItemInterface
@@ -50,6 +34,10 @@ class MakeItemAction implements OptionsInterface, ConfigurationAwareInterface
             $attributeTypes = $this->configuration->getList($attributeTypes);
         }
 
-        return AkeneoItemBuilder::fromProductApiPayload($item, ['attribute_types' => $attributeTypes]);
+        if (isset($item['values'])) {
+            return AkeneoItemBuilder::fromProductApiPayload($item, ['attribute_types' => $attributeTypes]);
+        }
+
+        return AkeneoItemBuilder::fromCatalogApiPayload($item, ['class' => $this->getOption('class')]);
     }
 }

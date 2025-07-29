@@ -39,19 +39,17 @@ class RetainAction implements OptionsInterface
         return $tmp;
     }
 
-    public function applyAsItem(ItemInterface $item): ItemInterface
+    public function applyAsItem(ItemInterface $item): void
     {
         $fields = $this->getOption('keys', $this->getOption('fields', $this->getOption('list')));
         if (empty($fields)) {
-            return $item;
+            return;
         }
 
         $itemCodesToRemove = array_diff($item->getItemCodes(), $fields);
         foreach ($itemCodesToRemove as $itemCode) {
             $item->removeItem($itemCode);
         }
-
-        return $item;
     }
 
     /**

@@ -34,7 +34,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         'properties' => [],
     ];
 
-    public function __construct( )
+    public function __construct()
     {
         $encoder = new ItemEncoderFactory();
         $modifierRegistry = new Registry('modifier');

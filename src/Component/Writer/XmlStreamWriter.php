@@ -70,8 +70,19 @@ class XmlStreamWriter implements ItemWriterInterface
             $this->write($headerContainer);
         }
 
-        foreach ($itemContainerParts as $containerName) {
-            $this->writer->startElement($containerName);
+        if (count($itemContainerParts) > 1) {
+            foreach ($itemContainerParts as $containerName) {
+                // if last element we need to do something else
+                if ($containerName === end($itemContainerParts)) {
+                    // if this is the last container, we will use it as the item tag
+                    $this->itemTagName = $containerName;
+                } else {
+                    $this->writer->startElement($containerName);
+                }
+            }
+        } else {
+            // if no item container, we use the root name as the item tag
+            $this->itemTagName = $itemContainerParts[0];
         }
     }
 
