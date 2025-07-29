@@ -82,7 +82,7 @@ class GoogleApiClientServiceAccount implements ApiClientAccountInterface
                     #'secret' => '',
                     #'scope' => '',
                 ]
-            )->getResponse();
+            );
 
         if ($response->getCode() === 422) {
             throw new \RuntimeException($response->getMessage());

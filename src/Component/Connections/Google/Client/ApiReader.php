@@ -25,7 +25,6 @@ class ApiReader implements ReaderInterface
     {
         return $this->client
             ->get($this->client->getUrlGenerator()->generate($this->endpoint->getAll()))
-            ->getResponse()
             ->getContent()
         ;
     }

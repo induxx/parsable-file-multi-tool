@@ -15,6 +15,11 @@ abstract class FileWriter implements ItemWriterInterface
         if (!is_dir($dir) || !is_writable($dir)) {
             throw new Exception\IOException("Directory not writable: $dir");
         }
+        if (!file_exists($filePath)) {
+            if (!touch($filePath)) {
+                throw new Exception\IOException("Cannot create file: $filePath");
+            }
+        }
         $this->handle   = null;
         $this->tempPath = null;
     }

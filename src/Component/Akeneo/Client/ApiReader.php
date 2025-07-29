@@ -59,7 +59,7 @@ class ApiReader implements ReaderInterface
                 ->getContent();
         }
 
-        if (isset($this->context['limiters']['querystring'])) {
+        if (!empty($this->context['limiters']['querystring'])) {
             $querystring = preg_replace('/\s+/', '+', $this->context['limiters']['querystring']);
             $querystring = ValueFormatter::format($querystring, $this->context);
             $endpoint = sprintf($querystring, $endpoint);
