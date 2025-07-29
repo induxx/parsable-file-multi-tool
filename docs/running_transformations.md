@@ -108,7 +108,6 @@ Shared variables and settings across all transformation steps:
 ```yaml
 context:
   api_base_url: 'https://api.example.com'
-  batch_size: 1000
   output_format: 'jsonl'
   debug_mode: false
 ```

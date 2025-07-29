@@ -53,7 +53,6 @@ debug:
 # Simple context variables
 context:
   environment: production
-  batch_size: 1000
   output_format: csv
 ```
 

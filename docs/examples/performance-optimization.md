@@ -12,7 +12,6 @@ Performance optimization is crucial when processing large datasets or running fr
 
 ```yaml
 processing:
-  batch_size: 1000
   memory_limit: 512M
   gc_probability: 1
   gc_divisor: 100

@@ -123,3 +123,28 @@ The writer section supports various output types, ensuring compatibility with di
 
 Each type is designed to meet specific use cases, from debugging and logging to integration with external systems.
 
+### Batch Writing
+
+Batch writing is a feature that allows data to be written in smaller, manageable chunks, rather than processing all data at once. This is particularly useful for handling large datasets or optimizing performance in workflows.
+
+#### `batch_size`
+The `batch_size` parameter is used to specify the maximum number of records that can be written to a single file before a new file is created. When the batch size is reached, the writer automatically closes the current file and opens a new one, appending a batch index to the filename.
+
+**Example:**
+```yaml
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: 'large_dataset.csv'
+  output:
+    writer:
+      type: xml
+      filename: 'Product-%operation_create_datetime%.xml' # %operation_create_datetime% comes from the operation context
+      batch_size: 1000
+```
+In this example, the pipeline writes data to XML files in batches of 1000 records. The output files will be named `batch_file-1.xml`, `batch_file-2.xml`, and so on.
+
+#### Supported Types
+Batch writing is supported for the following writer types:
+- **XML**: Structured data representation.

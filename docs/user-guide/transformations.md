@@ -80,7 +80,6 @@ Process large datasets in batches:
 
 ```yaml
 processing:
-  batch_size: 1000
   memory_limit: 512M
   
 sources:

@@ -24,7 +24,6 @@ account:
 # Context parameters for dynamic values
 context:
   environment: "production"
-  batch_size: 1000
   locale: "en_US"
 
 # Main transformation pipeline
@@ -133,7 +132,6 @@ context:
   prod:
     api_url: "https://api.example.com"
     debug_mode: false
-    batch_size: 1000
 
 # Use context values with %variable% syntax
 pipeline:
@@ -499,7 +497,6 @@ context:
       
     production:
       api_url: "https://api.example.com"
-      batch_size: 1000
       debug: false
 
 # Select environment via command line or environment variable
