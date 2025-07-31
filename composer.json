@@ -22,7 +22,8 @@
         "adhocore/cli": "^0.9.0",
         "firebase/php-jwt": "^v6.8",
         "aspera/xlsx-reader": "^1.1.0",
-        "psr/log": "^3.0"
+        "psr/log": "^3.0",
+        "induxx/shared-app-libraries": "dev-main as 1.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
@@ -47,6 +48,12 @@
             "Tests\\Misery\\": "tests/"
         }
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://app-satis.induxx.be"
+        }
+    ],
     "scripts": {
         "test": [
             "php vendor/bin/phpunit",

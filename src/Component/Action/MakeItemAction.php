@@ -38,6 +38,10 @@ class MakeItemAction implements OptionsInterface, ConfigurationAwareInterface
             return AkeneoItemBuilder::fromProductApiPayload($item, ['attribute_types' => $attributeTypes]);
         }
 
-        return AkeneoItemBuilder::fromCatalogApiPayload($item, ['class' => $this->getOption('class')]);
+        if (isset($item['code'])) {
+            return AkeneoItemBuilder::fromCatalogApiPayload($item, ['class' => $this->getOption('class')]);
+        }
+
+        throw new \Exception('MakeItemAction:: Invalid item format. Expected "values" or "code" key.');
     }
 }

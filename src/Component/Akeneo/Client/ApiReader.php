@@ -142,6 +142,21 @@ class ApiReader implements ReaderInterface
         return $items;
     }
 
+    public function get(string|int $identifier)
+    {
+        $endpoint = $this->endpoint->getSingleEndPoint();
+        if (str_starts_with($endpoint, 'asset-families')) {
+            $endpoint = 'asset-families/%s/assets/%s';
+        }
+
+        return $this->client
+            ->get(
+                $this->client->getUrlGenerator()->generate($endpoint, ...explode(DIRECTORY_SEPARATOR, $identifier))
+            )
+            ->getContent()
+        ;
+    }
+
     public function read()
     {
         if (isset($this->context['multiple'])) {

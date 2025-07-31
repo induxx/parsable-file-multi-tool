@@ -4,6 +4,7 @@ namespace Misery\Component\Configurator;
 
 #use App\Component\Common\Resource\NamedResourceInterface;
 #use App\Component\Common\Resource\ResourceCollectionInterface;
+use App\Component\ChangeManager\ChangeManager;
 use Misery\Component\Action\ItemActionProcessorFactory;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Logger\ItemLoggerAwareTrait;
@@ -46,6 +47,7 @@ class Configuration
     private $sources;
     private $context = [];
     private $shellCommands;
+    public ChangeManager $changeManager;
     /** @var ApiClientInterface[] */
     private array $accounts = [];
     private bool $isMultiStep = false;

@@ -4,11 +4,11 @@ namespace Misery\Component\Action;
 
 use App\Component\ChangeManager\ChangeSetLabelMaker;
 
+use Misery\Component\Common\Functions\ArrayFunctions;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
 use Misery\Component\Configurator\ConfigurationTrait;
-use Misery\Component\Converter\Matcher;
 
 class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwareInterface
 {
@@ -18,17 +18,27 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
     public const PRODUCT_HAS_CHANGES = 'product_has_changes';
     public const DELETE_PRODUCT = 'delete_product';
     public const UPDATE_PRODUCT = 'update_product';
-    public const STORE_PRODUCT = 'store_product';
 
     public const NAME = 'store';
     public ItemActionProcessor $trueActionProcessor;
     public ItemActionProcessor $falseActionProcessor;
 
-    /** @var array */
+    private array $defaults = [
+        'change_manager' => [
+            'all_values' => true,
+            'values' => [],
+            'context' => [
+                'locales' => [],
+                'scope' => null,
+            ],
+        ],
+    ];
+
     private $options = [
         'event' => null,
-        'identifier' => null,
+        'identifier' => 'identifier',
         'entity' => 'product',
+        'store_product' => true,
         'change_manager' => [
             'all_values' => true,
             'values' => [],
@@ -55,6 +65,14 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                 $this->falseActionProcessor = $this->configuration->generateActionProcessor($falseAction);
             }
             $this->setOption('init', true);
+
+            $this->setOption(
+                'change_manager',
+                ArrayFunctions::array_merge_recursive(
+                    $this->defaults['change_manager'],
+                    $this->getOption('change_manager')
+                )
+            );
         }
     }
 
@@ -83,40 +101,37 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             } elseif (true === $changeManagerData['all_values'] && isset($item['values'])) {
                 $labels->addSubDomainProperties('values', array_keys($item['values']));
             }
-            if (isset($changeManagerData['context']['scope'])) {
+            if (!empty($changeManagerData['context']['scope'])) {
                 $labels->addScope($changeManagerData['context']['scope']);
             }
-            if (isset($changeManagerData['context']['locales'])) {
+            if (!empty($changeManagerData['context']['locales'])) {
                 $labels->addLocales($changeManagerData['context']['locales']);
             }
             $labels = $labels->build();
+            $productHasChanges = $changeManager->hasChanges($identifier, $item, $labels);
 
-            if ($changeManager->hasChanges($identifier, $item, $labels)) {
+            if ($productHasChanges) {
                 // start true_action
                 // make changes list
                 $changes = $changeManager->getChanges($identifier, $entity.'.values');
 
-                $this->configuration->updateList('product_changes_fields_added', $changes['added']);
-                $this->configuration->updateList('product_changes_fields_deleted', $changes['deleted']);
-                $this->configuration->updateList('product_changes_fields_updated', $changes['updated']);
-                $this->configuration->updateList('product_changes_fields_all', $changes['all']);
-
-                // see GroupAction, get ActionProcessor, process your action(s)
-                if ([] !== $trueAction) {
-                    $item = $this->trueActionProcessor->process($item);
-                }
-
-                // see GroupAction, get actionProcessor, process your action(s)
-                if ([] !== $falseAction) {
-                    $item = $this->falseActionProcessor->process($item);
-                }
+                $this->configuration->updateList('_product_changes_fields_added', $changes['added']);
+                $this->configuration->updateList('_product_changes_fields_deleted', $changes['deleted']);
+                $this->configuration->updateList('_product_changes_fields_updated', $changes['updated']);
+                $this->configuration->updateList('_product_changes_fields_all', $changes['all']);
 
                 $this->storeProduct($identifier);
+            };
 
-                return $item;
+            // see GroupAction, get ActionProcessor, process your action(s)
+            if ($productHasChanges && [] !== $trueAction) {
+                $item = $this->trueActionProcessor->process($item);
             }
 
-            return [];
+            // see GroupAction, get actionProcessor, process your action(s)
+            if (!$productHasChanges && [] !== $falseAction) {
+                $item = $this->falseActionProcessor->process($item);
+            }
         }
 
         return $item;
@@ -124,6 +139,8 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
 
     private function storeProduct(string $identifier): void
     {
-        $this->configuration->changeManager->persistChange($identifier);
+        if ($this->getOption('store_product')) {
+            $this->configuration->changeManager->persistChange($identifier);
+        }
     }
 }

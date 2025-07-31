@@ -3,27 +3,19 @@
 namespace Misery\Component\Configurator;
 
 use App\Component\ChangeManager\ChangeManager;
-use Misery\Component\Logger\ItemLoggerInterface;
 use Misery\Component\Logger\NullItemLogger;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
-use Misery\Component\Common\Pipeline\ActionPipe;
 use Misery\Component\Common\Registry\Registry;
 use Misery\Component\Common\Utils\ContextFormatter;
 use Misery\Component\Common\Utils\ValueFormatter;
 
 class ConfigurationFactory
 {
-    /** @var ConfigurationManager */
-    private $manager;
-    /** @var Configuration */
-    private $config;
-    private $factoryRegistry;
+    private ConfigurationManager $manager;
+    private Configuration $config;
 
-    public function __construct(Registry $factoryRegistry)
-    {
-        $this->factoryRegistry = $factoryRegistry;
-    }
+    public function __construct(private readonly Registry $factoryRegistry) {}
 
     public function getFactory(string $alias)
     {
@@ -50,11 +42,6 @@ class ConfigurationFactory
             $additionalSources,
             $extensions
         );
-    }
-
-    public function setItemLogger(ItemLoggerInterface $itemLogger)
-    {
-        $this->config->setItemLogger($itemLogger);
     }
 
     public function setChangeManager(ChangeManager $changeManager): void
