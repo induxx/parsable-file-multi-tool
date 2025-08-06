@@ -41,6 +41,7 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
         'store_product' => true,
         'change_manager' => [
             'all_values' => true,
+            'strict_value_matching' => true,
             'values' => [],
             'context' => [
                 'locales' => [],
@@ -88,6 +89,9 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             return $item;
         }
         $changeManager = $this->configuration->changeManager;
+        if ($this->getOption('strict_value_matching') === false) {
+            $changeManager->disableStrictMatching();
+        }
 
         if ($event === self::PRODUCT_HAS_CHANGES) {
             $trueAction = $this->getOption('true_action');
