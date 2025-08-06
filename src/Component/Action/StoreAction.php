@@ -115,10 +115,10 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                 // make changes list
                 $changes = $changeManager->getChanges($identifier, $entity.'.values');
 
-                $this->configuration->updateList('_product_changes_fields_added', $changes['added']);
-                $this->configuration->updateList('_product_changes_fields_deleted', $changes['deleted']);
-                $this->configuration->updateList('_product_changes_fields_updated', $changes['updated']);
-                $this->configuration->updateList('_product_changes_fields_all', $changes['all']);
+                $this->configuration->updateList('product_changes_fields_added', $changes['added']);
+                $this->configuration->updateList('product_changes_fields_deleted', $changes['deleted']);
+                $this->configuration->updateList('product_changes_fields_updated', $changes['updated']);
+                $this->configuration->updateList('product_changes_fields_all', $changes['all']);
 
                 $this->storeProduct($identifier);
             };
