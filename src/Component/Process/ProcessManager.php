@@ -70,6 +70,7 @@ class ProcessManager
         $executionTime = round($stopTimeStamp - $this->startTimeStamp, 1);
         $executionTime = "Execution Time: {$executionTime}s";
 
+        $invalidItems = 'Invalid Items: 0';
         $path = $this->configuration->getContext('workpath').'/invalid_items.csv';
         if (file_exists($path)) {
             $this->invalidItems = $this->getLines($path) - $this->invalidItems;
