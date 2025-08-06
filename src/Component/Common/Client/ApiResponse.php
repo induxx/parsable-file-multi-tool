@@ -9,7 +9,7 @@ class ApiResponse
     private $content;
     private array $headers;
 
-    public function __construct(int $code = null, string $message = null, $content, array $headers)
+    public function __construct(int $code = null, string $message = null, $content, array $headers = [])
     {
         $this->code = $code;
         $this->message = $message;

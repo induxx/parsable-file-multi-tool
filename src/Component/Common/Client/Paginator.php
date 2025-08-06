@@ -8,12 +8,12 @@ use Misery\Component\Reader\ItemCollection;
 //TODO rename to akeneo Paginator
 class Paginator
 {
-    private $client;
-    private $first;
-    private $previous;
-    private $next;
-    private $count;
-    private $items;
+    private ApiClientInterface $client;
+    private ItemCollection $items;
+    private ?string $first;
+    private ?string $previous;
+    private ?string $next;
+    private ?int $count;
 
     public function __construct(
         ApiClientInterface $client,
@@ -49,10 +49,10 @@ class Paginator
     protected function getPage(string $uri): self
     {
         try {
-            $data = $this->client->get($uri)->getResponse()->getContent();
+            $data = $this->client->get($uri)->getContent();
         } catch (UnauthorizedException $e) {
             $this->client->refreshToken();
-            $data = $this->client->get($uri)->getResponse()->getContent();
+            $data = $this->client->get($uri)->getContent();
         }
 
         return self::create($this->client, $data);
@@ -79,7 +79,7 @@ class Paginator
         return $this->hasNextPage() ? $this->getPage($this->next) : null;
     }
 
-    public function getClient(): ApiClient
+    public function getClient(): ApiClientInterface
     {
         return $this->client;
     }
