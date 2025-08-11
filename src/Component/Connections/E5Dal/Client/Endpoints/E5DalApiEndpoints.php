@@ -13,6 +13,9 @@ class E5DalApiEndpoints implements ApiEndPointsInterface
         E5DalApiSizeChartEndpoint::NAME => E5DalApiSizeChartEndpoint::class,
         E5DalApiSizeChartConversionEndpoint::NAME => E5DalApiSizeChartConversionEndpoint::class,
         E5DalApiProductsMediaEndpoint::NAME => E5DalApiProductsMediaEndpoint::class,
+
+        E5DalApiDeltaArticleEndpoint::NAME => E5DalApiDeltaArticleEndpoint::class,
+        E5DalApiDeltaProductsMediaEndpoint::NAME => E5DalApiDeltaProductsMediaEndpoint::class,
     ];
 
     public function getEndPoint(string $endpointName): ApiEndpointInterface

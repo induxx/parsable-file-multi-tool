@@ -49,8 +49,9 @@ class ApiClientFactory implements RegisteredByNameInterface
             try {
                 // no need to authorize token is fixed
                 $client = new ApiClient($account['domain']);
-
-                $account = new E5DalAPIAccount($account['token']);
+                $cachePath = $_ENV['CACHE_PATH'] ?? sys_get_temp_dir();
+                $memoryContext = new MemoryContext($cachePath.'/e5_connection_memory_context.json');
+                $account = new E5DalAPIAccount($account['token'], $memoryContext);
                 $client->authorize($account);
 
                 return $client;

@@ -158,6 +158,7 @@ $actionRegistry
     ->register(Misery\Component\Action\FrameAction::NAME, new Misery\Component\Action\FrameAction())
     ->register(Misery\Component\Action\GroupAction::NAME, new Misery\Component\Action\GroupAction())
     ->register(\Misery\Component\Action\StoreAction::NAME, new Misery\Component\Action\StoreAction())
+    ->register(Misery\Component\Action\StartFromFieldAction::NAME, new Misery\Component\Action\StartFromFieldAction())
 ;
 
 #$statementRegistry = new Misery\Component\Common\Registry\Registry('statement');
