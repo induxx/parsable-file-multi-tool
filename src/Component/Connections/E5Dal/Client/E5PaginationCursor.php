@@ -33,6 +33,10 @@ class E5PaginationCursor extends PaginationCursor
             return;
         }
 
+        if ($this->isDeltaEndpoint) {
+            $this->memoryContext->set($this->offsetKey, $this->link);
+        }
+
         $response = $this->getClient()
             ->get($this->link)
             ->getResponse();
@@ -46,9 +50,6 @@ class E5PaginationCursor extends PaginationCursor
         if ($linkHeader && preg_match($pattern, $linkHeader, $matches)) {
             $url = $matches[1];
             $this->link = $url;
-            if ($url && $this->isDeltaEndpoint) {
-                $this->memoryContext->set($this->offsetKey, $url);
-            }
         }
     }
 }

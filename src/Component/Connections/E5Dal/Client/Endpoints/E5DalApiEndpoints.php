@@ -14,7 +14,10 @@ class E5DalApiEndpoints implements ApiEndPointsInterface
         E5DalApiSizeChartConversionEndpoint::NAME => E5DalApiSizeChartConversionEndpoint::class,
         E5DalApiProductsMediaEndpoint::NAME => E5DalApiProductsMediaEndpoint::class,
 
+        E5DalApiDeltaModelEndpoint::NAME => E5DalApiDeltaModelEndpoint::class,
         E5DalApiDeltaArticleEndpoint::NAME => E5DalApiDeltaArticleEndpoint::class,
+        E5DalApiDeltaSizeChartEndpoint::NAME => E5DalApiDeltaSizeChartEndpoint::class,
+        E5DalApiDeltaSizeChartConversionEndpoint::NAME => E5DalApiDeltaSizeChartConversionEndpoint::class,
         E5DalApiDeltaProductsMediaEndpoint::NAME => E5DalApiDeltaProductsMediaEndpoint::class,
     ];
 
