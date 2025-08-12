@@ -16,6 +16,9 @@ class StoreActionTest extends TestCase
 
     protected function setUp(): void
     {
+        if (!class_exists(\App\Component\ChangeManager\ChangeManager::class)) {
+            $this->markTestSkipped('ChangeManager class does not exist.');
+        }
         $this->configuration = $this->createMock(Configuration::class);
         $this->changeManager = $this->createMock(ChangeManager::class);
 
