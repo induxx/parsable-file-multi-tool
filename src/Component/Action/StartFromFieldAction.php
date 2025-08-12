@@ -23,10 +23,8 @@ class StartFromFieldAction implements OptionsInterface
             return $item;
         }
 
-        if (is_string($fromField)) {
-            if (isset($item[$fromField])) {
-                $item = $item[$fromField];
-            }
+        if (is_string($fromField) && isset($item[$fromField]) && is_array($item[$fromField])) {
+            $item = $item[$fromField];
         }
 
         return $item;
