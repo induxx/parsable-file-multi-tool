@@ -49,7 +49,6 @@ class XlsxParser implements CursorInterface
         }
 
         $this->next();
-        ;
         $firstRow = $this->cursor->current();
         if (count($this->headers) < count($firstRow)) {
             throw new \RuntimeException("The number of headers does not match the number of values in the first row.");
