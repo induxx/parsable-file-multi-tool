@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Parser;
 
+use Assert\Assertion;
 use Misery\Component\Common\Cursor\CursorInterface;
 
 class XlsxParser implements CursorInterface
@@ -17,6 +18,8 @@ class XlsxParser implements CursorInterface
 
     public function __construct(string $filename)
     {
+        Assertion::file($filename);
+
         $this->filename = $filename;
         $this->init();
     }
@@ -31,10 +34,26 @@ class XlsxParser implements CursorInterface
         // https://github.com/AsperaGmbH/xlsx-reader
         $reader = new \Aspera\Spreadsheet\XLSX\Reader();
         $reader->open($this->filename);
+
+        $sheetCount = count($reader->getSheets());
+        if ($sheetCount !== 1) {
+            throw new \RuntimeException("The file must contain exactly one sheet. Found: $sheetCount");
+        }
+
         $this->cursor = $reader;
 
-        $this->headers = $this->cursor->current();
+        try {
+            $this->headers = $this->cursor->current();
+        } catch (\LogicException $e) {
+            throw new \RuntimeException("Failed to read headers from the file: " . basename($this->filename));
+        }
+
         $this->next();
+        ;
+        $firstRow = $this->cursor->current();
+        if (count($this->headers) < count($firstRow)) {
+            throw new \RuntimeException("The number of headers does not match the number of values in the first row.");
+        }
     }
 
     public function current(): mixed
