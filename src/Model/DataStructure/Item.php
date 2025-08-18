@@ -118,7 +118,7 @@ class Item implements ItemInterface
     /**
      * Gets all attributes.
      *
-     * @return Item[] The array of all attributes.
+     * @return ItemNode[] The array of all attributes.
      */
     public function getItemNodes(): array
     {
@@ -128,6 +128,15 @@ class Item implements ItemInterface
     public function getItemCodes(): array
     {
         return array_keys($this->itemNodes);
+    }
+
+    public function flatten(): array
+    {
+        $flattened = [];
+        foreach ($this->itemNodes as $code => $item) {
+            $flattened[$code] = $item->getDataValue();
+        }
+        return $flattened;
     }
 
     public function getItemsByScope(ScopeInterface $scope): \Generator
@@ -165,5 +174,29 @@ class Item implements ItemInterface
                 yield $code => $item;
             }
         }
+    }
+
+    public function toArray(): array
+    {
+        $fields = [];
+        foreach ($this->getItemNodes() as $code => $fieldValue) {
+            if (null === $fieldValue) {
+                continue;
+            }
+            $matcher = $fieldValue->getMatcher();
+
+            if ($matcher->matches('values')) {
+                $dataValue = $fieldValue->getValue();
+                unset($dataValue['matcher']);
+                unset($dataValue['type']);
+                $fields['values'][$matcher->getPrimaryKey()][] = $dataValue;
+            } elseif ($matcher->matches('labels')) {
+                $fields['labels'][$matcher->getLocale()] = $fieldValue->getDataValue();
+            } else {
+                $fields[$code] = $fieldValue->getValue();
+            }
+        }
+
+        return $fields;
     }
 }

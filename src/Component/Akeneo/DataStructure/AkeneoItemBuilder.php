@@ -55,16 +55,13 @@ class AkeneoItemBuilder
             if ($property === 'values') {
                 continue;
             }
-            if (is_array($propertyValue)) {
-                $propertyValue['matcher'] = Matcher::create($property);
-            }
             $itemObj->addItem($property, $propertyValue);
         }
 
         // convert every value into an ItemNode
         foreach ($productData['values'] as $attributeCode => $productValues) {
             foreach ($productValues as $productValue) {
-                $matcher = Matcher::create('values|'.$attributeCode, $productValue['locale'], $productValue['scope']);
+                $matcher = Matcher::create('values|'.$attributeCode, $productValue['locale'] ?? null, $productValue['scope'] ?? $productValue['channel'] ?? null); # @todo channel is not part of the product API
                 // don't overwrite a type when it has been given
                 $productValue['type'] = $productValue['type'] ?? $attributeData[$matcher->getPrimaryKey()] ?? null;
                 $productValue['matcher'] = $matcher;
