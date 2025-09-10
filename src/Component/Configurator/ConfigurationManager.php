@@ -138,7 +138,7 @@ class ConfigurationManager
      * context grows, but needs to be reset to previous state per step
      */
     public function addTransformationSteps(array $transformationSteps, array $masterConfiguration, array $context): void
-    {;
+    {
         /** @var ProjectDirectories $projectDirectories */
         $projectDirectories = $this->factory->getFactory('project_directories');
         $dirName = pathinfo($this->config->getContext('transformation_file'))['dirname'] ?? null;
@@ -198,20 +198,16 @@ class ConfigurationManager
         }
     }
 
-    // Helper function to compute Cartesian product of arrays
+    // Helper function to compute Cartesian of arrays
     private function arrayCartesianItem($arrays): array
     {
         $result = [[]];
-        foreach ($arrays as $key => $values) {
-            $append = [];
-            foreach ($result as $resultData) {
-                foreach ((array) $values as $item) {
-                    $resultData[$key] = $item;
-                    $append[] = $resultData;
-                }
+        foreach (array_keys($arrays) as $key) {
+            foreach ($arrays[$key] as $i => $item) {
+                $result[$i][$key] = $item;
             }
-            $result = $append;
         }
+
         return $result;
     }
 
