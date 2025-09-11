@@ -29,6 +29,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
         'reference_code' => true, # force the option code to be a reference-able code
         'reference_code_pattern' => 'old_pattern', # the pattern to use for the reference code
         'lower_cased' => true, # force the option code to be lower cased
+        'mappings' => [],
     ];
 
     public function convert(array $item): array
@@ -41,6 +42,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
         $lowerCased = $this->getOption('lower_cased');
         $separator = $this->getOption('separator');
         $hasStringSeparator = $this->getOption('has_string_separator');
+        $mappings = $this->getOption('mappings');
 
         // Reduce the item to only the options
         $item = ColumnReducer::reduceItem($item, ...$optionCodes);
@@ -70,6 +72,9 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
                         continue;
                     }
                     $optionCode = $this->renderCode($option, $referenceCode, $lowerCased);
+                    if (isset($mappings[$key][$optionCode])) {
+                        $optionCode = $mappings[$key][$optionCode];
+                    }
                     $id = $optionCode . '-'. $key;
                     $result[$id][$parentIdentifierField] = $key;
                     $result[$id][$identifierField] = $optionCode;
@@ -82,6 +87,9 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
                     continue;
                 }
                 $optionCode = $this->renderCode($value, $referenceCode, $lowerCased);
+                if (isset($mappings[$key][$optionCode])) {
+                    $optionCode = $mappings[$key][$optionCode];
+                }
                 $id = $optionCode . '-'. $key;
                 $result[$id][$parentIdentifierField] = $key;
                 $result[$id][$identifierField] = $optionCode;

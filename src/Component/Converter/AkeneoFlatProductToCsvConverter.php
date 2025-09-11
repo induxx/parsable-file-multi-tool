@@ -6,19 +6,20 @@ use Misery\Component\Akeneo\Header\AkeneoHeaderTypes;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
+use Misery\Component\Configurator\ConfigurationAwareInterface;
+use Misery\Component\Configurator\ConfigurationTrait;
 use Misery\Component\Modifier\ReferenceCodeModifier;
-use Misery\Component\Reader\ReaderAwareInterface;
-use Misery\Component\Reader\ReaderAwareTrait;
+use Misery\Component\Source\Source;
 
 /**
  * This Converter converts flat product to std data
  * We focus on correcting with minimal issues
  * The better the input you give the better the output
  */
-class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAwareInterface, RegisteredByNameInterface, OptionsInterface
+class AkeneoFlatProductToCsvConverter implements ConverterInterface, ConfigurationAwareInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
-    use ReaderAwareTrait;
+    use ConfigurationTrait;
 
     private $options = [
         'attributes:list' => [],
@@ -26,7 +27,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         'localizable_attribute_codes:list' => [],
         'scopable_attribute_codes:list' => [],
         'default_metrics:list' => [],
-        'attribute_option_label_codes:list' => [],
+        'attribute_options:source' => null, # SourceInterface
         'set_default_metrics' => false,
         'filter_option_codes' => true,
         'reference_code' => false, # LEGACY FALSE forces the option code to be a reference-able code
@@ -50,6 +51,12 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
 
     public function convert(array $item): array
     {
+        if (is_string($this->getOption('attribute_options:source'))) {
+            $this->setOption(
+                'attribute_options:source',
+                $this->configuration->getSources()->get($this->getOption('attribute_options:source'))
+            );
+        }
         $tmp = [];
         $container = $this->getOption('container');
         // first we need to convert the values
@@ -158,7 +165,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
             case AkeneoHeaderTypes::SELECT:
                 // TODO implement attributes reader
                 if (is_string($value) && $this->getOption('filter_option_codes')) {
-                    $value = $this->filterOptionCode($value, $referenceCode, $lowerCased);
+                    $value = $this->filterOptionCode($value, $attributeCode, $referenceCode, $lowerCased);
                 }
                 break;
             case AkeneoHeaderTypes::MULTISELECT:
@@ -177,7 +184,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
                 }
 
                 if ($this->getOption('filter_option_codes')) {
-                    $value = $this->filterOptionCodes($value, $referenceCode, $lowerCased);
+                    $value = $this->filterOptionCodes($value, $attributeCode, $referenceCode, $lowerCased);
                 }
                 break;
             case AkeneoHeaderTypes::PRICE:
@@ -257,8 +264,16 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         }
     }
 
-    private function filterOptionCode(string $value, bool $referenceCode = true, bool $lowerCase = true): string
+    private function filterOptionCode(string $value, string $attributeCode, bool $referenceCode = true, bool $lowerCase = true): string
     {
+        $value = trim($value);
+        if (is_object($this->getOption('attribute_options:source'))) {
+            $nvalue = $this->findAttributeOptionCode($attributeCode, $value);
+            if (null !== $nvalue) {
+                return $nvalue;
+            }
+        }
+
         if ($referenceCode) {
             $mod = new ReferenceCodeModifier();
             $mod->setOption('use_pattern', $this->getOption('reference_code_pattern'));
@@ -274,10 +289,10 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
         return $value;
     }
 
-    private function filterOptionCodes(array $optionValues, bool $referenceCode = true, bool $lowerCase = true): array
+    private function filterOptionCodes(array $optionValues, string $attributeCode, bool $referenceCode = true, bool $lowerCase = true): array
     {
-        return array_map(function ($optionValue) use ($referenceCode, $lowerCase) {
-            return $this->filterOptionCode($optionValue['code'] ?? $optionValue, $referenceCode, $lowerCase);
+        return array_map(function ($optionValue) use ($referenceCode, $lowerCase, $attributeCode) {
+            return $this->filterOptionCode($optionValue['code'] ?? $optionValue, $attributeCode, $referenceCode, $lowerCase);
         }, $optionValues);
     }
 
@@ -287,10 +302,12 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, ReaderAware
      */
     public function findAttributeOptionCode(string $attributeCode, string $optionLabel)
     {
-        return $this->getReader()->find([
+        /** @var Source $source */
+        $source = $this->getOption('attribute_options:source');
+        return $source->getCachedReader()->find([
             'attribute' => $attributeCode,
-            $this->getOption('option_label') => $optionLabel]
-        )->getIterator()->current()['code'];
+            'original_value' => $optionLabel]
+        )->getIterator()->current()['code'] ?? null;
     }
 
     /**
