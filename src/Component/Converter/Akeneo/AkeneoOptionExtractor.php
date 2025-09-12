@@ -79,6 +79,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
                     $result[$id][$parentIdentifierField] = $key;
                     $result[$id][$identifierField] = $optionCode;
                     $result[$id][$referenceField] = $id;
+                    $result[$id]['original_reference'] = $option . '-' . $key;
                     $result[$id]['original_value'] = $option;
                 }
             } else {
@@ -94,6 +95,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
                 $result[$id][$parentIdentifierField] = $key;
                 $result[$id][$identifierField] = $optionCode;
                 $result[$id][$referenceField] = $id;
+                $result[$id]['original_reference'] = $value . '-' . $key;
                 $result[$id]['original_value'] = $value;
             }
         }
