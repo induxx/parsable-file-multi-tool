@@ -1,7 +1,7 @@
 context:
   filter: []
   identifier_filter_list: []
-  query: ''
+  query: '%s?&limit=100'
 
 pipeline:
   input:
