@@ -1,0 +1,39 @@
+converter:
+  - name: flatten/xml
+    options:
+      separator: '|'
+      extract:
+        SUPPLIER_PID: ''
+        #PRODUCT_DETAILS: ''
+        PRODUCT_DETAILS:
+          k: '@attributes.lang'
+          v: '@value'
+        PRODUCT_FEATURES|FEATURE: {k: 'FNAME', v: 'FVALUE' }
+        PRODUCT_FEATURES|REFERENCE_FEATURE_GROUP_ID: ''
+        USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME: {k: 'UDX.EDXF.MIME_CODE', v: 'UDX.EDXF.MIME_FILENAME' }
+        PRODUCT_PRICE_DETAILS: ''
+        PRODUCT_LOGISTIC_DETAILS: ''
+
+pipeline:
+  input:
+    reader:
+        type: xml
+        filename: '%input_file%'
+        container: T_NEW_CATALOG/PRODUCT
+        #xpath: '/root/item'
+        #namespace: 'http://www.w3.org/2005/Atom'
+        converter: flatten/xml
+
+  encoder:
+    parse:
+      cleanse:
+        remove_start:
+          - '-'
+      nullify: true
+      filter_empty: true
+
+  output:
+    writer:
+      type: jsonl
+      filename: 'read/bmcat_products_converted.jsonl'
+      skip_if_exists: true

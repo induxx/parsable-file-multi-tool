@@ -42,6 +42,7 @@ class BufferedCsvWriter implements ItemWriterInterface
 
     public function close(): void
     {
+        $this->jsonlWriter->close();
         $reader = JsonParser::create($this->tmpFile);
 
         $this->csvWriter->setHeader(array_keys($this->headers));
