@@ -2,7 +2,12 @@
 
 namespace Misery\Component\Common\Client;
 
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use Misery\Component\Common\Generator\UrlGenerator;
+use Psr\Http\Message\ResponseInterface;
 use Misery\Component\Common\Client\Exception\PageNotFoundException;
 use Misery\Component\Common\Client\Exception\UnauthorizedException;
 
@@ -11,10 +16,58 @@ class ApiCurlClient implements ApiClientInterface
     private UrlGenerator $urlGenerator;
     private ?ApiEndPointsInterface $endpoints = null;
     private AuthenticatedAccount $authenticatedAccount;
+    private GuzzleClient $http;
 
     public function __construct(string $domain)
     {
         $this->urlGenerator = new UrlGenerator($domain);
+
+        // Build a handler stack with a conservative retry for HTTP/2/TLS flakiness.
+        $stack = HandlerStack::create();
+        $stack->push(Middleware::retry(
+            function ($retries, $request, $response = null, $exception = null) {
+                if ($retries >= 2) {
+                    return false;
+                }
+                // Retry on network-level hiccups or specific HTTP/2/TLS messages
+                if ($exception instanceof TransferException) {
+                    $msg = $exception->getMessage();
+                    if (stripos($msg, 'PROTOCOL_ERROR') !== false) return true;
+                    if (stripos($msg, 'unexpected eof') !== false) return true;
+                    if (stripos($msg, 'SSL_read') !== false) return true;
+                    if (stripos($msg, 'stream was not closed cleanly') !== false) return true;
+                }
+                // Retry HTTP/2 GOAWAY-ish or gateway-y 502/503/504
+                if ($response instanceof ResponseInterface) {
+                    $code = $response->getStatusCode();
+                    if (in_array($code, [502, 503, 504], true)) return true;
+                }
+                return false;
+            },
+            function ($retries) {
+                // simple exponential backoff: 100ms, 200ms
+                return 100 * (2 ** ($retries - 1));
+            }
+        ));
+
+        $this->http = new GuzzleClient([
+            'handler'        => $stack,
+            'http_errors'    => false,   // we raise our own exceptions consistently
+            'allow_redirects'=> ['max' => 10],
+            'decode_content' => true,    // gzip/deflate/br
+            'version'        => 2.0,     // prefer HTTP/2; Guzzle/cURL will fall back when needed
+            'verify'         => true,    // verify TLS certs
+            // Force TLS 1.2 if you need to (helps in some OpenSSL 3 + server combos)
+            'curl'           => [
+                \CURLOPT_SSL_VERIFYPEER => true,
+                \CURLOPT_SSL_VERIFYHOST => 2,
+                \CURLOPT_SSLVERSION     => \CURL_SSLVERSION_TLSv1_2, // keep if you must force TLS 1.2
+                // Robustness knobs (optional):
+                \CURLOPT_HTTP_VERSION   => \CURL_HTTP_VERSION_2TLS,
+            ],
+            'timeout'        => 30,
+            'connect_timeout'=> 10,
+        ]);
     }
 
     public function authorize(ApiClientAccountInterface $account): void
@@ -80,7 +133,7 @@ class ApiCurlClient implements ApiClientInterface
     {
         $body = null;
         if ($data !== null) {
-            if ($headers['Content-Type'] === 'application/json') {
+            if (($headers['Content-Type'] ?? '') === 'application/json') {
                 $body = json_encode($data);
             } else {
                 $body = http_build_query($data);
@@ -91,39 +144,22 @@ class ApiCurlClient implements ApiClientInterface
 
     protected function rawRequest(string $method, string $url, ?string $body, array $headers = []): ApiResponse
     {
-        $ch = curl_init();
         $headers = $this->buildHeaders($headers);
-        curl_setopt_array($ch, [
-            CURLOPT_URL             => $url,
-            CURLOPT_CUSTOMREQUEST   => $method,
-            CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_FOLLOWLOCATION  => true,
-            CURLOPT_MAXREDIRS       => 10,
-            CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_2TLS, // HTTP/2 over TLS with HTTP/1.1 fallback
-            CURLOPT_SSL_VERIFYPEER  => true,
-            CURLOPT_SSL_VERIFYHOST  => 2,
-            CURLOPT_ENCODING        => '',    // auto-decode gzip/deflate
-        ]);
 
-        \curl_setopt($ch, CURLOPT_HTTPHEADER, array_map(function ($key, $value) {
-            return $key . ': ' . $value;
-        }, array_keys($headers), $headers));
-
-        if (null !== $body) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        try {
+            $response = $this->http->request($method, $url, [
+                'headers' => $headers,
+                'body'    => $body,
+            ]);
+        } catch (TransferException $e) {
+            // mimic previous behavior: \RuntimeException with message and code when cURL/Guzzle fails
+            throw new \RuntimeException($e->getMessage(), (int)$e->getCode(), $e);
         }
 
-        $response = curl_exec($ch);
-        $errno    = curl_errno($ch);
-        $error    = curl_error($ch);
-        $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $status   = $response->getStatusCode();
+        $raw      = (string)$response->getBody();
 
-        if ($errno) {
-            throw new \RuntimeException($error, $errno);
-        }
-
-        return $this->parseResponse($response, $status);
+        return $this->parseResponse($raw, $status);
     }
 
     private function buildHeaders(array $h = []): array
@@ -195,29 +231,6 @@ class ApiCurlClient implements ApiClientInterface
     public function download(string $endpoint): ApiResponse
     {
         return $this->request('GET', $endpoint);
-
-//        $this->setAuthenticationHeaders();
-//        $this->setHeaders(['Content-Type' => 'application/json']);
-//
-//        \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
-//        \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
-//        \curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
-//        \curl_setopt($this->handle, CURLOPT_HEADER, false);
-//
-//        $this->generateHeaders();
-//
-//        $response = \curl_exec($this->handle);
-//        $status = \curl_getinfo($this->handle, CURLINFO_HTTP_CODE);
-//
-//        if ($response === false) {
-//            throw new \RuntimeException(\curl_error($this->handle), \curl_errno($this->handle));
-//        }
-//
-//        if ($status >= 200 && $status < 300) {
-//            return $response !== '' ? $response : null;
-//        }
-//
-//        throw new \RuntimeException('Download failed: HTTP ' . $status . ' - ' . $response, $status);
     }
 
     public function close(): void
