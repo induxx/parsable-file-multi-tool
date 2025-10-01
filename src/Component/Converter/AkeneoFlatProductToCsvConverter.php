@@ -190,7 +190,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
             case AkeneoHeaderTypes::PRICE:
                 $amount = null;
                 $unit = $this->getOption('default_currency');
-                if (is_numeric($value)) {
+                if ($this->isNumberic($value)) {
                     $amount = $this->numberize($value);
                 }
                 if (is_array($value)) {
@@ -210,7 +210,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
             case AkeneoHeaderTypes::METRIC:
                 $amount = null;
                 $unit = $this->getOption('default_metrics:list')[$attributeCode] ?? null;
-                if (is_numeric($value)) {
+                if ($this->isNumberic($value)) {
                     $amount = $this->numberize($value);
                 }
                 if (isset($item[$attributeCode.'-unit'])) {
@@ -248,6 +248,44 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
             'scope' => $scopable ? $context['scope'] ?? $this->getOption('default_scope') : null,
             'data' => $value,
         ];
+    }
+
+    /**
+     * Basic support for comma and dot decimals
+     * 1,23 or 1.23 are numeric
+     * - US format: 1,234.56
+     * - EU format: 1.234,56
+     */
+    private function isNumberic($value): bool
+    {
+        if (!is_scalar($value) || is_bool($value) || $value === null) {
+            return false;
+        }
+
+        $value = trim((string) $value);
+        if ($value === '') {
+            return false;
+        }
+        $value = str_replace(' ', '', $value);
+
+        // US format: 1,234.56
+        if (preg_match('/^\d{1,3}(,\d{3})*\.\d+$/', $value)) {
+            return is_numeric(str_replace(',', '', $value));
+        }
+
+        // EU format: 1.234,56
+        if (preg_match('/^\d{1,3}(\.\d{3})*,\d+$/', $value)) {
+            $value = str_replace('.', '', $value);
+            $value = str_replace(',', '.', $value);
+            return is_numeric($value);
+        }
+
+        // Plain number, or simple decimal with dot or comma
+        if (preg_match('/^-?\d+([.,]\d+)?$/', $value)) {
+            return is_numeric(str_replace(',', '.', $value));
+        }
+
+        return false;
     }
 
     private function numberize($value)

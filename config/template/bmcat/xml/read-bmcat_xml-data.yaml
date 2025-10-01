@@ -4,7 +4,6 @@ converter:
       separator: '|'
       extract:
         SUPPLIER_PID: ''
-        #PRODUCT_DETAILS: ''
         PRODUCT_DETAILS:
           k: '@attributes.lang'
           v: '@value'

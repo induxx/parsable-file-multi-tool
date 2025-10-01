@@ -11,6 +11,7 @@ class XmlStreamWriter implements ItemWriterInterface
     private string $rootName;
     private ?string $containerName = null;
     private ?string $itemTagName = null;
+    private bool $splitAttributeNodes = false;
 
     /**
      * XmlStreamWriter handles phased XML output: header, container, items, and closing.
@@ -44,6 +45,8 @@ class XmlStreamWriter implements ItemWriterInterface
             unset($itemContainerParts[0]);
             $itemContainerParts = array_filter($itemContainerParts);
         }
+
+        $this->splitAttributeNodes = $options['split_attribute_nodes'] ?? false;
 
         $version      = $options['version'] ?? '1.0';
         $encoding     = $options['encoding'] ?? 'UTF-8';
@@ -97,7 +100,7 @@ class XmlStreamWriter implements ItemWriterInterface
             $this->writer->startElement($this->itemTagName);
         }
 
-        $this->writeNode($data);
+        $this->writeNode($data, $this->itemTagName);
 
         if ($this->itemTagName) {
             $this->writer->endElement();
@@ -111,8 +114,24 @@ class XmlStreamWriter implements ItemWriterInterface
      * - `@value` or `@data` for text nodes
      * - Nested arrays for child elements
      */
-    private function writeNode(array $data): void
+    private function writeNode(array $data, ?string $currentKey = null): void
     {
+        // Handle split attribute nodes for associative arrays
+        if (
+            $this->splitAttributeNodes &&
+            isset($data['@attributes']) && is_array($data['@attributes']) &&
+            count($data['@attributes']) > 1 &&
+            isset($data['@value']) && $currentKey
+        ) {
+            foreach ($data['@attributes'] as $attrName => $attrValue) {
+                $this->writer->startElement($currentKey);
+                $this->writer->writeAttribute($attrName, $attrValue);
+                $this->writer->text($data['@value']);
+                $this->writer->endElement();
+            }
+            return;
+        }
+
         // Handle attributes
         if (isset($data['@attributes']) && is_array($data['@attributes'])) {
             foreach ($data['@attributes'] as $attrName => $attrValue) {
@@ -137,16 +156,25 @@ class XmlStreamWriter implements ItemWriterInterface
 
         // Recursive children
         foreach ($data as $key => $value) {
-            if (is_numeric($key) && is_array($value)) {
-                // Numeric keys: inline collection
-                $this->writeNode($value);
-
+            if (is_array($value) && array_keys($value) === range(0, count($value) - 1)) {
+                // Numerically indexed array: write multiple elements with the same key
+                foreach ($value as $item) {
+                    $this->writer->startElement($key);
+                    $this->writeNode($item, $key);
+                    $this->writer->endElement();
+                }
+            } elseif (is_numeric($key) && is_array($value)) {
+                // Numeric keys: inline collection (legacy support)
+                $this->writeNode($value, $currentKey);
             } elseif (is_array($value)) {
                 // Named child
-                $this->writer->startElement($key);
-                $this->writeNode($value);
+                try {
+                    $this->writer->startElement($key);
+                } catch (\Error) {
+                    dd($key, $value);
+                }
+                $this->writeNode($value, $key);
                 $this->writer->endElement();
-
             } else {
                 // Scalar element
                 $this->writer->writeElement($key, (string)$value);

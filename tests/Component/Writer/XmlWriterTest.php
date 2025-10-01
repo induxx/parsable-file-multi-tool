@@ -44,21 +44,19 @@ class XmlWriterTest extends TestCase
                     ],
                 ],
             ],
-            'item_container' => 'Records',
+            'item_container' => 'Records|Record',
         ]);
 
         foreach ($this->items as $item) {
-            $writer->write(['Record' => $item]);
+            $writer->write($item);
         }
 
         $writer->close();
 
         $file = new \SplFileObject($filename);
-
         $this->assertTrue($file->isFile());
 
         $parser = XmlParser::create($filename, 'Record');
-
         $result = [];
         while ($item = $parser->current()) {
             $result[] = $item;
@@ -68,5 +66,95 @@ class XmlWriterTest extends TestCase
         $this->assertSame($this->items, $result);
 
         $writer->clear();
+    }
+
+    public function test_write_repeated_elements(): void
+    {
+        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $input = [
+            'PRODUCT_FEATURES' => [
+                'FEATURE' => [
+                    ['FNAME'=>'EF000007','FVALUE'=>'EV000202','FUNIT'=>'UN'],
+                    ['FNAME'=>'EF002169','FVALUE'=>'EV000072','FUNIT'=>'UN'],
+                ],
+            ]
+        ];
+
+        $writer = new \Misery\Component\Writer\XmlStreamWriter($filename, [
+            'root_container' => [
+                'PRODUCT' => [],
+            ],
+            'item_container' => 'PRODUCT_FEATURES',
+        ]);
+        $writer->write($input);
+        $writer->close();
+
+        $parser = \Misery\Component\Parser\XmlParser::create($filename, 'FEATURE');
+        $result = [];
+        while ($item = $parser->current()) {
+            $result[] = $item;
+            $parser->next();
+        }
+        $expected = [
+            ['FNAME'=>'EF000007','FVALUE'=>'EV000202','FUNIT'=>'UN'],
+            ['FNAME'=>'EF002169','FVALUE'=>'EV000072','FUNIT'=>'UN'],
+        ];
+        $this->assertSame($expected, $result);
+        $writer->clear();
+    }
+
+    public function test_write_nested_and_scalar_elements(): void
+    {
+        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $input = [
+            'ORDER' => [
+                '@attributes' => ['id' => '123'],
+                'CUSTOMER' => [
+                    'NAME' => 'John Doe',
+                    'ADDRESS' => [
+                        'STREET' => 'Main St',
+                        'CITY' => 'Metropolis',
+                    ],
+                ],
+                'TOTAL' => '100.00',
+            ]
+        ];
+        $writer = new \Misery\Component\Writer\XmlStreamWriter($filename, [
+            'root_container' => [
+                'ORDERS' => [],
+            ],
+            'item_container' => 'ORDER',
+        ]);
+        $writer->write($input['ORDER']);
+        $writer->close();
+
+        $parser = \Misery\Component\Parser\XmlParser::create($filename, 'ORDER');
+        $result = [];
+        while ($item = $parser->current()) {
+            $result[] = $item;
+            $parser->next();
+        }
+        $expected = [$input['ORDER']];
+        $this->assertSame($expected, $result);
+        $writer->clear();
+    }
+
+    public function test_split_attribute_nodes(): void
+    {
+        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $input = [
+            'PRODUCT_DETAILS' => [
+                'DESCRIPTION_SHORT' => [
+                    '@attributes' => ['dit' => '123'],
+                ],
+                'TOTAL' => '100.00',
+            ]
+        ];
+        $writer = new \Misery\Component\Writer\XmlStreamWriter($filename, [
+            'root_container' => [
+                'ORDERS' => [],
+            ],
+            'item_container' => 'ORDER',
+        ]);
     }
 }

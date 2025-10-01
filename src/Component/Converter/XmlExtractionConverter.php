@@ -114,7 +114,7 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
                         $entry[$valuePath] = $value;
                     }
 
-                    $result[$path][$childTag][] = $entry;
+                    $result[$path . $sep . $childTag][] = $entry;
                 }
                 // 2) Standard key/value list extraction
                 elseif (!empty($rule['k'])) {
@@ -151,7 +151,6 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
                 unset($decoded[$key]);
             }
         }
-        //dd($decoded);
 
         return $decoded;
     }

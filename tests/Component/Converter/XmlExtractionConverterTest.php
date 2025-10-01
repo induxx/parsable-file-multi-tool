@@ -208,4 +208,33 @@ class XmlExtractionConverterTest extends TestCase
 
         $this->assertEquals($expected, $result);
     }
+
+    public function testRevertFeatures()
+    {
+        $converter = new XmlExtractionConverter();
+        $converter->setOptions([
+            'separator' => '|',
+            'extract' => [],
+        ]);
+
+        $input = [
+            "PRODUCT_FEATURES|FEATURE" => [
+                ['FNAME'=>'EF000007','FVALUE'=>'EV000202'],
+                ['FNAME'=>'EF002169','FVALUE'=>'EV000072'],
+            ]
+        ];
+
+        $expected = [
+            'PRODUCT_FEATURES' => [
+                'FEATURE' => [
+                    ['FNAME'=>'EF000007','FVALUE'=>'EV000202'],
+                    ['FNAME'=>'EF002169','FVALUE'=>'EV000072'],
+                ],
+            ],
+        ];
+
+        $result = $converter->revert($input);
+
+        $this->assertEquals($expected, $result);
+    }
 }
