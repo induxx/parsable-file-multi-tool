@@ -262,6 +262,24 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                 if ($codes[$masterKey] === 'pim_catalog_price_collection' && true === $this->getOption('single_currency')) {
                     $prep['data'] = [['amount' => $prep['data'], 'currency' => $this->getOption('default_currency')]];
                 }
+                # pim_catalog_price_collection | single default currency EUR | will work in most cases
+                if ($codes[$masterKey] === 'pim_catalog_price_collection' && false === $this->getOption('single_currency')) {
+                    $currency = $keys[1] ?? $this->getOption('default_currency');
+                    $amount = trim($prep['data']);
+                    $previousData = $output['values|'.$masterKey]['data'] ?? null;
+
+                    $prep = [
+                        'locale' => null,
+                        'scope' => null,
+                        'data' => $previousData,
+                    ];
+
+                    if ($previousData && is_array($previousData)) {
+                        $prep['data'][] = ['amount' => $amount, 'currency' => $currency];
+                    } else {
+                        $prep['data'] = [['amount' => $amount, 'currency' => $currency]];
+                    }
+                }
                 # boolean expecting CSV values
                 if ($codes[$masterKey] === 'pim_catalog_boolean') {
                     if ($prep['data'] === '0') {
