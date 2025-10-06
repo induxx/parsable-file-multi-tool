@@ -6,7 +6,7 @@ use Misery\Component\Writer\XmlStreamWriter;
 use PHPUnit\Framework\TestCase;
 use Misery\Component\Parser\XmlParser;
 
-class XmlWriterTest extends TestCase
+class XmlStreamWriterTest extends TestCase
 {
     private array $items = [
         [
@@ -27,7 +27,7 @@ class XmlWriterTest extends TestCase
 
     public function test_parse_xml_file(): void
     {
-        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
         $writer = new XmlStreamWriter($filename, [
             'root_container' => [
                 'PutRequest' => [
@@ -44,7 +44,7 @@ class XmlWriterTest extends TestCase
                     ],
                 ],
             ],
-            'item_container' => 'Records|Record',
+            'xpath' => 'Records|Record',
         ]);
 
         foreach ($this->items as $item) {
@@ -70,7 +70,7 @@ class XmlWriterTest extends TestCase
 
     public function test_write_repeated_elements(): void
     {
-        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
         $input = [
             'PRODUCT_FEATURES' => [
                 'FEATURE' => [
@@ -84,7 +84,7 @@ class XmlWriterTest extends TestCase
             'root_container' => [
                 'PRODUCT' => [],
             ],
-            'item_container' => 'PRODUCT_FEATURES',
+            'xpath' => 'PRODUCT_FEATURES',
         ]);
         $writer->write($input);
         $writer->close();
@@ -105,7 +105,7 @@ class XmlWriterTest extends TestCase
 
     public function test_write_nested_and_scalar_elements(): void
     {
-        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
         $input = [
             'ORDER' => [
                 '@attributes' => ['id' => '123'],
@@ -123,7 +123,7 @@ class XmlWriterTest extends TestCase
             'root_container' => [
                 'ORDERS' => [],
             ],
-            'item_container' => 'ORDER',
+            'xpath' => 'ORDER',
         ]);
         $writer->write($input['ORDER']);
         $writer->close();
@@ -141,20 +141,59 @@ class XmlWriterTest extends TestCase
 
     public function test_split_attribute_nodes(): void
     {
-        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $tmpFile = tempnam(sys_get_temp_dir(), 'xmltest');
         $input = [
             'PRODUCT_DETAILS' => [
                 'DESCRIPTION_SHORT' => [
-                    '@attributes' => ['dit' => '123'],
+                    '@attributes' => ['dit' => '123', 'foo' => '456'],
+                    '@value' => 'Short desc',
                 ],
                 'TOTAL' => '100.00',
             ]
         ];
-        $writer = new \Misery\Component\Writer\XmlStreamWriter($filename, [
+        $writer = new \Misery\Component\Writer\XmlStreamWriter($tmpFile, [
             'root_container' => [
                 'ORDERS' => [],
             ],
-            'item_container' => 'ORDER',
+            'xpath' => 'PRODUCT_DETAILS',
+            'split_attribute_nodes' => true,
         ]);
+        $writer->write($input);
+        $writer->close();
+
+        $xml = file_get_contents($tmpFile);
+        unlink($tmpFile);
+
+        // Assert both DESCRIPTION_SHORT elements exist with correct attributes and value
+        $this->assertStringContainsString('<DESCRIPTION_SHORT dit="123">Short desc</DESCRIPTION_SHORT>', $xml);
+        $this->assertStringContainsString('<DESCRIPTION_SHORT foo="456">Short desc</DESCRIPTION_SHORT>', $xml);
+        $this->assertStringContainsString('<TOTAL>100.00</TOTAL>', $xml);
+    }
+
+    public function testWriteNodeWithMultipleFValues(): void
+    {
+        $tmpFile = tempnam(sys_get_temp_dir(), 'xmltest');
+        $writer = new XmlStreamWriter($tmpFile, [
+            'root_container' => [ 'ROOT' => [] ],
+            'xpath' => 'ROOT|FEATURE',
+        ]);
+
+        $data = [
+            'FNAME' => 'EF002356',
+            'FVALUE' => ['0.2', '2.5'],
+            'FUNIT' => 'UN',
+        ];
+        $writer->write($data);
+        $writer->close();
+
+        $xml = file_get_contents($tmpFile);
+        unlink($tmpFile);
+
+        $this->assertStringContainsString('<FNAME>EF002356</FNAME>', $xml);
+        $this->assertStringContainsString('<FVALUE>0.2</FVALUE>', $xml);
+        $this->assertStringContainsString('<FVALUE>2.5</FVALUE>', $xml);
+        $this->assertStringContainsString('<FUNIT>UN</FUNIT>', $xml);
+        // Ensure both FVALUE elements are present
+        $this->assertEquals(2, substr_count($xml, '<FVALUE>'));
     }
 }

@@ -35,15 +35,15 @@ class XmlStreamWriter implements ItemWriterInterface
         if (count($headerContainer) > 1) {
             throw new \InvalidArgumentException('Only one header container is allowed.');
         }
-        $itemContainer = $options['item_container'] ?? null;
+        $itemContainer = $options['xpath'] ?? null;
         if ($itemContainer === null) {
-            throw new \InvalidArgumentException('Option "item_container" must be provided in options.');
+            throw new \InvalidArgumentException('Option "xpath" must be provided in options.');
         }
         $itemContainerParts = explode('|', $itemContainer);
         if ($this->rootName === $itemContainerParts[0]) {
             // If the item container is the same as the root, we don't need to start a new element
             unset($itemContainerParts[0]);
-            $itemContainerParts = array_filter($itemContainerParts);
+            $itemContainerParts = array_values(array_filter($itemContainerParts));
         }
 
         $this->splitAttributeNodes = $options['split_attribute_nodes'] ?? false;
@@ -108,14 +108,23 @@ class XmlStreamWriter implements ItemWriterInterface
     }
 
     /**
-     * Recursively writes array data as XML nodes.
+     * Recursively writes array or scalar data as XML nodes.
      * Supports:
      * - `@attributes` for attributes
      * - `@value` or `@data` for text nodes
      * - Nested arrays for child elements
+     * - Scalar values for repeated elements
      */
-    private function writeNode(array $data, ?string $currentKey = null): void
+    private function writeNode(array|string|int|float $data, ?string $currentKey = null): void
     {
+        // If scalar, write as element and return
+        if (!is_array($data)) {
+            if ($currentKey !== null) {
+                $this->writer->writeElement($currentKey, (string)$data);
+            }
+            return;
+        }
+
         // Handle split attribute nodes for associative arrays
         if (
             $this->splitAttributeNodes &&
@@ -159,9 +168,10 @@ class XmlStreamWriter implements ItemWriterInterface
             if (is_array($value) && array_keys($value) === range(0, count($value) - 1)) {
                 // Numerically indexed array: write multiple elements with the same key
                 foreach ($value as $item) {
-                    $this->writer->startElement($key);
+                    $isAssociative = is_array($item) && array_keys($item) !== range(0, count($item) - 1);
+                    if ($isAssociative) $this->writer->startElement($key);
                     $this->writeNode($item, $key);
-                    $this->writer->endElement();
+                    if ($isAssociative) $this->writer->endElement();
                 }
             } elseif (is_numeric($key) && is_array($value)) {
                 // Numeric keys: inline collection (legacy support)
