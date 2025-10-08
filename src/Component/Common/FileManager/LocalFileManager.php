@@ -39,7 +39,6 @@ class LocalFileManager implements FileManagerInterface
     public function provisionPath(string $filename): string
     {
         $absolutePath = $this->getAbsolutePath($filename);
-        $this->makePath(dirname($absolutePath));
         return $absolutePath;
     }
 
@@ -59,7 +58,6 @@ class LocalFileManager implements FileManagerInterface
             $this->moveFile($filename, $newFilename);
         }
     }
-
 
     public function find(string $regex): \Iterator
     {
@@ -151,6 +149,16 @@ class LocalFileManager implements FileManagerInterface
         return pathinfo($filename)['dirname'];
     }
 
+    private function generatePath(string $filename)
+    {
+        $filename = str_replace($this->workingDirectory, '', $filename);
+
+        return
+            $this->workingDirectory . DIRECTORY_SEPARATOR .
+            ltrim(pathinfo($filename, PATHINFO_DIRNAME)) . DIRECTORY_SEPARATOR .
+            pathinfo($filename, PATHINFO_BASENAME);
+    }
+
     /**
      * Returns Absolute paths even when entering Relative ones.
      * Only Local FS required absoluteness
@@ -160,7 +168,12 @@ class LocalFileManager implements FileManagerInterface
      */
     public function getAbsolutePath(string $filename): string
     {
-        $this->makePath($this->getDirectory($filename));
+        $path = $this->generatePath($filename);
+        if (is_file($path)) {
+            return $path;
+        }
+
+        $this->makePath($this->getDirectory($path));
 
         if (strpos($filename, $this->workingDirectory) === false) {
             return $this->workingDirectory. DIRECTORY_SEPARATOR . $filename;

@@ -74,6 +74,6 @@ class AkeneoCsvToStructuredDataConverter implements ConverterInterface, Register
 
     public function getName(): string
     {
-        return 'akeneo/product/csv';
+        return 'akeneo/product/csv/DEPRECATED';
     }
 }
