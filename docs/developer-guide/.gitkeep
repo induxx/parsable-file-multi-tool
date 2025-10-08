@@ -1,0 +1,8 @@
+# Developer Guide Directory
+
+This directory contains technical documentation for developers extending the tool.
+
+Files to be added:
+- architecture.md
+- extending.md
+- contributing.md
