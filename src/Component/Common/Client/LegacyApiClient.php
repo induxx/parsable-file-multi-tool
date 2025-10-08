@@ -282,7 +282,7 @@ class LegacyApiClient implements ApiClientInterface
     private function setAuthenticationHeaders(): void
     {
         if ($this->authenticatedAccount instanceof AuthenticatedAccount) {
-            $this->authenticatedAccount->useToken($this);
+            $this->authenticatedAccount->useToken($this->headers);
         }
     }
 
