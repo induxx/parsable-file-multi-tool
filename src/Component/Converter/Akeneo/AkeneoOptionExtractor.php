@@ -29,6 +29,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
         'reference_code' => true, # force the option code to be a reference-able code
         'reference_code_pattern' => 'old_pattern', # the pattern to use for the reference code
         'lower_cased' => true, # force the option code to be lower cased
+        'include_original_reference' => false, # include the original reference in the output
         'mappings' => [],
     ];
 
@@ -43,6 +44,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
         $separator = $this->getOption('separator');
         $hasStringSeparator = $this->getOption('has_string_separator');
         $mappings = $this->getOption('mappings');
+        $includeOriginalReference = $this->getOption('include_original_reference');
 
         // Reduce the item to only the options
         $item = ColumnReducer::reduceItem($item, ...$optionCodes);
@@ -79,7 +81,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
                     $result[$id][$parentIdentifierField] = $key;
                     $result[$id][$identifierField] = $optionCode;
                     $result[$id][$referenceField] = $id;
-                    $result[$id]['original_reference'] = $option . '-' . $key;
+                    if ($includeOriginalReference) $result[$id]['original_reference'] = $option . '-' . $key;
                     $result[$id]['original_value'] = $option;
                 }
             } else {
@@ -95,7 +97,7 @@ class AkeneoOptionExtractor implements ConverterInterface, ItemCollectionLoaderI
                 $result[$id][$parentIdentifierField] = $key;
                 $result[$id][$identifierField] = $optionCode;
                 $result[$id][$referenceField] = $id;
-                $result[$id]['original_reference'] = $value . '-' . $key;
+                if ($includeOriginalReference) $result[$id]['original_reference'] = $value . '-' . $key;
                 $result[$id]['original_value'] = $value;
             }
         }

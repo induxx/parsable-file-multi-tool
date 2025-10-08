@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Misery\Component\Common\Client;
 
-use Misery\Component\Common\Client\ApiCurlClient;
+use Misery\Component\Common\Client\GuzzleApiClient;
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiEndPointsInterface;
 use Misery\Component\Common\Client\Exception\PageNotFoundException;
@@ -17,19 +17,19 @@ use PHPUnit\Framework\TestCase;
 
 class ApiCurlClientTest extends TestCase
 {
-    private ApiCurlClient $client;
+    private GuzzleApiClient $client;
     private \ReflectionClass $ref;
 
     protected function setUp(): void
     {
         // Create partial mock to stub rawRequest
-        $this->client = $this->getMockBuilder(ApiCurlClient::class)
+        $this->client = $this->getMockBuilder(GuzzleApiClient::class)
         ->setConstructorArgs(['https://api.example.com'])
         ->onlyMethods(['rawRequest'])
         ->getMock();
 
         // Prepare reflection on the ApiCurlClient class itself
-        $this->ref = new \ReflectionClass(ApiCurlClient::class);
+        $this->ref = new \ReflectionClass(GuzzleApiClient::class);
 
         // Replace UrlGenerator with a mock
         $urlGenProp = $this->ref->getProperty('urlGenerator');

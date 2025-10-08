@@ -16,7 +16,6 @@ class DebugAction implements OptionsInterface, ActionInterface, ActionItemInterf
     private $options = [
         'field' => null,
         'until_field' => null,
-        'marker' => null,
     ];
 
     private int $applyCount = 0;
@@ -28,16 +27,6 @@ class DebugAction implements OptionsInterface, ActionInterface, ActionItemInterf
 
     public function apply(array $item): array
     {
-        $this->applyCount++;
-
-        $marker = $this->getOption('marker');
-        if ($marker) {
-            [$filename, $line] = explode(':', $marker);
-            if ($this->applyCount <= (int) $line) {
-                return $item;
-            }
-        }
-
         $untilField = $this->getOption('until_field');
         if ($untilField && isset($item[$untilField])) {
             dd($item[$untilField]);

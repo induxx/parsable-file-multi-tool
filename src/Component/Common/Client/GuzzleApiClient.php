@@ -11,7 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 use Misery\Component\Common\Client\Exception\PageNotFoundException;
 use Misery\Component\Common\Client\Exception\UnauthorizedException;
 
-class ApiCurlClient implements ApiClientInterface
+class GuzzleApiClient implements ApiClientInterface
 {
     private UrlGenerator $urlGenerator;
     private ?ApiEndPointsInterface $endpoints = null;

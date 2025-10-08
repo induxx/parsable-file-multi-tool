@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Connections\Google\Client;
 
-use Misery\Component\Common\Client\ApiCurlClient;
+use Misery\Component\Common\Client\GuzzleApiClient;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\Paginator;

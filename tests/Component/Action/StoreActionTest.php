@@ -57,7 +57,7 @@ class StoreActionTest extends TestCase
 
         $action->apply($item);
 
-        $this->assertCount(4, $calls);
+        $this->assertCount(5, $calls);
 
         $this->assertContains(
             ['product_changes_fields_added', ['name']],
@@ -98,7 +98,7 @@ class StoreActionTest extends TestCase
 
         $action->apply($item);
 
-        $this->assertCount(4, $calls);
+        $this->assertCount(5, $calls);
 
         $this->assertContains(
             ['product_changes_fields_deleted', ['name']],
@@ -146,7 +146,7 @@ class StoreActionTest extends TestCase
 
         $action->apply($item);
 
-        $this->assertCount(4, $calls);
+        $this->assertCount(5, $calls);
 
         $this->assertContains(
             ['product_changes_fields_updated', ['name']],

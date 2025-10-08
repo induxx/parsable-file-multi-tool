@@ -29,7 +29,7 @@ class ApiClientFactory implements RegisteredByNameInterface
         if ($type === 'microsoft_oauth') {
             try {
                 // no need to authorize a basic auth
-                $client = new ApiCurlClient($domain);
+                $client = new GuzzleApiClient($domain);
 
                 $account = new MicrosoftDynamicsOauthAccount(
                     $account['client_id'],
@@ -49,7 +49,7 @@ class ApiClientFactory implements RegisteredByNameInterface
         if ($type === 'e5_dal_token') {
             try {
                 // no need to authorize token is fixed
-                $client = new ApiCurlClient($domain);
+                $client = new GuzzleApiClient($domain);
 
                 $account = new E5DalAPIAccount($account['token']);
                 $client->authorize($account);
@@ -61,7 +61,7 @@ class ApiClientFactory implements RegisteredByNameInterface
         }
 
         try {
-            $client = new ApiCurlClient($domain);
+            $client = new GuzzleApiClient($domain);
 
             $account = new AkeneoApiClientAccount(
                 $account['username'],

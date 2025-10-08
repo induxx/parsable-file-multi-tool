@@ -6,12 +6,9 @@ namespace Tests\Misery\Component\Common\Client;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\TransferException;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use Misery\Component\Common\Client\ApiEndPointsInterface;
-use Misery\Component\Common\Client\ApiCurlClient;
+use Misery\Component\Common\Client\GuzzleApiClient;
 use Misery\Component\Common\Client\ApiResponse;
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\AuthenticatedAccount;
@@ -19,7 +16,6 @@ use Misery\Component\Common\Client\Exception\PageNotFoundException;
 use Misery\Component\Common\Client\Exception\UnauthorizedException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
 use ReflectionClass;
 
 final class ApiGuzzleClientTest extends TestCase
@@ -36,7 +32,7 @@ final class ApiGuzzleClientTest extends TestCase
     /** @var AuthenticatedAccount&MockObject */
     private AuthenticatedAccount $authenticated;
 
-    private ApiCurlClient $client;
+    private GuzzleApiClient $client;
 
     protected function setUp(): void
     {
@@ -64,7 +60,7 @@ final class ApiGuzzleClientTest extends TestCase
                 $headers['Authorization'] = 'Bearer test-token';
             });
 
-        $this->client = new ApiCurlClient('https://api.example.com');
+        $this->client = new GuzzleApiClient('https://api.example.com');
 
         // Inject our mocked Guzzle client via reflection
         $ref = new ReflectionClass($this->client);

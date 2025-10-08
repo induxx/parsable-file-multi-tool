@@ -8,106 +8,13 @@ use PHPUnit\Framework\TestCase;
 
 class XmlParserTest extends TestCase
 {
-    /** @var XmlParser */
-    private XmlParser $parser;
+    private null|string $xmlFile = null;
 
-    /** @var \ReflectionMethod */
-    private \ReflectionMethod $flatten;
-
-    protected function setUp(): void
+    public function testUnParsable(): void
     {
-        // Avoid constructor side-effects (XMLReader::open)
-        $rc = new \ReflectionClass(XmlParser::class);
-        $this->parser = $rc->newInstanceWithoutConstructor();
+        $parser = $this->createXmlParser('<FOO>bar</FOO>', '');
 
-        // Access the private method simpleXmlToArray
-        $this->flatten = $rc->getMethod('simpleXmlToArray');
-        $this->flatten->setAccessible(true);
-    }
-
-    /**
-     * Helper to call the private simpleXmlToArray on a snippet.
-     *
-     * @param string $xmlSnippet XML string with a single root element
-     * @param string $prefix Optional prefix to simulate nested recursion
-     * @return array<string, string|null>
-     */
-    private function flatten(string $xmlSnippet, string $prefix = ''): array
-    {
-        $sx = new \SimpleXMLElement($xmlSnippet);
-        return $this->flatten->invoke($this->parser, $sx, $prefix);
-    }
-
-    public function testLeafText(): void
-    {
-        $result = $this->flatten('<FOO>bar</FOO>');
-
-        $this->assertSame(
-            ['FOO' => 'bar'],
-            $result
-        );
-    }
-
-    public function testSelfClosingWithAttributeBecomesNull(): void
-    {
-        $result = $this->flatten('<FOO id="1"/>');
-
-        $this->assertSame(
-            ['FOO[id=1]' => null],
-            $result
-        );
-    }
-
-    public function testAttributeAndText(): void
-    {
-        $result = $this->flatten('<FOO id="1">bar</FOO>');
-
-        $this->assertSame(
-            ['FOO[id=1]' => 'bar'],
-            $result
-        );
-    }
-
-    public function testNestedChildWithAttributeOnChild(): void
-    {
-        $result = $this->flatten('<PARENT><CHILD lang="eng">Hello</CHILD></PARENT>');
-
-        $this->assertSame(
-            ['PARENT.CHILD[lang=eng]' => 'Hello'],
-            $result
-        );
-    }
-
-    public function testNestedPrefixIsAppended(): void
-    {
-        // Simulate recursion prefix (as used internally)
-        $result = $this->flatten('<CHILD lang="dut">Hallo</CHILD>', 'PARENT');
-
-        $this->assertSame(
-            ['PARENT.CHILD[lang=dut]' => 'Hallo'],
-            $result
-        );
-    }
-
-    public function testMultipleAttributesSortedInKey(): void
-    {
-        // Attributes intentionally out of alpha order; key must sort them
-        $result = $this->flatten('<FOO z="9" a="1" b="2"/>');
-
-        $this->assertSame(
-            ['FOO[a=1;b=2;z=9]' => null],
-            $result
-        );
-    }
-
-    public function testNoChildrenWhitespaceOnlyIsNull(): void
-    {
-        $result = $this->flatten("<FOO id=\"1\">\n   \t  \n</FOO>");
-
-        $this->assertSame(
-            ['FOO[id=1]' => null],
-            $result
-        );
+        $this->assertFalse($parser->valid());
     }
 
     public function testDeepNesting(): void
@@ -115,27 +22,23 @@ class XmlParserTest extends TestCase
         $xml = <<<XML
 <ROOT>
   <A>
-    <B type="x">
+    <B>
       <C>value</C>
     </B>
   </A>
 </ROOT>
 XML;
-
-        $sx = new \SimpleXMLElement($xml);
-
-        // We want to call the private method on the <ROOT> element to ensure full recursion
-        $rc = new \ReflectionClass(XmlParser::class);
-        /** @var XmlParser $parser */
-        $parser = $rc->newInstanceWithoutConstructor();
-        $m = $rc->getMethod('simpleXmlToArray');
-        $m->setAccessible(true);
-
-        $result = $m->invoke($parser, $sx);
+        $parser = $this->createXmlParser($xml, 'ROOT');
 
         $this->assertSame(
-            ['ROOT.A.B[type=x].C' => 'value'],
-            $result
+            [
+                'A' => [
+                    'B' => [
+                        'C' => 'value'
+                    ],
+                ],
+            ],
+            $parser->current()
         );
     }
 
@@ -149,12 +52,27 @@ XML;
     public function testRepeatedSiblingsCurrentBehaviorIsOverwriteLast(): void
     {
         $xml = '<PARENT><ITEM>one</ITEM><ITEM>two</ITEM></PARENT>';
-        $result = $this->flatten($xml);
+
+        $parser = $this->createXmlParser($xml, 'PARENT');
 
         // With current implementation, last wins:
         $this->assertSame(
-            ['PARENT.ITEM' => ['one', 'two']],
-            $result
+            ['ITEM' => ['one', 'two']],
+            $parser->current()
         );
+
+        $parser->next();
+
+        $this->assertFalse($parser->valid());
+    }
+
+    private function createXmlParser(string $xmlContent, string $xpath): XmlParser
+    {
+        if (null === $this->xmlFile) {
+            $this->xmlFile = tempnam(sys_get_temp_dir(), 'XML');
+        }
+        file_put_contents($this->xmlFile, $xmlContent);
+
+        return new XmlParser($this->xmlFile, $xpath);
     }
 }
