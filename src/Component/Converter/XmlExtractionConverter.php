@@ -289,7 +289,7 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
      * @param  string[]     $keys
      * @return mixed|null
      */
-    private function getNestedValue($data, array $keys)
+    private function getNestedValue($data, array $keys): mixed
     {
         foreach ($keys as $k) {
             if (
@@ -323,6 +323,6 @@ class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInte
     /** {@inheritdoc} */
     public function getName(): string
     {
-        return 'flatten/xml';
+        return 'flatten/xml/v1';
     }
 }

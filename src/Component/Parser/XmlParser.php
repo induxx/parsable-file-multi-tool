@@ -15,21 +15,21 @@ class XmlParser implements CursorInterface
 
     /**
      * @param string      $file
-     * @param string|null $container  e.g. "Records/Product" or just "Records"
+     * @param string|null $xpath  e.g. "Records/Product" or just "Records"
      */
-    public function __construct(string $file, string $container = null)
+    public function __construct(string $file, string $xpath = null)
     {
         $this->xml = new \XMLReader();
         $this->xml->open($file);
 
-        if (null !== $container) {
-            $this->path = explode('/', $container);
+        if (null !== $xpath) {
+            $this->path = explode('/', $xpath);
         }
     }
 
-    public static function create(string $filename, string $container = null): self
+    public static function create(string $filename, string $xpath = null): self
     {
-        return new self($filename, $container);
+        return new self($filename, $xpath);
     }
 
     public function loop(callable $callable): void
