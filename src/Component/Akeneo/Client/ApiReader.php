@@ -142,6 +142,10 @@ class ApiReader implements ReaderInterface
         return $items;
     }
 
+    /**
+     * Used to get media for ProductImageExtension
+     * TODO: refactor this, not very clean
+     */
     public function get(string|int $identifier)
     {
         $endpoint = $this->endpoint->getSingleEndPoint();

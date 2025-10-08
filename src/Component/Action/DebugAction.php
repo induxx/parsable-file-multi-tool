@@ -18,8 +18,6 @@ class DebugAction implements OptionsInterface, ActionInterface, ActionItemInterf
         'until_field' => null,
     ];
 
-    private int $applyCount = 0;
-
     public function applyAsItem(ItemInterface $item): void
     {
         dd($item);
