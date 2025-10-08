@@ -121,7 +121,7 @@ class StatementBuilder
         $andFields = explode(' AND ', $whenString) ?? [];
         if (count($andFields) > 1) {
             $collection = new StatementCollection();
-            foreach ($andFields as $i => $andField) {
+            foreach ($andFields as $andField) {
                 $fields = explode(' ', $andField);
                 $statement = self::buildFromOperator($fields[1], $context);
                 $statement->when($fields[0], $fields[2] ?? null);
@@ -133,11 +133,19 @@ class StatementBuilder
         $statement = EqualsStatement::prepare(new SetValueAction());
 
         $orFields = explode(' OR ', $whenString) ?? [];
-        if (count($orFields) === 2) {
-            $fields = explode(' == ', $orFields[0]);
-            $statement->when($fields[0], $fields[1]);
-            $fields = explode(' == ', $orFields[1]);
-            $statement->or($fields[0], $fields[1]);
+        if (count($orFields) > 1) {
+            $collection = new StatementCollection();
+            foreach ($orFields as $i => $orField) {
+                $fields = explode(' ', $orField);
+                if ($i === 0) {
+                    $statement = self::buildFromOperator($fields[1], $context);
+                    $statement->when($fields[0], $fields[2] ?? null);
+                } else {
+                    $statement->or($fields[0], $fields[2] ?? null);
+                }
+            }
+            $collection->add($statement);
+            return $collection;
         }
 
         $containsFields = explode(' CONTAINS ', $whenString) ?? [];

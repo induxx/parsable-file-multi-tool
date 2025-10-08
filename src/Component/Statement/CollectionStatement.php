@@ -8,18 +8,19 @@ class CollectionStatement implements PredeterminedStatementInterface
 {
     public const NAME = 'COLLECTION';
 
-    /** @var StatementCollection */
-    private $collection;
-
     use StatementTrait;
 
-    public function __construct(StatementCollection $collection, ActionInterface $action, array $context = [])
+    public function __construct(private readonly StatementCollection $collection, ActionInterface $action, array $context = [])
     {
-        $this->collection = $collection;
         $this->action = $action;
         $this->context = $context;
         $this->key = 1;
         $this->conditions[$this->key]['when'] = null;
+    }
+
+    public function getCollection(): StatementCollection
+    {
+        return $this->collection;
     }
 
     public function whenField($field, $item = null): bool

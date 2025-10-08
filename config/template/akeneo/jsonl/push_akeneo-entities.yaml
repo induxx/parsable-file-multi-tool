@@ -5,7 +5,7 @@ pipeline:
   input:
     reader:
       type: jsonl
-      filename: '%workpath%/akeneo_%endpoint%.jsonl'
+      filename: 'akeneo_%endpoint%.jsonl'
   output:
     http:
       type: rest_api

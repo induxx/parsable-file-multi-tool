@@ -4,9 +4,13 @@ namespace Misery\Component\Writer;
 
 use Assert\Assertion;
 
+/**
+ * @deprecated use XmlStreamWriter instead
+ */
 class XmlWriter implements ItemWriterInterface
 {
     public const CONTAINER = 'container';
+    public const LOOP_ITEM = 'loop_item';
     public const HEADER = 'header';
     public const START = 'start';
 
@@ -15,7 +19,7 @@ class XmlWriter implements ItemWriterInterface
     private $header = [
         'version' => '1.0',
         'encoding' => 'UTF-8',
-        'indent' => 4,
+        'indent' => 2,
         'indent_string' => ' ',
     ];
 
@@ -29,7 +33,6 @@ class XmlWriter implements ItemWriterInterface
         array $options = []
     ) {
         $this->filename = $filename;
-        Assertion::writeable($filename);
 
         $this->options = $options;
         $start = isset($options[self::START]) > 0 ? $options[self::START]: [];
@@ -56,13 +59,19 @@ class XmlWriter implements ItemWriterInterface
         // open the container
         foreach ($options as $elemName => $elemAttributes) {
             if ($elemName === self::CONTAINER) {
-                $this->writer->startElement($elemAttributes);
+                foreach (explode('|', $elemAttributes) as $containerName) {
+                    $this->writer->startElement($containerName);
+                }
             }
         }
     }
 
-    public function write(array $data): void
+    public function write(array $data, bool $loopItem = true): void
     {
+        if ($loopItem && isset($this->options[self::LOOP_ITEM])) {
+            $this->writer->startElement($this->options[self::LOOP_ITEM]);
+        }
+
         if (isset($data['@attributes'])) {
             foreach ($data['@attributes'] as $attributeName => $attributeValue) {
                 $this->writer->writeAttribute($attributeName, $attributeValue);
@@ -73,16 +82,21 @@ class XmlWriter implements ItemWriterInterface
             $this->writer->text($data['@data']);
             return;
         }
+        if (isset($data['@value'])) {
+            $this->writer->text($data['@value']);
+            return;
+        }
         if (isset($data['@CDATA'])) {
             $this->writer->writeCdata($data['@CDATA']);
             return;
         }
+
         foreach($data as $key => $value) {
             if (\is_array($value)) {
                 if (\is_string($key) && is_numeric(current(array_keys($value)))) {
                     foreach ($value as $i => $collectionValue) {
                         $this->writer->startElement($key);
-                        $this->write($collectionValue);
+                        $this->write($collectionValue, false);
                         $this->writer->endElement();
                     }
                     continue;
@@ -90,13 +104,13 @@ class XmlWriter implements ItemWriterInterface
 
                 if (\is_string($key)) {
                     $this->writer->startElement($key);
-                    $this->write($value);
+                    $this->write($value, false);
                     $this->writer->endElement();
                     continue;
                 }
 
                 if (\is_numeric($key)) {
-                    $this->write($value);
+                    $this->write($value, false);
                 }
 
                 continue;
@@ -105,6 +119,10 @@ class XmlWriter implements ItemWriterInterface
             if (is_string($key) && is_string($value) && !empty($key)) {
                 $this->writer->writeElement($key, $value);
             }
+        }
+
+        if ($loopItem && isset($this->options[self::LOOP_ITEM])) {
+            $this->writer->endElement();
         }
     }
 
@@ -119,7 +137,9 @@ class XmlWriter implements ItemWriterInterface
 
         // close the container
         if (isset($this->options[self::CONTAINER])) {
-            $writer->endElement();
+            foreach (explode('|', $this->options[self::CONTAINER]) as $c) {
+                $writer->endElement();
+            }
         }
 
         // close the start

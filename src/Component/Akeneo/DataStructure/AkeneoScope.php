@@ -15,6 +15,29 @@ class AkeneoScope implements ScopeInterface
         $this->localeCode = $localeCode;
     }
 
+    public static function fromString(string $scope): self
+    {
+        $parts = explode('|', $scope);
+        $channelCode = null;
+        $localeCode = null;
+
+        if (count($parts) === 2) {
+            // Classic case: both channel and locale are defined
+            [$channelCode, $localeCode] = $parts;
+        } elseif (count($parts) === 1 && $parts[0] !== '') {
+            $single = $parts[0];
+
+            // Try to detect if it's a locale code (e.g., en_US)
+            if (preg_match('/^[a-z]{2}_[A-Z]{2}$/', $single)) {
+                $localeCode = $single;
+            } else {
+                $channelCode = $single;
+            }
+        }
+
+        return new self($channelCode, $localeCode);
+    }
+
     public static function fromArray(array $data): self
     {
         $self = new self();
@@ -28,6 +51,13 @@ class AkeneoScope implements ScopeInterface
     {
         return
             $this->getChannel() === $scope->getChannel() &&
+            $this->getLocale() === $scope->getLocale()
+            ;
+    }
+
+    public function equalsLocale(ScopeInterface $scope): bool
+    {
+        return
             $this->getLocale() === $scope->getLocale()
             ;
     }
@@ -62,6 +92,16 @@ class AkeneoScope implements ScopeInterface
 
     public function __toString(): string
     {
+        if ($this->channelCode === null && $this->localeCode === null) {
+            return '';
+        }
+        if ($this->channelCode === null) {
+            return $this->localeCode;
+        }
+        if ($this->localeCode === null) {
+            return $this->channelCode;
+        }
+
         return implode('|', array_values($this->toArray()));
     }
 }

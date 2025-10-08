@@ -13,7 +13,7 @@ use Misery\Component\Parser\JsonParser;
  */
 class BufferedCsvWriter implements ItemWriterInterface
 {
-    private JsonWriter $jsonWriter;
+    private JsonlWriter $jsonlWriter;
     private CsvWriter $csvWriter;
 
     private array $headers = [];
@@ -22,7 +22,7 @@ class BufferedCsvWriter implements ItemWriterInterface
     public function __construct(
         array $setup
     ) {
-        $this->jsonWriter = new JsonWriter($this->tmpFile = tempnam(sys_get_temp_dir(), 'SmartCSV'));
+        $this->jsonlWriter = new JsonlWriter($this->tmpFile = tempnam(sys_get_temp_dir(), 'SmartCSV'));
         $this->csvWriter = CsvWriter::createFromArray($setup);
     }
 
@@ -37,11 +37,12 @@ class BufferedCsvWriter implements ItemWriterInterface
     public function write(array $data): void
     {
         $this->setHeader(array_fill_keys(array_keys($data), null));
-        $this->jsonWriter->write($data);
+        $this->jsonlWriter->write($data);
     }
 
     public function close(): void
     {
+        $this->jsonlWriter->close();
         $reader = JsonParser::create($this->tmpFile);
 
         $this->csvWriter->setHeader(array_keys($this->headers));

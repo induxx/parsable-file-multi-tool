@@ -3,11 +3,8 @@
 namespace Misery\Component\Writer;
 
 use Assert\Assert;
-use Misery\Component\Common\Collection\ArrayCollection;
 use Misery\Component\Common\FileManager\FileManagerInterface;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
-use Misery\Component\Reader\ItemCollection;
-use Symfony\Component\Yaml\Yaml;
 
 class ItemWriterFactory implements RegisteredByNameInterface
 {
@@ -21,14 +18,26 @@ class ItemWriterFactory implements RegisteredByNameInterface
         )->notEmpty()->string()->inArray(['xml', 'buffer', 'buffer_csv', 'csv', 'yaml', 'yml', 'xlsx', 'json', 'jsonl']);
 
         $filename = $fileManager->provisionPath($configuration['filename']);
+
+        $batchSize = $configuration['batch_size'] ?? 0;
         if ($configuration['type'] === 'xml') {
-            return new XmlWriter(
+
+            if ($batchSize !== 0) {
+                return new BatchWriter(
+                    XmlStreamWriter::class,
+                    $filename,
+                    $batchSize,
+                        $configuration['options'] ?? []
+                );
+            }
+
+            return new XmlStreamWriter(
                 $filename,
                 $configuration['options'] ?? []
             );
         }
         if ($configuration['type'] === 'json' || $configuration['type'] === 'buffer' || $configuration['type'] === 'jsonl') {
-            return new JsonWriter($filename);
+            return new JsonlWriter($filename);
         }
         if ($configuration['type'] === 'buffer_csv') {
             $configuration['filename'] = $filename;

@@ -37,7 +37,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\OldAS400ArticleAttributesCsvToStructuredDataConverter(),
 //    new Misery\Component\Converter\AkeneoCsvToStructuredDataConverter(
 //        new Misery\Component\Converter\AkeneoCsvHeaderContext()
-//    ),
+//
     new Misery\Component\Converter\AkeneoProductApiConverter(),
     new Misery\Component\Converter\Akeneo\Api\ProductModel(),
     new Misery\Component\Converter\BCItemsApiConverter(),
@@ -58,7 +58,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\AkeneoFlatProductModelToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatProductToCsvConverter(),
     new Misery\Component\Converter\AkeneoFlatAttributeOptionsToCsv(),
-
+    new Misery\Component\Converter\Item\Product(),
     new Misery\Component\Converter\Akeneo\Csv\Product(
         new Misery\Component\Converter\AkeneoCsvHeaderContext()
     ),
@@ -72,7 +72,9 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\Akeneo\Csv\ReferenceEntities(),
     new Misery\Component\Converter\Akeneo\Csv\AkeneoProductCreator(),
     new Misery\Component\Converter\ReadLoopItemCollectionConverter(),
+    new Misery\Component\Converter\ObelinkPurchaseLoop(),
     new Misery\Component\Converter\Akeneo\AkeneoOptionExtractor(),
+    new Misery\Component\Converter\XmlExtractionConverter(),
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');
@@ -157,8 +159,8 @@ $actionRegistry
     ->register(\Misery\Component\Action\DateTimeAction::NAME, new Misery\Component\Action\DateTimeAction())
     ->register(Misery\Component\Action\FrameAction::NAME, new Misery\Component\Action\FrameAction())
     ->register(Misery\Component\Action\GroupAction::NAME, new Misery\Component\Action\GroupAction())
-    ->register(\Misery\Component\Action\StoreAction::NAME, new Misery\Component\Action\StoreAction())
-    ->register(Misery\Component\Action\StartFromFieldAction::NAME, new Misery\Component\Action\StartFromFieldAction())
+    ->register(Misery\Component\Action\StoreAction::NAME, new Misery\Component\Action\StoreAction())
+    ->register(Misery\Component\Action\MakeItemAction::NAME, new Misery\Component\Action\MakeItemAction())
 ;
 
 #$statementRegistry = new Misery\Component\Common\Registry\Registry('statement');

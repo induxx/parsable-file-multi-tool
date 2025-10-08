@@ -2,7 +2,7 @@
 
 namespace Misery\Component\Connections\Google\Client;
 
-use Misery\Component\Common\Client\ApiClient;
+use Misery\Component\Common\Client\ApiCurlClient;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
 use Misery\Component\Common\Client\Paginator;
@@ -25,7 +25,6 @@ class ApiReader implements ReaderInterface
     {
         return $this->client
             ->get($this->client->getUrlGenerator()->generate($this->endpoint->getAll()))
-            ->getResponse()
             ->getContent()
         ;
     }

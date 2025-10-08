@@ -1,0 +1,37 @@
+converter:
+  - name: flatten/xml/v1
+    options:
+      separator: '|'
+      extract:
+        SUPPLIER_PID: ''
+        PRODUCT_DETAILS:
+          k: '@attributes.lang'
+          v: '@value'
+        PRODUCT_FEATURES|FEATURE: {k: 'FNAME', v: 'FVALUE' }
+        PRODUCT_FEATURES|REFERENCE_FEATURE_GROUP_ID: ''
+        PRODUCT_ORDER_DETAILS: ''
+        PRODUCT_PRICE_DETAILS: ''
+        PRODUCT_LOGISTIC_DETAILS: ''
+        USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME: {k: 'UDX.EDXF.MIME_CODE', v: 'UDX.EDXF.MIME_FILENAME' }
+
+pipeline:
+  input:
+    reader:
+        type: xml
+        filename: '%input_file%'
+        xpath: T_NEW_CATALOG/PRODUCT
+        converter: flatten/xml/v1
+
+  encoder:
+    parse:
+      cleanse:
+        remove_start:
+          - '-'
+      nullify: true
+      filter_empty: true
+
+  output:
+    writer:
+      type: jsonl
+      filename: 'read/bmecat_products_converted.jsonl'
+      skip_if_exists: true
