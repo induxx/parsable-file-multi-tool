@@ -4,6 +4,10 @@ converter:
       separator: '|'
       extract:
         SUPPLIER_PID: ''
+        PRODUCT_DETAILS|INTERNATIONAL_PID: ''
+        PRODUCT_DETAILS|SUPPLIER_ALT_PID: ''
+        PRODUCT_DETAILS|MANUFACTURER_PID: ''
+        PRODUCT_DETAILS|MANUFACTURER_NAME: ''
         PRODUCT_DETAILS:
           k: '@attributes.lang'
           v: '@value'
