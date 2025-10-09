@@ -219,7 +219,7 @@ class ApiClient implements ApiClientInterface
 
         $this->resetHandle();
 
-        if (in_array($status, [200, 204]) && !$content) {
+        if (in_array($status, [200, 201, 204]) && !$content) {
             return ApiResponse::create([], $status);
         }
 
