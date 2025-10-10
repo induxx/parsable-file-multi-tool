@@ -55,6 +55,9 @@ class AkeneoItemBuilder
             if ($property === 'values') {
                 continue;
             }
+            if (is_array($propertyValue)) {
+                $propertyValue['matcher'] = Matcher::create($property);
+            }
             $itemObj->addItem($property, $propertyValue);
         }
 

@@ -12,15 +12,20 @@ class AttributeOption implements ConverterInterface, RegisteredByNameInterface
     public function convert(array $item): array
     {
         $item = ArrayFunctions::unflatten($item, '-');
-        $item['labels'] = $item['label'];
+        if (!empty($item['label'])) {
+            $item['labels'] = $item['label'];
+        }
         unset($item['label']);
         return $item;
     }
 
     public function revert(array $item): array
     {
-        $item['label'] = $item['labels'];
+        if (!empty($item['labels'])) {
+            $item['label'] = $item['labels'];
+        }
         unset($item['labels']);
+
         $item = ArrayFunctions::flatten($item, '-');
 
         return $item;

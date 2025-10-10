@@ -2,6 +2,9 @@
 
 namespace Misery\Component\Converter;
 
+/**
+ * @deprecated
+ */
 class AS400HeaderContext
 {
     public function create(array $attributes, array $locales): array

@@ -83,32 +83,32 @@ class BasicAuthApiClient implements ApiClientInterface
         throw new \RuntimeException('Impossible NoApiResponse');
     }
 
-    public function get($endpoint, $headers = []): self
+    public function get($endpoint, $headers = []): ApiResponse
     {
         $this->sendRequest('GET', $endpoint, null, $headers);
 
-        return $this;
+        return $this->getResponse();
     }
 
-    public function post($endpoint, $postData = null, $headers = []): self
+    public function post($endpoint, $postData = null, $headers = []): ApiResponse
     {
         $this->sendRequest('POST', $endpoint, $postData, $headers);
 
-        return $this;
+        return $this->getResponse();
     }
 
-    public function put($endpoint, $data = null, $headers = []): self
+    public function put($endpoint, $data = null, $headers = []): ApiResponse
     {
         $this->sendRequest('PUT', $endpoint, $data, $headers);
 
-        return $this;
+        return $this->getResponse();
     }
 
-    public function delete($endpoint, $headers = []): self
+    public function delete($endpoint, $headers = []): ApiResponse
     {
         $this->sendRequest('DELETE', $endpoint, null, $headers);
 
-        return $this;
+        return $this->getResponse();
     }
 
     public function getUrlGenerator(): UrlGenerator
@@ -116,12 +116,12 @@ class BasicAuthApiClient implements ApiClientInterface
         return $this->urlGenerator;
     }
 
-    public function multiPatch(string $endpoint, array $dataSet): ApiClientInterface
+    public function multiPatch(string $endpoint, array $dataSet): ApiResponse
     {
         // TODO: Implement multiPatch() method.
     }
 
-    public function patch(string $endpoint, array $patchData): ApiClientInterface
+    public function patch(string $endpoint, array $patchData): ApiResponse
     {
         // TODO: Implement patch() method.
     }

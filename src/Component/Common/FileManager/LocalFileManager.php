@@ -58,7 +58,6 @@ class LocalFileManager implements FileManagerInterface
         }
     }
 
-
     public function find(string $regex): \Iterator
     {
         return new \GlobIterator($this->getAbsolutePath($regex));
@@ -150,6 +149,16 @@ class LocalFileManager implements FileManagerInterface
     }
 
     /**
+     * Generates the correct absolute path even if relative paths are given
+     */
+    private function generatePath(string $filename): string
+    {
+        $filename = str_replace($this->workingDirectory, '', $filename);
+
+        return $this->workingDirectory . DIRECTORY_SEPARATOR . $filename;
+    }
+
+    /**
      * Returns Absolute paths even when entering Relative ones.
      * Only Local FS required absoluteness
      *
@@ -158,7 +167,12 @@ class LocalFileManager implements FileManagerInterface
      */
     public function getAbsolutePath(string $filename): string
     {
-        $this->makePath($this->getDirectory($filename));
+        $path = $this->generatePath($filename);
+        if (is_file($path)) {
+            return $path;
+        }
+
+        $this->makePath($this->getDirectory($path));
 
         if (strpos($filename, $this->workingDirectory) === false) {
             return $this->workingDirectory. DIRECTORY_SEPARATOR . $filename;

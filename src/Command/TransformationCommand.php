@@ -3,6 +3,10 @@
 namespace Misery\Command;
 
 use Ahc\Cli\Input\Command;
+use App\Component\ChangeManager\ChangeManager;
+use App\Component\Common\Resource\ChangeResource;
+use App\Infra\Adapter\KeyValueStore\FileKeyValueStoreAdapter;
+use App\Infra\Redis\RedisIdentityScope;
 use Assert\Assertion;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
@@ -74,15 +78,36 @@ class TransformationCommand extends Command
             new OutputLogger()
         );
 
+        // setting up a fake File based key-value store for our change-manager
+        $configurationFactory->setChangeManager(
+            new ChangeManager(
+                new ChangeResource(
+                    new FileKeyValueStoreAdapter($workpath.DIRECTORY_SEPARATOR.'store'),
+                    new RedisIdentityScope()
+                )
+            )
+        );
+
         $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {
             return $value !== NULL;
         });
+
+        // reading the context file
+        $transformationDir = pathinfo($file, PATHINFO_DIRNAME);
+        $contextFile = $transformationDir.DIRECTORY_SEPARATOR.'secrets.yaml';
+        if (is_file($contextFile)) {
+            $context = Yaml::parseFile($contextFile);
+            // merging it with the original MAIN-step.yaml, after this point the two are merged
+            $transformationFile = ArrayFunctions::array_merge_recursive($context, $transformationFile);
+        }
+        $dateFormat = $transformationFile['context']['date_format'] ?? 'Hd-m-Y-H-i-s';
+
         $configuration = $configurationFactory->parseDirectivesFromConfiguration(
             array_replace_recursive($transformationFile, [
                 'context' => [
                     # emulated operation datetime stamps
-                    'operation_create_datetime' => (new \DateTime('NOW'))->format('Hd-m-Y-H-i-s'),
-                    'last_completed_operation_datetime' => (new \DateTime('NOW'))->modify('-2 hours')->format('Hd-m-Y-H-i-s'),
+                    'operation_create_datetime' => (new \DateTime('NOW'))->format($dateFormat),
+                    'last_completed_operation_datetime' => (new \DateTime('NOW'))->modify('-2 hours')->format($dateFormat),
                     'transformation_file' => $file,
                     'sources' => $source,
                     'scripts' => __DIR__.'/../../scripts',

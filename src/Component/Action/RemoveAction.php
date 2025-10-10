@@ -15,12 +15,13 @@ class RemoveAction implements OptionsInterface, ActionItemInterface
     /** @var array */
     private $options = [
         'keys' => null,
-        'fields' => [],
+        'fields' => null,
+        'list' => [],
     ];
 
     public function applyAsItem(ItemInterface $item): void
     {
-        $fields = $this->getOption('keys', $this->getOption('fields'));
+        $fields = $this->getOption('keys', $this->getOption('fields') ?? $this->getOption('list'));
         foreach ($fields as $field) {
             $item->removeItem($field);
         }
@@ -28,7 +29,7 @@ class RemoveAction implements OptionsInterface, ActionItemInterface
 
     public function apply(array $item): array
     {
-        $fields = $this->getOption('keys', $this->getOption('fields'));
+        $fields = $this->getOption('keys', $this->getOption('fields') ?? $this->getOption('list'));
         foreach ($fields as $field) {
             unset($item[$field]);
         }

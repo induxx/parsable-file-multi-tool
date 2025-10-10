@@ -21,7 +21,7 @@ class CsvWriterTest extends TestCase
 
     public function test_parse_csv_file(): void
     {
-        $filename = __DIR__ . '/../../examples/STD_OUT';
+        $filename = tempnam(sys_get_temp_dir(), 'test_csv_writer');
         $writer = new CsvWriter($filename);
 
         foreach ($this->items as $item) {

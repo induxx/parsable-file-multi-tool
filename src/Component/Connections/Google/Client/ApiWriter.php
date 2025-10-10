@@ -21,7 +21,6 @@ class ApiWriter implements ItemWriterInterface
     {
         $this->client
             ->post($this->client->getUrlGenerator()->generate($this->endpoint->getSingleEndPoint()), $data)
-            ->getResponse()
         ;
     }
 

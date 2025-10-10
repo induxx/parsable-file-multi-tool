@@ -14,7 +14,7 @@ trait StatementTrait
     private $key = 0;
 
     private $template = [
-        'or' => null,
+        'or' => [],
         'and' => null,
         'when' => null,
         'then' => null,
@@ -44,7 +44,10 @@ trait StatementTrait
 
     public function or(string $field, string $value = null): StatementInterface
     {
-        $this->conditions[$this->key] = $this->conditions[$this->key] + ['or' => new Field($field, $value)];
+        if (!isset($this->conditions[$this->key]['or']) || !is_array($this->conditions[$this->key]['or'])) {
+            $this->conditions[$this->key]['or'] = [];
+        }
+        $this->conditions[$this->key]['or'][] = new Field($field, $value);
 
         return $this;
     }
@@ -66,18 +69,27 @@ trait StatementTrait
     public function isApplicable(array $item): bool
     {
         return count($this->conditions) === count(array_filter($this->conditions, function ($condition) use ($item) {
-                $condition = array_merge($this->template, $condition);
-                switch (true) {
-                    case !empty($condition['or']) && (true === $this->whenField($condition['when'],
-                                $item) || true === $this->whenField($condition['or'], $item)):
-                    case !empty($condition['and']) && (true === $this->whenField($condition['when'],
-                                $item) && true === $this->whenField($condition['and'], $item)):
-                    case true === $this->whenField($condition['when'], $item):
-                        return true;
-                    default:
-                        return false;
-                }
-            }));
+            switch (true) {
+                case !empty($condition['or']) && (
+                    true === $this->whenField($condition['when'], $item)
+                    || $this->anyOrFieldMatches($condition['or'], $item)
+                ):
+                    return true;
+                case empty($condition['and']) && empty($condition['or']) && true === $this->whenField($condition['when'], $item):
+                    return true;
+                default:
+                    return false;
+            }
+        }));
+    }
+    private function anyOrFieldMatches($orFields, $item): bool
+    {
+        foreach ($orFields as $orField) {
+            if ($this->whenField($orField, $item)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function apply(array $item): array

@@ -16,21 +16,6 @@ use Misery\Component\Encoder\ItemEncoderFactory;
 use Misery\Component\Format\StringToBooleanFormat;
 use Misery\Component\Format\StringToListFormat;
 
-/**
- * Convert a flat CSV Akeneo product to a structured array.
- *
- * Based on Akeneo PIM 6.0 CSV import/export format.
- *
- * Usage:
- *   - set 'attribute_types:list' option to the list of attribute codes and their types
- *     (this can be fetched from Akeneo API /api/rest/v1/attributes)
- *   - set 'identifier' option to the identifier attribute code (default: 'sku')
- *   - set 'associations' option to the list of association types to detect (default: ['RELATED'])
- *
- * Next to accepting akeneo CSV, we also accept quirks that akeneo itself accepts:
- * - .134 as number (0.134)
- *
- */
 class Product implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
@@ -199,7 +184,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         $this->csvHeaderContext->unsetHeader();
         $identifier = $this->getOption('identifier');
         $codes = $this->getOption('attribute_types:list');
-        $keyCodes = is_array($codes) ? array_keys($codes): null;
+        $keyCodes = is_array($codes) ? array_keys($codes): [];
         $separator = '-';
         $output = [];
 
@@ -232,7 +217,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                 continue;
             }
 
-            if ($keyCodes && false === in_array($masterKey, $keyCodes)) {
+            if (false === in_array($masterKey, $keyCodes)) {
                 continue;
             }
 
@@ -252,9 +237,6 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
             if (is_array($codes)) {
                 # metrics
                 if ($codes[$masterKey] === 'pim_catalog_metric') {
-                    if (str_starts_with($value, '.')) {
-                        $value = '0'.$value; # Akeneo quirk
-                    }
                     $prep['data'] = [
                         'amount' => $value,
                         'unit' => $item[str_replace($masterKey, $masterKey.'-unit', $key)] ?? null,
@@ -279,24 +261,6 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                 # pim_catalog_price_collection | single default currency EUR | will work in most cases
                 if ($codes[$masterKey] === 'pim_catalog_price_collection' && true === $this->getOption('single_currency')) {
                     $prep['data'] = [['amount' => $prep['data'], 'currency' => $this->getOption('default_currency')]];
-                }
-                # pim_catalog_price_collection | single default currency EUR | will work in most cases
-                if ($codes[$masterKey] === 'pim_catalog_price_collection' && false === $this->getOption('single_currency')) {
-                    $currency = $keys[1] ?? $this->getOption('default_currency');
-                    $amount = $prep['data'];
-                    $previousData = $output['values|'.$masterKey]['data'] ?? null;
-
-                    $prep = [
-                        'locale' => null,
-                        'scope' => null,
-                        'data' => $previousData,
-                    ];
-
-                    if ($previousData && is_array($previousData)) {
-                        $prep['data'][] = ['amount' => $amount, 'currency' => $currency];
-                    } else {
-                        $prep['data'] = [['amount' => $amount, 'currency' => $currency]];
-                    }
                 }
                 # boolean expecting CSV values
                 if ($codes[$masterKey] === 'pim_catalog_boolean') {

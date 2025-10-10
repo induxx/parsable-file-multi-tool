@@ -188,12 +188,11 @@ class Item implements ItemInterface
             if ($matcher->matches('values')) {
                 $dataValue = $fieldValue->getValue();
                 unset($dataValue['matcher']);
-                unset($dataValue['type']);
                 $fields['values'][$matcher->getPrimaryKey()][] = $dataValue;
             } elseif ($matcher->matches('labels')) {
                 $fields['labels'][$matcher->getLocale()] = $fieldValue->getDataValue();
             } else {
-                $fields[$code] = $fieldValue->getValue();
+                $fields[$code] = $fieldValue->getDataValue();
             }
         }
 

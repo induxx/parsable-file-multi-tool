@@ -10,4 +10,5 @@ pipeline:
   output:
     writer:
       type: jsonl
-      filename: 'akeneo_reference-entities_%endpoint%.jsonl'
+      filename: 'read/akeneo_reference-entities_%endpoint%.jsonl'
+      skip_if_exists: true

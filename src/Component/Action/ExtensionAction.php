@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Action;
 
+use Assert\Assert;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
@@ -33,6 +34,7 @@ class ExtensionAction implements OptionsInterface, ConfigurationAwareInterface, 
         // loadExtension
         if (null === $this->extension) {
             $extensionFile = $this->configuration->getExtensions()[$extension.'.php'] ?? null;
+            Assert::that($extensionFile)->notEmpty();
             $this->extension = $this->loadExtension($extensionFile, 'Extensions\\'.$extension);
         }
 

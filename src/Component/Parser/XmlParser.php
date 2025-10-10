@@ -2,44 +2,36 @@
 
 namespace Misery\Component\Parser;
 
-use Assert\Assert;
 use Misery\Component\Common\Cursor\CursorInterface;
 
 class XmlParser implements CursorInterface
 {
-    public const CONTAINER = 'Container';
-
-    /** @var string */
-    private $container;
+    /** @var string[] */
+    private array $path = [];
     private $xml;
     /** @var int|null */
     private $count;
     private $i = 0;
 
-    public function __construct(
-        string $file,
-        string $container = null
-    ) {
-        $this->container = $container;
-
+    /**
+     * @param string      $file
+     * @param string|null $xpath  e.g. "Records/Product" or just "Records"
+     */
+    public function __construct(string $file, string $xpath = null)
+    {
         $this->xml = new \XMLReader();
         $this->xml->open($file);
+
+        if (null !== $xpath) {
+            $this->path = explode('/', $xpath);
+        }
     }
 
-    public static function create(string $filename, string $container = null): self
+    public static function create(string $filename, string $xpath = null): self
     {
-        return new self($filename, $container);
+        return new self($filename, $xpath);
     }
 
-    public function setContainer(string $container): void
-    {
-        // once's set, you can't chang the container
-        $this->container = $this->container ?? $container;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function loop(callable $callable): void
     {
         foreach ($this->getIterator() as $row) {
@@ -47,73 +39,114 @@ class XmlParser implements CursorInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getIterator(): \Generator
     {
         while ($this->valid()) {
             yield $this->key() => $this->current();
             $this->next();
         }
-
+        // rewind after finishing
         $this->rewind();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return false|array
-     *
-     * @throws \Exception
-     */
     public function current(): mixed
     {
-        // this part is responsible for setting the start element correctly
-        while ($this->i === 0 && $this->xml->read() && $this->xml->name !== $this->container) {
-            // digging;
-            Assert::that($this->container, 'XML parser needs a container name')->notEmpty();
-        }
-        $this->i++;
-
-        try {
-            if ($this->xml->name === $this->container) {
-                return json_decode(json_encode(new \SimpleXMLElement($this->xml->readOuterXML())), true);
+        // on first fetch, drill down through all segments
+        if ($this->i === 0) {
+            foreach ($this->path as $segment) {
+                while (
+                    $this->xml->read() &&
+                    !($this->xml->nodeType === \XMLReader::ELEMENT &&
+                        $this->xml->localName === $segment)
+                ) {
+                    // skip
+                }
+                // once you hit a segment that's not the last, go one level deeper
+                if ($segment !== end($this->path)) {
+                    $this->xml->read();
+                }
             }
-        } catch (\Exception $exception) {
-            throw new \Exception($exception->getMessage());
+        }
+
+        // now at the last segment
+        if ($this->xml->nodeType === \XMLReader::ELEMENT
+            && $this->xml->localName === end($this->path)
+        ) {
+            $this->i++;
+            $xmlStr = $this->xml->readOuterXML();
+            $simple = new \SimpleXMLElement($xmlStr);
+
+            // convert recursively—and *always* preserve attributes on leaves
+            return $this->simpleXmlToArray($simple);
         }
 
         return false;
     }
 
     /**
-     * {@inheritDoc}
+     * Recursively convert a SimpleXMLElement into a PHP array,
+     * preserving attributes under '@attributes', text under '@value',
+     * and grouping same-named children into arrays.
+     *
+     * @param \SimpleXMLElement $node
+     * @return string|array  string if leaf-without-attributes, or array otherwise
      */
-    public function next(): void
+    private function simpleXmlToArray(\SimpleXMLElement $node): string|array
     {
-        $this->xml->next($this->container);
+        $result = [];
+
+        // 1) attributes
+        foreach ($node->attributes() as $name => $value) {
+            $result['@attributes'][$name] = (string) $value;
+        }
+
+        // 2) child elements
+        foreach ($node->children() as $child) {
+            $childName = $child->getName();
+            $childValue = $this->simpleXmlToArray($child);
+
+            // if we already have one, turn it into a numeric array
+            if (isset($result[$childName])) {
+                if (! is_array($result[$childName]) || ! array_key_exists(0, $result[$childName])) {
+                    $result[$childName] = [ $result[$childName] ];
+                }
+                $result[$childName][] = $childValue;
+            } else {
+                $result[$childName] = $childValue;
+            }
+        }
+
+        // 3) leaf text content
+        $text = trim((string) $node);
+        if ($text !== '') {
+            if (count($result) === 0) {
+                // pure text, no attrs/no children → return string directly
+                return $text;
+            }
+            // mixed element (has attrs or children) → store under '@value'
+            $result['@value'] = $text;
+        }
+
+        return $result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    public function next(): void
+    {
+        // jump to next <childTag>
+        $childTag = $this->path[count($this->path) - 1];
+        $this->xml->next($childTag);
+    }
+
     public function key(): mixed
     {
         return $this->i;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function valid(): bool
     {
         return false !== $this->current();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rewind(): void
     {
         if (false === $this->valid()) {
@@ -123,25 +156,30 @@ class XmlParser implements CursorInterface
         $this->count();
         $this->seek(0);
 
-        // move 1 up for the headers
+        // position at first data element
         $this->next();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function seek($offset): void
     {
-        $this->xml->moveToAttributeNo($offset);
+        // move reader back to start + offset: we just re-open
+        $this->xml->close();
+        $this->xml->open($this->xml->URI);
+        $this->i = $offset;
+        // skip offset items
+        for ($k = 0; $k < $offset; $k++) {
+            $this->next();
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function count(): int
     {
         if (null === $this->count) {
-            $this->loop(function (){});
+            $this->count = 0;
+            // count by consuming
+            $this->loop(function () {
+                $this->count++;
+            });
         }
 
         return $this->count;
@@ -149,6 +187,6 @@ class XmlParser implements CursorInterface
 
     public function clear(): void
     {
-        // TODO: Implement clear() method.
+        // no-op
     }
 }

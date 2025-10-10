@@ -35,10 +35,6 @@ class AkeneoApiClientAccount implements ApiClientAccountInterface
     {
         $authorization = \base64_encode($this->clientId.':'.$this->secret);
 
-        $client->setHeaders([
-            'Authorization' => 'Basic '. $authorization,
-        ]);
-
         $response = $client
             ->post(
                 $client->getUrlGenerator()->generateFromDomain(self::AUTH_URI),
@@ -46,8 +42,11 @@ class AkeneoApiClientAccount implements ApiClientAccountInterface
                     'grant_type' => 'password',
                     'username' => $this->username,
                     'password' => $this->password,
+                ],
+                [
+                    'Authorization' => 'Basic '. $authorization,
                 ]
-            )->getResponse();
+            );
 
         if ($response->getCode() === 422) {
             throw new \RuntimeException($response->getMessage());
@@ -79,18 +78,17 @@ class AkeneoApiClientAccount implements ApiClientAccountInterface
         $account->invalidate();
         $authorization = \base64_encode($this->clientId.':'.$this->secret);
 
-        $client->setHeaders([
-            'Authorization' => 'Basic '. $authorization,
-        ]);
-
         $response = $client
             ->post(
                 $client->getUrlGenerator()->generateFromDomain(self::AUTH_URI),
                 [
                     'grant_type' => 'refresh_token',
                     'refresh_token' => $account->getRefreshToken(),
+                ],
+                [
+                    'Authorization' => 'Basic '. $authorization,
                 ]
-            )->getResponse();
+            );
 
         if ($response->getCode() === 422) {
             throw new \RuntimeException($response->getMessage());

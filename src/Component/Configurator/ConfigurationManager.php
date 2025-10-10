@@ -2,10 +2,15 @@
 
 namespace Misery\Component\Configurator;
 
+//use App\Component\Akeneo\Api\Client\AkeneoApiClientAccount;
+//use App\Component\Akeneo\Api\Resources\AkeneoResourceCollection;
+//use App\Component\Common\Client\ApiClientInterface;
+//use App\Component\Common\Resource\ResourceCollectionInterface;
 use Assert\Assert;
 use Assert\Assertion;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\Action\ItemActionProcessorFactory;
+use Misery\Component\Akeneo\Client\HttpReaderFactory;
 use Misery\Component\Akeneo\Client\HttpWriterFactory;
 use Misery\Component\BluePrint\BluePrint;
 use Misery\Component\BluePrint\BluePrintFactory;
@@ -118,79 +123,74 @@ class ConfigurationManager
         $this->config->addSources($this->sources);
     }
 
+    public function addContextEntry(string $key, string $value): void
+    {
+        $this->config->addContext([$key => $value]);
+    }
+
     public function addContext(array $configuration): void
     {
         $this->config->addContext($configuration);
     }
 
-    public function addTransformationSteps(array $transformationSteps, array $masterConfiguration): void
+    /**
+     * TODO this needs to be broken into more steps, not clear
+     * context grows, but needs to be reset to previous state per step
+     */
+    public function addTransformationSteps(array $transformationSteps, array $masterConfiguration, array $context): void
     {
         /** @var ProjectDirectories $projectDirectories */
         $projectDirectories = $this->factory->getFactory('project_directories');
-        $debug = $this->config->getContext('debug');
         $dirName = pathinfo($this->config->getContext('transformation_file'))['dirname'] ?? null;
 
         unset($masterConfiguration['transformation_steps']);
 
-        # list of transformations
+        // Iterate over the transformation steps
         foreach ($transformationSteps as $transformationFile) {
 
-            // this code detects the run | with option
-            // and creates virtual steps, so you don't need to repeat yourself
+            // Check if 'run' is specified
             if (isset($transformationFile['run'])) {
                 $file = $transformationFile['run'];
-                $withArray = $transformationFile['with'];
 
-                // Get the number of iterations needed
-                $iterationCount = count(current($withArray));
+                // Handle 'once_with' directive
+                if (isset($transformationFile['once_with'])) {
+                    $this->addTransformationSteps([$file], $masterConfiguration, array_merge($context, $transformationFile['once_with']));
 
-                // Iterate over each index
-                for ($i = 0; $i < $iterationCount; $i++) {
-                    $context = [];
-
-                    // Build the context for the current index
-                    foreach ($withArray as $key => $values) {
-                        if (isset($values[$i])) {
-                            $context[$key] = $values[$i];
-
-                            // Save the context in the master configuration
-                            $masterConfiguration['context'][$key] = $values[$i];
-                        }
+                    // Handle 'with' directive
+                } elseif (isset($transformationFile['with'])) {
+                    // Iterate over each combination of parameters
+                    foreach ($this->arrayCartesianItem($transformationFile['with']) as $comboContext) {
+                        $this->addTransformationSteps([$file], $masterConfiguration, array_merge($context, $comboContext));
                     }
-
-                    $this->addTransformationSteps([$file], $masterConfiguration);
                 }
                 continue;
             }
 
-            $file = $dirName . DIRECTORY_SEPARATOR . $transformationFile;
-            if (!is_file($file) && $projectDirectories->getTemplatePath()->isFile($transformationFile)) {
-                $file = $projectDirectories->getTemplatePath()->getAbsolutePath($transformationFile);
+            // Process the transformation file as before
+            $filePath = $dirName . DIRECTORY_SEPARATOR . $transformationFile;
+            if (!is_file($filePath) && $projectDirectories->getTemplatePath()->isFile($transformationFile)) {
+                $filePath = $projectDirectories->getTemplatePath()->getAbsolutePath($transformationFile);
             } else {
-                Assertion::file($file);
+                Assertion::file($filePath);
             }
 
-            // we need to start a new configuration manager.
-            $transformationFile = ArrayFunctions::array_filter_recursive(Yaml::parseFile($file), function ($value) {
-                return $value !== NULL;
+            // Read and parse the transformation file
+            $transformationContent = ArrayFunctions::array_filter_recursive(Yaml::parseFile($filePath), function ($value) {
+                return $value !== null;
             });
-            $configuration = array_replace_recursive($masterConfiguration, $transformationFile, [
-                'context' => [
-                    'try' => $transformationFile['context']['try'] ?? null,
-                    'debug' => $debug,
-                    'dirname' => $dirName,
-                    'transformation_file' => $file,
-            ]]);
+            $configuration = array_replace_recursive($transformationContent, $masterConfiguration);
+            $configuration['context'] = array_merge($configuration['context'], $transformationContent['context'] ?? [], $context);
             $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
-            // only start the process if our transformation file has a pipeline
-            if (!isset($transformationFile['pipeline']) && !isset($transformationFile['shell'])) {
+            // Start the process if the transformation file has a pipeline or shell
+            if (!isset($transformationContent['pipeline']) && !isset($transformationContent['shell'])) {
                 continue;
             }
+            $this->addContextEntry('transformation_file', $filePath);
 
             (new ProcessManager($configuration))->startProcess();
 
-            // TODO connect the outputs here
+            // Execute shell commands if any
             if ($shellCommands = $configuration->getShellCommands()) {
                 $shellCommands->exec();
                 $configuration->clearShellCommands();
@@ -198,7 +198,20 @@ class ConfigurationManager
         }
     }
 
-    public function configureShellCommands(array $configuration)
+    // Helper function to compute Cartesian of arrays
+    private function arrayCartesianItem($arrays): array
+    {
+        $result = [[]];
+        foreach (array_keys($arrays) as $key) {
+            foreach ($arrays[$key] as $i => $item) {
+                $result[$i][$key] = $item;
+            }
+        }
+
+        return $result;
+    }
+
+    public function configureShellCommands(array $configuration): void
     {
         /** @var ShellCommandFactory $factory */
         $factory = $this->factory->getFactory('shell');
@@ -216,12 +229,25 @@ class ConfigurationManager
         );
     }
 
+//    public function createResourceCollection(string $name, array $account): void
+//    {
+//        $this->config->addResourceCollection(
+//            new AkeneoResourceCollection($name, $account)
+//        );
+//    }
+
     public function configureAccounts(array $configuration): void
     {
         /** @var ApiClientFactory $factory */
         $factory = $this->factory->getFactory('api_client');
         foreach ($configuration as $account) {
             $this->config->addAccount($account['name'], $factory->createFromConfiguration($account));
+            if (isset($account['resourceType']) && str_starts_with($account['resourceType'], 'api-ak')) {
+                throw new \InvalidArgumentException('Resource type "api-ak" is not yet supported in this context.');
+                //$this->createResourceCollection($account['name'], $account);
+            } else {
+                $this->config->addAccount($account['name'], $factory->createFromConfiguration($account));
+            }
         }
     }
 
@@ -366,6 +392,7 @@ class ConfigurationManager
 
     public function createHTTPReader(array $configuration): ReaderInterface
     {
+        /** @var HttpReaderFactory $factory */
         $factory = $this->factory->getFactory('http_reader');
         $reader = $factory->createFromConfiguration($configuration, $this->config);
 

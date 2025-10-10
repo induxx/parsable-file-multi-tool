@@ -39,7 +39,7 @@ class E5PaginationCursor extends PaginationCursor
 
         $response = $this->getClient()
             ->get($this->link)
-            ->getResponse();
+        ;
 
         $this->link = null;
         $this->items = new ItemCollection($response->getContent());

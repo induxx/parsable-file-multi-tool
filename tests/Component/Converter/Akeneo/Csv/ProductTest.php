@@ -162,4 +162,113 @@ class ProductTest extends TestCase
 
         $this->assertSame($expected, $converter->revert($stdTestProduct));
     }
+
+    /**
+     * Additional tests for Akeneo type conversions and missing attribute_types:list
+     */
+    public function testNumberConversionWithAttributeTypesList()
+    {
+        $converter = $this->getProductConverter();
+        $row = [
+            'aantal_personen_4_478' => '123,45',
+        ];
+        $result = $converter->convert($row);
+        $this->assertIsNumeric($result['values|aantal_personen_4_478']['data']);
+        $this->assertEquals('123.45', $result['values|aantal_personen_4_478']['data']);
+    }
+
+    public function testMetricConversionWithAttributeTypesList()
+    {
+        $converter = $this->getProductConverter();
+        $row = [
+            'width' => '10',
+            'width-unit' => 'CM',
+        ];
+        $result = $converter->convert($row);
+        $this->assertIsArray($result['values|width']['data']);
+        $this->assertEquals(['amount' => '10', 'unit' => 'CM'], $result['values|width']['data']);
+    }
+
+    public function testBooleanConversionWithAttributeTypesList()
+    {
+        $types = $this->getAttributeTypes();
+        $types['ecom_enabled'] = 'pim_catalog_boolean';
+        $converter = $this->getProductConverter(['attribute_types:list' => $types]);
+        $row = ['ecom_enabled' => '1'];
+        $result = $converter->convert($row);
+        $this->assertTrue($result['values|ecom_enabled']['data']);
+        $row = ['ecom_enabled' => '0'];
+        $result = $converter->convert($row);
+        $this->assertFalse($result['values|ecom_enabled']['data']);
+        $row = ['ecom_enabled' => ''];
+        $result = $converter->convert($row);
+        $this->assertNull($result['values|ecom_enabled']['data']);
+    }
+
+    public function testMultiselectConversionWithAttributeTypesList()
+    {
+        $types = $this->getAttributeTypes();
+        $types['colors'] = 'pim_catalog_multiselect';
+        $converter = $this->getProductConverter(['attribute_types:list' => $types]);
+        $row = ['colors' => 'red,blue-green'];
+        $result = $converter->convert($row);
+        $this->assertIsArray($result['values|colors']['data']);
+        $this->assertEquals(['red', 'blue_green'], $result['values|colors']['data']);
+    }
+
+    public function testSimpleselectConversionWithAttributeTypesList()
+    {
+        $types = $this->getAttributeTypes();
+        $types['abrasion_resistance_options'] = 'pim_catalog_simpleselect';
+        $converter = $this->getProductConverter(['attribute_types:list' => $types]);
+        $row = ['abrasion_resistance_options' => 'option-1'];
+        $result = $converter->convert($row);
+        $this->assertEquals('option_1', $result['values|abrasion_resistance_options']['data']);
+    }
+
+    public function testReferenceDataMultiselectConversionWithAttributeTypesList()
+    {
+        $types = $this->getAttributeTypes();
+        $types['ref_multi'] = 'pim_reference_data_multiselect';
+        $converter = $this->getProductConverter(['attribute_types:list' => $types]);
+        $row = ['ref_multi' => 'foo-bar,baz'];
+        $result = $converter->convert($row);
+        $this->assertEquals(['foo_bar', 'baz'], $result['values|ref_multi']['data']);
+    }
+
+    public function testReferenceDataSimpleselectConversionWithAttributeTypesList()
+    {
+        $types = $this->getAttributeTypes();
+        $types['ref_simple'] = 'pim_reference_data_simpleselect';
+        $converter = $this->getProductConverter(['attribute_types:list' => $types]);
+        $row = ['ref_simple' => 'foo-bar'];
+        $result = $converter->convert($row);
+        $this->assertEquals('foo_bar', $result['values|ref_simple']['data']);
+    }
+
+    public function testPriceCollectionConversionWithAttributeTypesList()
+    {
+        $types = $this->getAttributeTypes();
+        $types['price'] = 'pim_catalog_price_collection';
+        $converter = $this->getProductConverter(['attribute_types:list' => $types, 'default_currency' => 'USD']);
+        $row = ['price' => '99.99'];
+        $result = $converter->convert($row);
+        $this->assertEquals([['amount' => '99.99', 'currency' => 'USD']], $result['values|price']['data']);
+    }
+
+    public function testNoAttributeTypesListFallsBackToString()
+    {
+        $converter = $this->getProductConverter(['attribute_types:list' => null]);
+        $row = ['foo' => 'bar'];
+        $result = $converter->convert($row);
+        $this->assertSame($row, $result);
+    }
+
+    public function testNoAttributeTypesListWithMetricLikeField()
+    {
+        $converter = $this->getProductConverter(['attribute_types:list' => null]);
+        $row = ['width' => '10', 'width-unit' => 'CM'];
+        $result = $converter->convert($row);
+        $this->assertSame($row, $result);
+    }
 }

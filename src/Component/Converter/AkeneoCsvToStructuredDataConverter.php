@@ -6,6 +6,9 @@ use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 
+/**
+ * @deprecated use "src/Component/Converter/Akeneo/Csv/Product.php" instead
+ */
 class AkeneoCsvToStructuredDataConverter implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
@@ -74,6 +77,6 @@ class AkeneoCsvToStructuredDataConverter implements ConverterInterface, Register
 
     public function getName(): string
     {
-        return 'akeneo/product/csv';
+        return 'akeneo/product/csv/DEPRECATED';
     }
 }

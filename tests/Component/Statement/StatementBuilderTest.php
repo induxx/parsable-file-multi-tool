@@ -86,8 +86,17 @@ class StatementBuilderTest extends TestCase
     {
         $whenString = 'field1 == value1 OR field2 == value2';
         $statement = StatementBuilder::build($whenString);
-        $this->assertInstanceOf(EqualsStatement::class, $statement);
-        // Here you might want to add more specific assertions to check if the OR condition is properly set
+        $this->assertInstanceOf(CollectionStatement::class, $statement);
+        $collection = $statement->getCollection();
+        $this->assertInstanceOf(StatementCollection::class, $collection);
+        $values = $collection->getValues();
+        $this->assertCount(1, $values, 'OR chain should be a single statement in the collection');
+        $mainStatement = $values[0];
+        $this->assertInstanceOf(EqualsStatement::class, $mainStatement);
+        // Test behavior: isApplicable should return true for either OR condition
+        $this->assertTrue($mainStatement->isApplicable(['field1' => 'value1']));
+        $this->assertTrue($mainStatement->isApplicable(['field2' => 'value2']));
+        $this->assertFalse($mainStatement->isApplicable(['field1' => 'nope', 'field2' => 'nope']));
     }
 
     public function testFromExpressionWithComplexAnd(): void
@@ -96,5 +105,23 @@ class StatementBuilderTest extends TestCase
         $statement = StatementBuilder::build($whenString);
         $this->assertInstanceOf(CollectionStatement::class, $statement);
         // Here you might want to add more specific assertions to check if all AND conditions are properly set
+    }
+
+    public function testFromExpressionWithMultipleOr(): void
+    {
+        $whenString = 'field1 == value1 OR field2 == value2 OR field3 == value3';
+        $statement = StatementBuilder::build($whenString);
+        $this->assertInstanceOf(CollectionStatement::class, $statement);
+        $collection = $statement->getCollection();
+        $this->assertInstanceOf(StatementCollection::class, $collection);
+        $values = $collection->getValues();
+        $this->assertCount(1, $values, 'OR chain should be a single statement in the collection');
+        $mainStatement = $values[0];
+        $this->assertInstanceOf(EqualsStatement::class, $mainStatement);
+        // Test behavior: isApplicable should return true for any matching OR condition
+        $this->assertTrue($mainStatement->isApplicable(['field1' => 'value1']));
+        $this->assertTrue($mainStatement->isApplicable(['field2' => 'value2']));
+        $this->assertTrue($mainStatement->isApplicable(['field3' => 'value3']));
+        $this->assertFalse($mainStatement->isApplicable(['field1' => 'nope', 'field2' => 'nope', 'field3' => 'nope']));
     }
 }

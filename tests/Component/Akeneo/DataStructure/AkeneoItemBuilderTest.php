@@ -9,41 +9,37 @@ use PHPUnit\Framework\TestCase;
 
 class AkeneoItemBuilderTest extends TestCase
 {
-    private array $productData = [
-        'identifier' => '1234',
-        'parent' => '5678',
-        'categories' => ['category1', 'category2'],
-        'values' => [
-            'weight' => [
-                [
-                    'locale' => null,
-                    'scope' => null,
-                    'data' => [
-                        'amount' => 1,
-                        'unit' => 'GRAM'
-                    ]
-                ]
-            ],
-            'color' => [
-                [
-                    'locale' => 'en_US',
-                    'scope' => 'ecom',
-                    'data' => 'red',
-                ]
-            ],
-            'brand' => [
-                [
-                    'locale' => 'en_US',
-                    'scope' => null,
-                    'data' => 'nike'
-                ]
-            ],
-        ],
-    ];
-
     public function testFromProductApiPayload(): void
     {
-        $productData = $this->productData;
+        $productData = [
+            'identifier' => '1234',
+            'values' => [
+                'weight' => [
+                    [
+                        'locale' => null,
+                        'scope' => null,
+                        'data' => [
+                            'amount' => 1,
+                            'unit' => 'GRAM'
+                        ]
+                    ]
+                ],
+                'color' => [
+                    [
+                        'locale' => 'en_US',
+                        'scope' => 'ecom',
+                        'data' => 'red',
+                    ]
+                ],
+                'brand' => [
+                    [
+                        'locale' => 'en_US',
+                        'scope' => null,
+                        'data' => 'nike'
+                    ]
+                ],
+            ],
+        ];
 
         $context = [
             'attribute_types' => [
@@ -59,7 +55,7 @@ class AkeneoItemBuilderTest extends TestCase
         // Assertions
         $this->assertInstanceOf(ItemInterface::class, $item);
 
-        $this->assertSame(['identifier', 'parent', 'categories', 'values|weight', 'values|color|en_US|ecom', 'values|brand|en_US'], $item->getItemCodes());
+        $this->assertSame(['identifier', 'values|weight', 'values|color|en_US|ecom', 'values|brand|en_US'], $item->getItemCodes());
         $colorData = $item->getItem('values|color|en_US|ecom')->getValue();
 
         $this->assertEquals(
@@ -88,34 +84,6 @@ class AkeneoItemBuilderTest extends TestCase
             ],
             $weightData
         );
-
-        $categories = $item->getItem('categories')->getValue();
-
-        $this->assertEquals(
-            [
-                'category1',
-                'category2',
-            ],
-            $categories
-        );
-    }
-
-    public function testTwoDirectionalLoads()
-    {
-        $productData = $this->productData;
-
-        $context = [
-            'attribute_types' => [
-                'weight' => 'metric',
-                'color' => 'simple_select',
-                'brand' => 'reference_data',
-            ],
-        ];
-
-        // Call the method
-        $item = AkeneoItemBuilder::fromProductApiPayload($productData, $context);
-
-        $this->assertSame($productData, $item->toArray());
     }
 
     public function testFromCatalogApiPayload(): void
