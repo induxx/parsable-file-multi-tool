@@ -49,4 +49,40 @@ class ColumnMapperTest extends TestCase
 
         $mapper->map($data, $mappings);
     }
+
+    public function test_it_should_not_throw_exception_if_strict_mode_is_false(): void
+    {
+        $mapper = new ColumnMapper(strictMode: false);
+
+        $mappings = [
+            'Temp' => 'temperature',
+            'Extra' => 'extra_column',
+        ];
+
+        $data = [
+            'code' => '1',
+            'Wassen' => 'B',
+        ];
+
+        // Should not throw, and should return original keys since mappings are missing
+        $expected = [
+            'code' => '1',
+            'Wassen' => 'B',
+        ];
+        $this->assertSame($expected, $mapper->map($data, $mappings));
+    }
+
+    public function test_it_should_throw_exception_if_strict_mode_is_true(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $mapper = new ColumnMapper(strictMode: true);
+        $mappings = [
+            'Temp' => 'temperature',
+        ];
+        $data = [
+            'code' => '1',
+            'Wassen' => 'B',
+        ];
+        $mapper->map($data, $mappings);
+    }
 }

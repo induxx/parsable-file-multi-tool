@@ -5,7 +5,6 @@ namespace Misery\Component\Action;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Utils\ValueFormatter;
-use Misery\Component\Mapping\ColumnMapper;
 
 class GenerateIdAction implements OptionsInterface
 {

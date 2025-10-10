@@ -19,7 +19,7 @@ class XmlWriter implements ItemWriterInterface
     private $header = [
         'version' => '1.0',
         'encoding' => 'UTF-8',
-        'indent' => 2,
+        'indent' => 4,
         'indent_string' => ' ',
     ];
 
