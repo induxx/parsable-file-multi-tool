@@ -28,7 +28,7 @@ use Misery\Component\Modifier\ArrayUnflattenModifier;
  *   - separator: string delimiter for paths (default: '|')
  *   - extract:   map of path => extraction config
  */
-class XmlExtractionConverter implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
+class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameInterface, OptionsInterface
 {
     use OptionsTrait;
 

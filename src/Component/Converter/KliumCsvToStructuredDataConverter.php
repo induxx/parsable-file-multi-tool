@@ -9,6 +9,9 @@ use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
 use Misery\Component\Configurator\ConfigurationTrait;
 
+/**
+ * @deprecated
+ */
 class KliumCsvToStructuredDataConverter implements ConverterInterface, RegisteredByNameInterface, OptionsInterface, ConfigurationAwareInterface
 {
     use OptionsTrait;

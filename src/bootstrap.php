@@ -73,7 +73,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\ReadLoopItemCollectionConverter(),
     new Misery\Component\Converter\ObelinkPurchaseLoop(),
     new Misery\Component\Converter\Akeneo\AkeneoOptionExtractor(),
-    new Misery\Component\Converter\XmlExtractionConverter(),
+    new Misery\Component\Converter\XmlExtractionV1Converter(),
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');

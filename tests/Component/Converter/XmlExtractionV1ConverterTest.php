@@ -2,10 +2,10 @@
 
 namespace Tests\Misery\Component\Converter;
 
-use Misery\Component\Converter\XmlExtractionConverter;
+use Misery\Component\Converter\XmlExtractionV1Converter;
 use PHPUnit\Framework\TestCase;
 
-class XmlExtractionConverterTest extends TestCase
+class XmlExtractionV1ConverterTest extends TestCase
 {
     private array $input = [
         '@attributes' => [
@@ -114,7 +114,7 @@ class XmlExtractionConverterTest extends TestCase
 
     public function testConvertProductDetails()
     {
-        $converter = new XmlExtractionConverter();
+        $converter = new XmlExtractionV1Converter();
         $converter->setOptions([
             'separator' => '|',
             'extract' => [
@@ -145,7 +145,7 @@ class XmlExtractionConverterTest extends TestCase
 
     public function testConvertUserDefinedExtensions()
     {
-        $converter = new XmlExtractionConverter();
+        $converter = new XmlExtractionV1Converter();
         $converter->setOptions([
             'separator' => '|',
             'extract' => [
@@ -171,7 +171,7 @@ class XmlExtractionConverterTest extends TestCase
 
     public function testRevertUserDefinedExtensions()
     {
-        $converter = new XmlExtractionConverter();
+        $converter = new XmlExtractionV1Converter();
         $converter->setOptions([
             'separator' => '|',
             'extract' => [
@@ -211,7 +211,7 @@ class XmlExtractionConverterTest extends TestCase
 
     public function testRevertFeatures()
     {
-        $converter = new XmlExtractionConverter();
+        $converter = new XmlExtractionV1Converter();
         $converter->setOptions([
             'separator' => '|',
             'extract' => [],
