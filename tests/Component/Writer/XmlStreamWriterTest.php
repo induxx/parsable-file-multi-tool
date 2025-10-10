@@ -196,4 +196,107 @@ class XmlStreamWriterTest extends TestCase
         // Ensure both FVALUE elements are present
         $this->assertEquals(2, substr_count($xml, '<FVALUE>'));
     }
+
+    public function test_double_close_does_not_throw(): void
+    {
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
+        $writer = new XmlStreamWriter($filename, [
+            'root_container' => ['ROOT' => []],
+            'xpath' => 'ROOT|ITEM',
+        ]);
+        $writer->write(['foo' => 'bar']);
+        $writer->close();
+        // Should not throw
+        $writer->close();
+        unlink($filename);
+        $this->assertTrue(true);
+    }
+
+    public function test_invalid_path_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $invalidPath = '/invalid/path/to/file.xml';
+        new XmlStreamWriter($invalidPath, [
+            'root_container' => ['ROOT' => []],
+            'xpath' => 'ROOT|ITEM',
+        ]);
+    }
+
+    public function test_write_empty_array(): void
+    {
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
+        $writer = new XmlStreamWriter($filename, [
+            'root_container' => ['ROOT' => []],
+            'xpath' => 'ROOT|ITEM',
+        ]);
+        $writer->write([]);
+        $writer->close();
+        $xml = file_get_contents($filename);
+        $this->assertStringContainsString('<ROOT', $xml);
+        unlink($filename);
+    }
+
+    public function test_write_null_value(): void
+    {
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
+        $writer = new XmlStreamWriter($filename, [
+            'root_container' => ['ROOT' => []],
+            'xpath' => 'ROOT|ITEM',
+        ]);
+        $writer->write(['foo' => null]);
+        $writer->close();
+        $xml = file_get_contents($filename);
+        // Accept both <foo/> and <foo></foo>
+        $this->assertMatchesRegularExpression('/<foo(\s*\/|>\s*<\/foo>)/', $xml);
+        unlink($filename);
+    }
+
+    public function test_deeply_nested_structure(): void
+    {
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
+        $data = ['a' => ['b' => ['c' => ['d' => ['e' => 'value']]]]];
+        $writer = new XmlStreamWriter($filename, [
+            'root_container' => ['ROOT' => []],
+            'xpath' => 'ROOT|ITEM',
+        ]);
+        $writer->write($data);
+        $writer->close();
+        $xml = file_get_contents($filename);
+        $this->assertStringContainsString('<e>value</e>', $xml);
+        unlink($filename);
+    }
+
+    public function test_missing_required_options_throws(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new XmlStreamWriter('php://memory', []);
+    }
+
+    public function test_clear_empties_file(): void
+    {
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
+        $writer = new XmlStreamWriter($filename, [
+            'root_container' => ['ROOT' => []],
+            'xpath' => 'ROOT|ITEM',
+        ]);
+        $writer->write(['foo' => 'bar']);
+        $writer->close();
+        $writer->clear();
+        $this->assertSame('', file_get_contents($filename));
+        unlink($filename);
+    }
+
+    public function test_partial_construction_does_not_throw_on_destruct(): void
+    {
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
+        try {
+            new XmlStreamWriter($filename, [
+                'root_container' => [], // Will throw
+                'xpath' => 'ROOT|ITEM',
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue(true);
+        }
+        unlink($filename);
+    }
 }

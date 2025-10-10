@@ -6,7 +6,7 @@ use XMLWriter;
 
 class XmlStreamWriter implements ItemWriterInterface
 {
-    private XMLWriter $writer;
+    private ?XMLWriter $writer = null;
     private string $uri;
     private string $rootName;
     private ?string $containerName = null;
@@ -54,7 +54,9 @@ class XmlStreamWriter implements ItemWriterInterface
         $indentString = str_repeat($options['indent_string'] ?? ' ', $indent);
 
         $writer = new XMLWriter();
-        $writer->openUri($uri);
+        if (@$writer->openUri($uri) !== true) {
+            throw new \RuntimeException("Unable to open URI for writing: $uri");
+        }
         $writer->startDocument($version, $encoding);
         $writer->setIndent(true);
         $writer->setIndentString($indentString);
@@ -198,7 +200,9 @@ class XmlStreamWriter implements ItemWriterInterface
     public function closeContainer(): void
     {
         if ($this->containerName) {
-            $this->writer->endElement();
+            if (isset($this->writer) && $this->writer instanceof \XMLWriter) {
+                $this->writer->endElement();
+            }
             $this->containerName = null;
             $this->itemTagName   = null;
         }
@@ -209,8 +213,11 @@ class XmlStreamWriter implements ItemWriterInterface
      */
     public function closeDocument(): void
     {
-        $this->writer->endDocument();
-        $this->writer->flush();
+        if (isset($this->writer) && $this->writer instanceof \XMLWriter) {
+            $this->writer->endDocument();
+            $this->writer->flush();
+            $this->writer = null;
+        }
     }
 
     /**
@@ -218,8 +225,11 @@ class XmlStreamWriter implements ItemWriterInterface
      */
     public function __destruct()
     {
-        $this->closeContainer();
-        $this->closeDocument();
+        // Only attempt to close if writer is valid
+        if (isset($this->writer) && $this->writer instanceof \XMLWriter) {
+            $this->closeContainer();
+            $this->closeDocument();
+        }
     }
 
     public function close(): void
