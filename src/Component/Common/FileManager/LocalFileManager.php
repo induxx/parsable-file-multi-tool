@@ -38,8 +38,7 @@ class LocalFileManager implements FileManagerInterface
 
     public function provisionPath(string $filename): string
     {
-        $absolutePath = $this->getAbsolutePath($filename);
-        return $absolutePath;
+        return $this->getAbsolutePath($filename);
     }
 
     public function copyFile(string $filename, string $newFilename)
@@ -149,14 +148,14 @@ class LocalFileManager implements FileManagerInterface
         return pathinfo($filename)['dirname'];
     }
 
-    private function generatePath(string $filename)
+    /**
+     * Generates the correct absolute path even if relative paths are given
+     */
+    private function generatePath(string $filename): string
     {
         $filename = str_replace($this->workingDirectory, '', $filename);
 
-        return
-            $this->workingDirectory . DIRECTORY_SEPARATOR .
-            ltrim(pathinfo($filename, PATHINFO_DIRNAME)) . DIRECTORY_SEPARATOR .
-            pathinfo($filename, PATHINFO_BASENAME);
+        return $this->workingDirectory . DIRECTORY_SEPARATOR . $filename;
     }
 
     /**
