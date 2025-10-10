@@ -295,4 +295,57 @@ class ContextFormatterTest extends TestCase
 
         $this->assertEquals($expectedResult, $result);
     }
+
+    public function testFormatWithScalarString()
+    {
+        $context = ['name' => 'World'];
+        $data = 'Hello %name%!';
+        $expected = 'Hello World!';
+        $this->assertSame($expected, ContextFormatter::format($context, $data));
+    }
+
+    public function testFormatWithScalarInt()
+    {
+        $context = ['num' => 42];
+        $data = 'Value: %num%';
+        $expected = 'Value: 42';
+        $this->assertSame($expected, ContextFormatter::format($context, $data));
+    }
+
+    public function testFormatWithMultipleSamePlaceholders()
+    {
+        $context = ['x' => 'A'];
+        $data = '%x%-%x%-%x%';
+        $expected = 'A-A-A';
+        $this->assertSame($expected, ContextFormatter::format($context, $data));
+    }
+
+    public function testFormatWithPlaceholderKeyToNull()
+    {
+        $context = ['foo' => null];
+        $data = ['%foo%' => 'bar'];
+        $expected = [null => 'bar'];
+        $this->assertEquals($expected, ContextFormatter::format($context, $data));
+    }
+
+    public function testFormatWithEmptyContext()
+    {
+        $data = ['foo' => '%bar%'];
+        $expected = ['foo' => '%bar%'];
+        $this->assertEquals($expected, ContextFormatter::format([], $data));
+    }
+
+    public function testFormatWithEmptyData()
+    {
+        $context = ['foo' => 'bar'];
+        $this->assertEquals([], ContextFormatter::format($context, []));
+    }
+
+    public function testFormatWithNoPlaceholders()
+    {
+        $context = ['foo' => 'bar'];
+        $data = ['hello' => 'world'];
+        $expected = ['hello' => 'world'];
+        $this->assertEquals($expected, ContextFormatter::format($context, $data));
+    }
 }
