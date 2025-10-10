@@ -1,7 +1,8 @@
 <?php
 
-namespace Misery\Component\Akeneo\DataStructure;
+namespace Misery\Component\Generic\DataStructure;
 
+use Misery\Component\Akeneo\DataStructure\AkeneoScope;
 use Misery\Component\Converter\Matcher;
 use Misery\Model\DataStructure\ScopeInterface;
 

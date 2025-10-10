@@ -1,6 +1,6 @@
 <?php
 
-namespace Misery\Component\Akeneo\DataStructure;
+namespace Misery\Component\Generic\DataStructure;
 
 use Misery\Component\Converter\Matcher;
 use Misery\Model\DataStructure\Item;

@@ -3,9 +3,8 @@
 namespace Tests\Misery\Component\Action;
 
 use Misery\Component\Action\SetValueAction;
-use Misery\Component\Akeneo\DataStructure\GenericItemBuilder;
 use Misery\Component\Converter\Matcher;
-use Misery\Model\DataStructure\Item;
+use Misery\Component\Generic\DataStructure\GenericItemBuilder;
 use PHPUnit\Framework\TestCase;
 
 class SetValueActionTest extends TestCase
