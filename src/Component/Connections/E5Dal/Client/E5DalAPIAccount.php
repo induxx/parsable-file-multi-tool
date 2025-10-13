@@ -21,10 +21,6 @@ class E5DalAPIAccount implements ApiClientAccountInterface
 
     public function authorize(ApiClientInterface $client): AuthenticatedAccount
     {
-        $client->setHeaders([
-            'Authorization' => $this->token,
-        ]);
-
         return new AuthenticatedAccount($this, 'e5_dal', $this->token);
     }
 
