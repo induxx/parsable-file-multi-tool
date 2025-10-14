@@ -3,10 +3,10 @@
 namespace Tests\Misery\Component\Writer;
 
 use Misery\Component\Parser\JsonParser;
-use Misery\Component\Writer\JsonWriter;
+use Misery\Component\Writer\JsonlWriter;
 use PHPUnit\Framework\TestCase;
 
-class JsonWriterTest extends TestCase
+class JsonlWriterTest extends TestCase
 {
     private $items = [
         [
@@ -44,11 +44,12 @@ class JsonWriterTest extends TestCase
     public function test_parse_json_file(): void
     {
         $filePath = __DIR__ . '/../../examples/new_users.json';
-        $writer = new JsonWriter($filePath);
+        $writer = new JsonlWriter($filePath);
 
         foreach ($this->items as $item) {
             $writer->write($item);
         }
+        $writer->close();
 
         $file = new \SplFileObject($filePath);
 

@@ -4,7 +4,12 @@ namespace Misery\Component\Common\Client;
 
 use Misery\Component\Common\Generator\UrlGenerator;
 
-class ApiClient implements ApiClientInterface
+/**
+ * @deprecated
+ * A legacy API client using cURL
+ * use GuzzleApiClient instead
+ */
+class LegacyApiClient implements ApiClientInterface
 {
     private $handle;
     /** @var UrlGenerator */
@@ -53,7 +58,7 @@ class ApiClient implements ApiClientInterface
     /**
      * A GET HTTP VERB
      */
-    public function search(string $endpoint, array $params = []): self
+    public function search(string $endpoint, array $params = []): ApiResponse
     {
         $this->setAuthenticationHeaders();
         $this->setHeaders(['Content-Type' => 'application/json']);
@@ -61,13 +66,13 @@ class ApiClient implements ApiClientInterface
         \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
         \curl_setopt($this->handle, CURLOPT_URL, $endpoint . $this->urlGenerator->createParams($params));
 
-        return $this;
+        return $this->getResponse();
     }
 
     /**
      * A GET HTTP VERB
      */
-    public function get(string $endpoint): self
+    public function get(string $endpoint): ApiResponse
     {
         $this->setAuthenticationHeaders();
         $this->setHeaders(['Content-Type' => 'application/json']);
@@ -76,27 +81,28 @@ class ApiClient implements ApiClientInterface
 
         \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "GET");
 
-        return $this;
+        return $this->getResponse();
     }
 
     /**
      * A POST HTTP VERB
      * $postData is a structured entity array that will be encoded to json
      */
-    public function post(string $endpoint, array $postData): self
+    public function post(string $endpoint, array $postData, array $headers = []): ApiResponse
     {
         $this->setAuthenticationHeaders();
         $this->setHeaders(['Content-Type' => 'application/json']);
+        $this->setHeaders($headers);
 
         \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "POST");
         \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
         \curl_setopt($this->handle, CURLOPT_POST, true);
         \curl_setopt($this->handle, CURLOPT_POSTFIELDS, \json_encode($postData));
 
-        return $this;
+        return $this->getResponse();
     }
 
-    public function postXForm(string $endpoint, array $postData): self
+    public function postXForm(string $endpoint, array $postData): ApiResponse
     {
         $this->setAuthenticationHeaders();
         $this->setHeaders([
@@ -109,14 +115,14 @@ class ApiClient implements ApiClientInterface
         \curl_setopt($this->handle, CURLOPT_POST, true);
         \curl_setopt($this->handle, CURLOPT_POSTFIELDS, http_build_query($postData));
 
-        return $this;
+        return $this->getResponse();
     }
 
     /**
      * HTTP PATCH VERB That supports a multi patch insert
      * max 100 inserts per request
      */
-    public function multiPatch(string $endpoint, array $dataSet): self
+    public function multiPatch(string $endpoint, array $dataSet): ApiResponse
     {
         $this->setAuthenticationHeaders();
         $this->setHeaders(['Content-Type' => 'application/vnd.akeneo.collection+json']);
@@ -130,13 +136,13 @@ class ApiClient implements ApiClientInterface
         \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "PATCH");
         \curl_setopt($this->handle, CURLOPT_POSTFIELDS, $patchData);
 
-        return $this;
+        return $this->getResponse();
     }
 
     /**
      * HTTP PATCH VERB
      */
-    public function patch(string $endpoint, array $patchData): self
+    public function patch(string $endpoint, array $patchData): ApiResponse
     {
         $this->setAuthenticationHeaders();
         $this->setHeaders(['Content-Type' => 'application/json']);
@@ -145,13 +151,13 @@ class ApiClient implements ApiClientInterface
         \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "PATCH");
         \curl_setopt($this->handle, CURLOPT_POSTFIELDS, \json_encode($patchData));
 
-        return $this;
+        return $this->getResponse();
     }
 
     /**
      * A DELETE HTTP VERB
      */
-    public function delete(string $endpoint): self
+    public function delete(string $endpoint): ApiResponse
     {
         $this->setAuthenticationHeaders();
         $this->setHeaders(['Content-Type' => 'application/json']);
@@ -159,7 +165,7 @@ class ApiClient implements ApiClientInterface
         \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
         \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "DELETE");
 
-        return $this;
+        return $this->getResponse();
     }
 
     public function log(string $message, int $statusCode = null, $content): void
@@ -276,7 +282,7 @@ class ApiClient implements ApiClientInterface
     private function setAuthenticationHeaders(): void
     {
         if ($this->authenticatedAccount instanceof AuthenticatedAccount) {
-            $this->authenticatedAccount->useToken($this);
+            $this->authenticatedAccount->useToken($this->headers);
         }
     }
 

@@ -5,7 +5,7 @@ pipeline:
   input:
     reader:
       type: jsonl
-      filename: '%workpath%/akeneo_reference-entities_%endpoint%.jsonl'
+      filename: 'akeneo_reference-entities_%endpoint%.jsonl'
       converter: 'akeneo/reference_entities/csv'
   output:
     http:

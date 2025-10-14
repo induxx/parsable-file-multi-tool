@@ -15,7 +15,7 @@ class AkeneoPaginationCursor extends PaginationCursor
 
         $response = $this->getClient()
             ->get($this->link)
-            ->getResponse();
+        ;
 
         $content = $response->getContent();
 

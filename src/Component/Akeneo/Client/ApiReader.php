@@ -56,11 +56,10 @@ class ApiReader implements ReaderInterface
 
             return $this->client
                 ->search($endpoint, $params)
-                ->getResponse()
                 ->getContent();
         }
 
-        if (isset($this->context['limiters']['querystring'])) {
+        if (!empty($this->context['limiters']['querystring'])) {
             $querystring = preg_replace('/\s+/', '+', $this->context['limiters']['querystring']);
             $querystring = ValueFormatter::format($querystring, $this->context);
             $endpoint = sprintf($querystring, $endpoint);
@@ -81,7 +80,6 @@ class ApiReader implements ReaderInterface
 
                     $result = $this->client
                         ->get($this->client->getUrlGenerator()->generate($chunkEndpoint))
-                        ->getResponse()
                         ->getContent();
 
                     if (empty($items)) {
@@ -131,7 +129,6 @@ class ApiReader implements ReaderInterface
 
         $items = $this->client
             ->get($url)
-            ->getResponse()
             ->getContent();
 
         // when supplying a container we jump inside that container to find loopable items
@@ -143,6 +140,25 @@ class ApiReader implements ReaderInterface
         }
 
         return $items;
+    }
+
+    /**
+     * Used to get media for ProductImageExtension
+     * TODO: refactor this, not very clean
+     */
+    public function get(string|int $identifier)
+    {
+        $endpoint = $this->endpoint->getSingleEndPoint();
+        if (str_starts_with($endpoint, 'asset-families')) {
+            $endpoint = 'asset-families/%s/assets/%s';
+        }
+
+        return $this->client
+            ->get(
+                $this->client->getUrlGenerator()->generate($endpoint, ...explode(DIRECTORY_SEPARATOR, $identifier))
+            )
+            ->getContent()
+        ;
     }
 
     public function read()

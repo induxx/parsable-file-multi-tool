@@ -110,4 +110,32 @@ class ArrayCollectionTest extends TestCase
             ]
         );
     }
+
+    public function test_collection_contains_key(): void
+    {
+        $collection = new ArrayCollection($this->items);
+        $this->assertTrue($collection->containsKey(0));
+        $this->assertTrue($collection->containsKey(1));
+        $this->assertFalse($collection->containsKey(2));
+        $collection->add(['id' => '3', 'first_name' => 'Simon']);
+        $this->assertTrue($collection->containsKey(2));
+    }
+
+    public function test_collection_remove(): void
+    {
+        $collection = new ArrayCollection($this->items);
+        $this->assertSame(2, $collection->count());
+        $collection->remove(0);
+        $this->assertSame(1, $collection->count());
+        $this->assertFalse($collection->containsKey(0));
+        $this->assertTrue($collection->containsKey(1));
+    }
+
+    public function test_collection_to_array(): void
+    {
+        $collection = new ArrayCollection($this->items);
+        $array = $collection->toArray();
+        $this->assertIsArray($array);
+        $this->assertSame($this->items, $array);
+    }
 }

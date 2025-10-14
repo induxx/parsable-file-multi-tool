@@ -2,9 +2,10 @@
 
 namespace Misery\Component\Configurator;
 
+use App\Component\Common\Resource\ResourceCollectionInterface;
 use Misery\Component\Action\ItemActionProcessor;
 use Misery\Component\BluePrint\BluePrint;
-use Misery\Component\Common\Client\ApiClient;
+use Misery\Component\Common\Client\LegacyApiClient;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Collection\ArrayCollection;
 use Misery\Component\Common\FileManager\LocalFileManager;
@@ -26,6 +27,7 @@ class ReadOnlyConfiguration
     private array $filters = [];
     private SourceCollection $sources;
     private array $lists;
+    private array $resourceCollections = [];
     private array $accounts = [];
     private LocalFileManager $fm;
 
@@ -36,6 +38,7 @@ class ReadOnlyConfiguration
         $self->lists = $configuration->getLists();
         $self->filters = $configuration->getFilters();
         $self->mappings = $configuration->getMappings();
+        $self->resourceCollections = $configuration->getResourceCollections();
         $self->accounts  = $configuration->getAccounts();
         $self->fm = $configuration->getWorkFm();
 
@@ -45,6 +48,19 @@ class ReadOnlyConfiguration
     public function getSources(): SourceCollection
     {
         return $this->sources;
+    }
+
+    /**
+     * @return ResourceCollectionInterface[]
+     */
+    public function getResourceCollections(): array
+    {
+        return $this->resourceCollections;
+    }
+
+    public function getResourceCollection(string $name):? ResourceCollectionInterface
+    {
+        return $this->resourceCollections[$name] ?? null;
     }
 
     public function getWorkFm(): LocalFileManager

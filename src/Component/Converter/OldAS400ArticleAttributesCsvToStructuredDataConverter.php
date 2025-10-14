@@ -14,6 +14,9 @@ use Misery\Component\Configurator\ConfigurationAwareInterface;
 use Misery\Component\Configurator\ConfigurationTrait;
 use Misery\Component\Reader\ItemReaderInterface;
 
+/**
+ * @deprecated
+ */
 class OldAS400ArticleAttributesCsvToStructuredDataConverter implements ConverterInterface, OptionsInterface, RegisteredByNameInterface, ConfigurationAwareInterface
 {
     use OptionsTrait;

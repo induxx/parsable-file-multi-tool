@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker-compose run -u 1000 --rm fpm php "$@"
+docker-compose run -u 1000:1000 --rm fpm php "$@"

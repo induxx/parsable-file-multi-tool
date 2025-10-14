@@ -1,0 +1,6 @@
+# cleanup
+shell:
+  - name: remove extra files
+    cmd: |+
+      rm -f "%workpath%"/akeneo_{*.jsonl,*.buffer} 
+      rm -rf "%workpath%"/read

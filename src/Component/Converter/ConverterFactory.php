@@ -43,11 +43,6 @@ class ConverterFactory implements RegisteredByNameInterface
             throw new \Exception(sprintf('Converter named %s not found', $configuration['name']));
         }
 
-        if ($converter instanceof OptionsInterface && isset($configuration['options'])) {
-            $options = $configuration['options'];
-            $converter->setOptions($options);
-        }
-
         if ($converter instanceof ConfigurationAwareInterface) {
             $converter->setConfiguration($config);
         }
@@ -56,13 +51,10 @@ class ConverterFactory implements RegisteredByNameInterface
             $options = $configuration['options'];
             // fetch those values
             foreach ($options as $option => $optionValue) {
-                if (strpos($option, ':list') !== false) {
-                    $converter->setOptions([$option => $config->getList($optionValue)]);
+                if (str_ends_with($option, ':list') || $option === 'list') {
+                    $optionValue = $config->getList($optionValue);
                 }
-            }
-
-            if ($list = $converter->getOption('list')) {
-                $converter->setOptions(['list' => $config->getList($list)]);
+                $converter->setOption($option, $optionValue);
             }
         }
 

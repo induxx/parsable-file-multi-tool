@@ -127,26 +127,19 @@ class ApiWriter implements ItemWriterInterface
             case 'DELETE':
             case 'delete':
                 return $this->client
-                    ->delete($this->client->getUrlGenerator()->generate($this->endpoint->getSingleEndPoint(), $context['identifier']))
-                    ->getResponse()
-                ;
+                    ->delete($this->client->getUrlGenerator()->generate($this->endpoint->getSingleEndPoint(), $context['identifier']));
             case 'PATCH':
             case 'patch':
                 return $this->client
-                    ->patch($this->client->getUrlGenerator()->format($this->endpoint->getSingleEndPoint(), $context), $data)
-                    ->getResponse()
-                ;
+                    ->patch($this->client->getUrlGenerator()->format($this->endpoint->getSingleEndPoint(), $context), $data);
             case 'MULTI_PATCH':
             case 'multi_patch':
                 return $this->client
-                    ->multiPatch($this->client->getUrlGenerator()->generate($this->endpoint->getAll()), $data)
-                    ->getResponse()
-                    ;
+                    ->multiPatch($this->client->getUrlGenerator()->generate($this->endpoint->getAll()), $data);
             case 'POST':
             case 'post':
                 return $this->client
-                    ->post($this->client->getUrlGenerator()->generate($this->endpoint->getAll()), $data)
-                    ->getResponse();
+                    ->post($this->client->getUrlGenerator()->generate($this->endpoint->getAll()), $data);
             default:
                 throw new \InvalidArgumentException(sprintf('Method %s is not supported', $this->method));
         }
