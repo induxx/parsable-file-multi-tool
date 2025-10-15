@@ -3,6 +3,7 @@
 namespace Misery\Component\Configurator;
 
 use App\Component\ChangeManager\ChangeManager;
+use Misery\Component\Logger\ItemLoggerInterface;
 use Misery\Component\Logger\NullItemLogger;
 use Psr\Log\LoggerInterface;
 use Misery\Component\Common\FileManager\LocalFileManager;
@@ -47,6 +48,14 @@ class ConfigurationFactory
     public function setChangeManager(ChangeManager $changeManager): void
     {
         $this->config->changeManager = $changeManager;
+    }
+
+    /**
+     * @internal Used by the RunTransformationCommand
+     */
+    public function setItemLogger(ItemLoggerInterface $itemLogger): void
+    {
+        $this->config->setItemLogger($itemLogger);
     }
 
     public function parseDirectivesFromConfiguration(array $configuration): Configuration
