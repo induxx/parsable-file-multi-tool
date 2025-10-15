@@ -89,7 +89,7 @@ class Matcher
         }
 
         // obelink-xml-v3
-        $matcher->matches = explode($this->separator, $newPrimaryKey);
+        //$matcher->matches = explode($this->separator, $newPrimaryKey);
 
         return $matcher;
     }
