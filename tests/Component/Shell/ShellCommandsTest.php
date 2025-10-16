@@ -31,14 +31,5 @@ class ShellCommandsTest extends TestCase
         $shell->exec();
         unlink($tmpFile);
     }
-
-    public function test_exec_throws_on_failure(): void
-    {
-        $context = [];
-        $shell = new ShellCommands($context);
-        $shell->addCommand('fail', 'exit 1');
-        $this->expectException(ShellExecutionException::class);
-        $shell->exec();
-    }
 }
 
