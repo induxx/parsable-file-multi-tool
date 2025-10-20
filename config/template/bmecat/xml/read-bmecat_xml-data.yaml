@@ -22,7 +22,7 @@ pipeline:
   input:
     reader:
         type: xml
-        filename: '%input_file%'
+        filename: upload_file
         xpath: T_NEW_CATALOG/PRODUCT
         converter: flatten/xml/v1
 
