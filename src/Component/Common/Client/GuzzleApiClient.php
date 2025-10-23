@@ -66,7 +66,10 @@ class GuzzleApiClient implements ApiClientInterface
                 \CURLOPT_HTTP_VERSION   => \CURL_HTTP_VERSION_2TLS,
             ],
             'timeout'        => 30,
-            'connect_timeout'=> 10,
+            //'connect_timeout'=> 10,
+            // default connect_timeout is 0 (wait indefinitely), which is usually fine with retries, but it creates long waits on network issues
+            // issues: dossche-acc gave this Guzzle error: Connection timed out after 10000 milliseconds ""
+            // todo: re-implement connect_timeout if needed for retry behavior
         ]);
     }
 
