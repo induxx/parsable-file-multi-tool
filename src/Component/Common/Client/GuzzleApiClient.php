@@ -65,7 +65,9 @@ class GuzzleApiClient implements ApiClientInterface
                 // Robustness knobs (optional):
                 \CURLOPT_HTTP_VERSION   => \CURL_HTTP_VERSION_2TLS,
             ],
-            'timeout'        => 30,
+            //'timeout'        => 30,
+            // Ventilair BC import needs longer timeouts on large datasets from Business Central
+            // @todo make configurable if needed for BC import connections
             //'connect_timeout'=> 10,
             // default connect_timeout is 0 (wait indefinitely), which is usually fine with retries, but it creates long waits on network issues
             // issues: dossche-acc gave this Guzzle error: Connection timed out after 10000 milliseconds ""
