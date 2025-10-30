@@ -161,8 +161,9 @@ class GuzzleApiClient implements ApiClientInterface
 
         $status   = $response->getStatusCode();
         $raw      = (string)$response->getBody();
+        $headers  = $response->getHeaders();
 
-        return $this->parseResponse($raw, $status);
+        return $this->parseResponse($raw, $status, $headers);
     }
 
     private function buildHeaders(array $h = []): array
@@ -177,7 +178,7 @@ class GuzzleApiClient implements ApiClientInterface
         return $h;
     }
 
-    private function parseResponse(string $raw, int $status): ApiResponse
+    private function parseResponse(string $raw, int $status, array $headers = []): ApiResponse
     {
         if ($status === 404) {
             $body = @json_decode($raw, true) ?: [];
@@ -195,10 +196,10 @@ class GuzzleApiClient implements ApiClientInterface
             return ApiResponse::createFromMulti($multi);
         }
         if (count($multi) === 1) {
-            return ApiResponse::create($multi[0], $status);
+            return ApiResponse::create($multi[0], $status, $headers);
         }
 
-        return ApiResponse::create([], $status);
+        return ApiResponse::create([], $status, $headers);
     }
 
     public function log(string $message, int $statusCode = null, $content): void
