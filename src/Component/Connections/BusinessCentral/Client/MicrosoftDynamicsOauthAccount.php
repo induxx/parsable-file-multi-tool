@@ -5,6 +5,7 @@ namespace Misery\Component\Connections\BusinessCentral\Client;
 use Misery\Component\Common\Client\ApiClientAccountInterface;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndPointsInterface;
+use Misery\Component\Common\Client\ApiResponse;
 use Misery\Component\Common\Client\AuthenticatedAccount;
 use Misery\Component\Common\Generator\UrlGenerator;
 use Misery\Component\Common\Utils\ValueFormatter;
@@ -42,6 +43,7 @@ class MicrosoftDynamicsOauthAccount implements ApiClientAccountInterface
             ['TenantID' => $this->tenantId],
         ));
 
+        /** @var ApiResponse $response */
         $response = $client
             ->postXForm(
                 $urlGenerator->generateFromDomain(self::AUTH_URI),
@@ -52,7 +54,7 @@ class MicrosoftDynamicsOauthAccount implements ApiClientAccountInterface
                     'scope' => $this->scope,
                     'redirect_uri' => 'https://businesscentral.dynamics.com/OAuthLanding.htm',
                 ]
-            )->getResponse();
+            );
 
         if ($response->getCode() === 422) {
             throw new \RuntimeException($response->getMessage());
