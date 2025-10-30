@@ -179,7 +179,7 @@ class ConfigurationManager
                 return $value !== null;
             });
             $configuration = array_replace_recursive($transformationContent, $masterConfiguration);
-            $configuration['context'] = array_merge($configuration['context'], $transformationContent['context'] ?? [], $context);
+            $configuration['context'] = array_merge($configuration['context'], $context, $transformationContent['context'] ?? []);
             $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
             // Start the process if the transformation file has a pipeline or shell
