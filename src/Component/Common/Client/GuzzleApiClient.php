@@ -173,7 +173,7 @@ class GuzzleApiClient implements ApiClientInterface
         $h['Accept'] = 'application/json';
 
         // let the authenticatedAccount inject its auth header
-        if (isset($this->authenticatedAccount)) {
+        if (isset($this->authenticatedAccount) && !$this->authenticatedAccount->isInvalidated()) {
             $this->authenticatedAccount->useToken($h);
         }
 

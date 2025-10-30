@@ -14,6 +14,7 @@ class AuthenticatedAccount
     private $expireTime;
     /** @var ApiClientAccountInterface */
     private $account;
+    private bool $invalidated = false;
 
     public function __construct(
         ApiClientAccountInterface $account,
@@ -48,6 +49,12 @@ class AuthenticatedAccount
     public function invalidate(): void
     {
         $this->expiresIn = null;
+        $this->invalidated = true;
+    }
+
+    public function isInvalidated(): bool
+    {
+        return $this->invalidated === true;
     }
 
     /**
