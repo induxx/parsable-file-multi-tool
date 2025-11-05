@@ -28,6 +28,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
         'scopable_attribute_codes:list' => [],
         'default_metrics:list' => [],
         'attribute_options:source' => null, # SourceInterface
+        'value_separator' => ',',
         'set_default_metrics' => false,
         'filter_option_codes' => true,
         'reference_code' => false, # LEGACY FALSE forces the option code to be a reference-able code
@@ -112,6 +113,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
     {
         $referenceCode = $this->getOption('reference_code');
         $lowerCased = $this->getOption('lower_cased');
+        $valueSeparator = $this->getOption('value_separator');
         $item = $context['item'] ?? [];
 
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
@@ -176,8 +178,8 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
 
                 if (is_string($value)) {
                     // if the value is a comma separated string
-                    if (str_contains($value, ',')) {
-                        $value = explode(',', $value);
+                    if (str_contains($value, $valueSeparator)) {
+                        $value = explode($valueSeparator, $value);
                     } else {
                         $value = [$value];
                     }
@@ -231,8 +233,8 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
                 break;
             case AkeneoHeaderTypes::REFDATA_MULTISELECT:
                 if (is_string($value)) {
-                    if (str_contains($value, ',')) {
-                        $value = explode(',', $value);
+                    if (str_contains($value, $valueSeparator)) {
+                        $value = explode($valueSeparator, $value);
                     } else {
                         $value = [$value];
                     }
