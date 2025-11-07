@@ -184,7 +184,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         $this->csvHeaderContext->unsetHeader();
         $identifier = $this->getOption('identifier');
         $codes = $this->getOption('attribute_types:list');
-        $keyCodes = is_array($codes) ? array_keys($codes): [];
+        $keyCodes = is_array($codes) ? array_keys($codes): null;
         $separator = '-';
         $output = [];
 
@@ -217,7 +217,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                 continue;
             }
 
-            if (false === in_array($masterKey, $keyCodes)) {
+            if ($keyCodes && false === in_array($masterKey, $keyCodes)) {
                 continue;
             }
 
