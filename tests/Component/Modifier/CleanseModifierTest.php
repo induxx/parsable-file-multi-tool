@@ -57,5 +57,13 @@ class CleanseModifierTest extends TestCase
         $this->assertSame(null, $modifier->modify(null));
         $this->assertSame(true, $modifier->modify(true));
     }
-}
 
+    public function testRemoveAnyDoesNotConcatenateLines()
+    {
+        $modifier = new CleanseModifier();
+        $modifier->setOptions(['remove_any' => ['Pdmarticle:']]);
+        $input = ["Pdmarticle:39\nPdmarticle:238\nPdmarticle:239"];
+        $expected = ["39\n238\n239"];
+        $this->assertEquals($expected, $modifier->modify($input));
+    }
+}
