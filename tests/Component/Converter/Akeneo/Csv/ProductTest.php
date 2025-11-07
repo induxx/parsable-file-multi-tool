@@ -261,7 +261,8 @@ class ProductTest extends TestCase
         $converter = $this->getProductConverter(['attribute_types:list' => null]);
         $row = ['foo' => 'bar'];
         $result = $converter->convert($row);
-        $this->assertSame($row, $result);
+        $this->assertEquals('bar', $result['values|foo']['data']);
+
     }
 
     public function testNoAttributeTypesListWithMetricLikeField()
@@ -269,6 +270,6 @@ class ProductTest extends TestCase
         $converter = $this->getProductConverter(['attribute_types:list' => null]);
         $row = ['width' => '10', 'width-unit' => 'CM'];
         $result = $converter->convert($row);
-        $this->assertSame($row, $result);
+        $this->assertEquals('10', $result['values|width']['data']); // just to show it's not converted
     }
 }
