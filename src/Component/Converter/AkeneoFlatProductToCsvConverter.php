@@ -28,7 +28,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
         'scopable_attribute_codes:list' => [],
         'default_metrics:list' => [],
         'attribute_options:source' => null, # SourceInterface
-        'value_separator' => ',',
+        'value_separators' => [','],
         'set_default_metrics' => false,
         'filter_option_codes' => true,
         'reference_code' => false, # LEGACY FALSE forces the option code to be a reference-able code
@@ -113,7 +113,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
     {
         $referenceCode = $this->getOption('reference_code');
         $lowerCased = $this->getOption('lower_cased');
-        $valueSeparator = $this->getOption('value_separator');
+        $valueSeparators = $this->getOption('value_separators');
         $item = $context['item'] ?? [];
 
         $type = $this->getOption('attribute_types:list')[$attributeCode] ?? null;
@@ -176,14 +176,8 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
                     $value = [];
                 }
 
-                if (is_string($value)) {
-                    // if the value is a comma separated string
-                    if (str_contains($value, $valueSeparator)) {
-                        $value = explode($valueSeparator, $value);
-                    } else {
-                        $value = [$value];
-                    }
-                }
+                // if the value is a comma separated string
+                $value = $this->separateValue($value, $valueSeparators);
 
                 if ($this->getOption('filter_option_codes')) {
                     $value = $this->filterOptionCodes($value, $attributeCode, $referenceCode, $lowerCased);
@@ -232,13 +226,7 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
                 ];
                 break;
             case AkeneoHeaderTypes::REFDATA_MULTISELECT:
-                if (is_string($value)) {
-                    if (str_contains($value, $valueSeparator)) {
-                        $value = explode($valueSeparator, $value);
-                    } else {
-                        $value = [$value];
-                    }
-                }
+                $value = $this->separateValue($value, $valueSeparators);
                 break;
             case AkeneoHeaderTypes::REFDATA_SELECT:
                 // no changes
@@ -250,6 +238,25 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
             'scope' => $scopable ? $context['scope'] ?? $this->getOption('default_scope') : null,
             'data' => $value,
         ];
+    }
+
+    private function separateValue($value, array $valueSeparators)
+    {
+        if (is_string($value)) {
+            $seperated = false;
+            foreach ($valueSeparators as $valueSeparator) {
+                if (str_contains($value, $valueSeparator)) {
+                    $value = explode($valueSeparator, $value);
+                    $seperated = true;
+                    break;
+                }
+            }
+            if (!$seperated) {
+                $value = [$value];
+            }
+        }
+
+        return $value;
     }
 
     /**
