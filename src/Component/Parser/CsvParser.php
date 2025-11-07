@@ -39,8 +39,8 @@ class CsvParser implements CursorInterface
         $this->file->setFlags(
             \SplFileObject::READ_CSV |
             \SplFileObject::SKIP_EMPTY |
-            \SplFileObject::READ_AHEAD |
-            \SplFileObject::DROP_NEW_LINE
+            \SplFileObject::READ_AHEAD
+           # \SplFileObject::DROP_NEW_LINE
         );
         $this->file->setCsvControl($delimiter, $enclosure, $escapeChar);
 
