@@ -187,6 +187,7 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         $keyCodes = is_array($codes) ? array_keys($codes): null;
         $separator = '-';
         $output = [];
+        $prices = [];
 
         if ($this->getOption('investigate')) {
             $this->findAssociationKeys($item);
@@ -261,6 +262,11 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
                 # pim_catalog_price_collection | single default currency EUR | will work in most cases
                 if ($codes[$masterKey] === 'pim_catalog_price_collection' && true === $this->getOption('single_currency')) {
                     $prep['data'] = [['amount' => $prep['data'], 'currency' => $this->getOption('default_currency')]];
+                } elseif ($codes[$masterKey] === 'pim_catalog_price_collection') {
+                    $currency = $prep['scope'];
+                    $prep['scope'] = null;
+                    $prices[$masterKey][] = ['amount' => $prep['data'], 'currency' => $currency];
+                    $prep['data'] = $prices[$masterKey];
                 }
                 # boolean expecting CSV values
                 if ($codes[$masterKey] === 'pim_catalog_boolean') {
