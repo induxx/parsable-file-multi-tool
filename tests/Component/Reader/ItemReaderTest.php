@@ -310,4 +310,34 @@ class ItemReaderTest extends TestCase
 
         $this->assertSame($indexes, [0,4,2,1,3]);
     }
+
+    public function test_identifier_index_shortcut_returns_single_match(): void
+    {
+        $reader = (new ItemReader(new ItemCollection($this->items)))->withIdentifierIndex('id');
+
+        $result = $reader->find(['id' => '3'])->getItems();
+
+        $this->assertCount(1, $result);
+        $this->assertSame('3', current($result)['id']);
+        $this->assertSame('Memory Reader|Writer', $reader->getIdentifierBackendLabel());
+    }
+
+    public function test_identifier_index_supports_multiple_identifiers(): void
+    {
+        $reader = (new ItemReader(new ItemCollection($this->items)))->withIdentifierIndex('id');
+
+        $result = $reader->find(['id' => ['2', '4']])->getItems();
+
+        $this->assertCount(2, $result);
+        $this->assertSame(['2', '4'], array_column($result, 'id'));
+    }
+
+    public function test_sort_on_identifier_reorders_rows(): void
+    {
+        $items = array_reverse($this->items);
+        $reader = (new ItemReader(new ItemCollection($items)))->sortOnIdentifier('id');
+
+        $this->assertSame(['1', '2', '3', '4'], array_column($reader->getItems(), 'id'));
+        $this->assertSame('Memory Reader|Writer', $reader->getIdentifierBackendLabel());
+    }
 }

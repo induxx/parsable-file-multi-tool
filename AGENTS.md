@@ -6,8 +6,10 @@
 ## Build, Test, and Development Commands
 - `bin/docker/composer install` — install dependencies inside the project Docker image (preferred so extensions match production).
 - `bin/docker/console transformation --file examples/transformation.yaml --source data/in --workpath var/out` — run a sample pipeline; swap paths when validating new directives.
+- `bin/docker/php` / `bin/docker/phpunit` — run arbitrary PHP or the full PHPUnit suite inside the containerized tooling (mirrors prod extensions and avoids local PHP drift).
 - `composer test` — run the default pipeline: PHPUnit, then PHPStan on `src/` and `tests/`.
 - `composer unit-test` / `composer sa-test` — run only PHPUnit or only static analysis when iterating quickly.
+- Identifier indexes can operate entirely in-memory ("Memory Reader|Writer") or through Redis ("Redis Reader|Writer"). Toggle via the `identifier.backend` option when calling `Source::getCachedReader`, set `REDIS_URL` / `REDIS_INDEX_HASH` for the Redis backend, and optionally override the per-run master key with `MISERY_RUN_KEY`. Keys are flushed automatically at shutdown.
 
 ## Coding Style & Naming Conventions
 Follow PSR-12: 4-space indentation, trailing commas in multi-line arrays, and one class per file. Class names are StudlyCase, services end with their concern (e.g., `*Converter`, `*Action`), and configuration DTOs end in `Config`. Interfaces live beside implementations and use `Interface` suffix. Prefer constructor promotion and typed properties (PHP ≥8.1). Run `vendor/bin/phpstan analyse` before pushing; the level 5 baseline is non-negotiable.

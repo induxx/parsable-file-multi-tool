@@ -8,3 +8,8 @@ services:
       - ~/.composer:/.composer
     environment:
       COMPOSER_HOME: '/.composer'
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
