@@ -82,6 +82,30 @@ context:
     environment: "production"
 ```
 
+### Redis Parser & Writer
+
+Use the Redis-backed parser and writer (`type: redis`) to share API payloads or intermediate file records via Redis hashes. Each run automatically scopes its data with the per-run `MISERY_RUN_KEY`, so parallel processes will not collide.
+
+```yaml
+pipeline:
+  input:
+    parser:
+      type: redis
+      channel: api_payloads
+      redis_url: 'redis://localhost:6379/0'   # optional when REDIS_URL is set
+  output:
+    writer:
+      type: redis
+      channel: api_payloads
+      redis_hash: misery:item-buffer          # optional when REDIS_PAYLOAD_HASH is set
+      clear_before_use: true                  # wipe the hash before writing
+```
+
+- `channel` (required) separates buffers within the same Redis namespace.
+- `redis_hash` defaults to `misery:item-buffer` (override via env `REDIS_PAYLOAD_HASH`).
+- `master_key` overrides the auto-generated `MISERY_RUN_KEY` when you need deterministic keys.
+- Set `clear_before_use: true` on a writer or parser when reusing a custom `master_key` and you want to start from an empty hash.
+
 ## Common Commands
 
 ### Basic Transformation

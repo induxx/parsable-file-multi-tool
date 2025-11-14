@@ -4,6 +4,7 @@ namespace Misery\Component\Source;
 
 use Misery\Component\Common\Cursor\CachedCursor;
 use Misery\Component\Common\Cursor\CursorInterface;
+use Misery\Component\Common\Runtime\RunKeyResolver;
 use Misery\Component\Item\Processor\NullProcessor;
 use Misery\Component\Item\Processor\ProcessorInterface;
 use Misery\Component\Reader\ItemReader;
@@ -22,7 +23,6 @@ class Source
     private $cache;
     private static array $trackedIdentifierStorages = [];
     private static bool $identifierFlushRegistered = false;
-    private static ?string $identifierRunKey = null;
 
     public function __construct(
         CursorInterface $cursor,
@@ -114,8 +114,8 @@ class Source
     public static function resetIdentifierRuntimeState(): void
     {
         self::flushIdentifierStorages();
-        self::$identifierRunKey = null;
         self::$identifierFlushRegistered = false;
+        RunKeyResolver::reset();
     }
 
     private function createIdentifierStorage(array $identifierConfig): IdentifierIndexStorageInterface
@@ -176,21 +176,11 @@ class Source
 
     private function resolveIdentifierMasterKey(array $identifierConfig): string
     {
+        $override = null;
         if (!empty($identifierConfig['master_key'])) {
-            return (string) $identifierConfig['master_key'];
+            $override = (string) $identifierConfig['master_key'];
         }
 
-        $envKey = $_ENV['MISERY_RUN_KEY'] ?? $_SERVER['MISERY_RUN_KEY'] ?? null;
-        if (is_string($envKey) && $envKey !== '') {
-            self::$identifierRunKey = $envKey;
-        }
-
-        if (null === self::$identifierRunKey) {
-            self::$identifierRunKey = bin2hex(random_bytes(10));
-            $_ENV['MISERY_RUN_KEY'] = self::$identifierRunKey;
-            $_SERVER['MISERY_RUN_KEY'] = self::$identifierRunKey;
-        }
-
-        return self::$identifierRunKey;
+        return RunKeyResolver::resolve($override);
     }
 }

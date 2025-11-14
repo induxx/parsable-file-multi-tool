@@ -4,6 +4,7 @@ namespace Misery\Component\Writer;
 
 use Assert\Assert;
 use Misery\Component\Common\FileManager\FileManagerInterface;
+use Misery\Component\Common\Redis\RedisItemBufferFactory;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 
 class ItemWriterFactory implements RegisteredByNameInterface
@@ -12,15 +13,23 @@ class ItemWriterFactory implements RegisteredByNameInterface
         array $configuration,
         FileManagerInterface $fileManager
     ) : ItemWriterInterface {
+        $type = strtolower($configuration['type']);
+
         Assert::that(
-            $configuration['type'],
+            $type,
             'type must be filled in.'
-        )->notEmpty()->string()->inArray(['xml', 'buffer', 'buffer_csv', 'csv', 'yaml', 'yml', 'xlsx', 'json', 'jsonl']);
+        )->notEmpty()->string()->inArray(['xml', 'buffer', 'buffer_csv', 'csv', 'yaml', 'yml', 'xlsx', 'json', 'jsonl', 'redis']);
+
+        if ($type === 'redis') {
+            return new RedisWriter(
+                RedisItemBufferFactory::create($configuration)
+            );
+        }
 
         $filename = $fileManager->provisionPath($configuration['filename']);
 
         $batchSize = $configuration['batch_size'] ?? 0;
-        if ($configuration['type'] === 'xml') {
+        if ($type === 'xml') {
 
             if ($batchSize !== 0) {
                 return new BatchWriter(
@@ -36,23 +45,23 @@ class ItemWriterFactory implements RegisteredByNameInterface
                 $configuration['options'] ?? []
             );
         }
-        if ($configuration['type'] === 'json' || $configuration['type'] === 'buffer' || $configuration['type'] === 'jsonl') {
+        if ($type === 'json' || $type === 'buffer' || $type === 'jsonl') {
             return new JsonlWriter($filename);
         }
-        if ($configuration['type'] === 'buffer_csv') {
+        if ($type === 'buffer_csv') {
             $configuration['filename'] = $filename;
             return BufferedCsvWriter::createFromArray($configuration);
         }
-        if ($configuration['type'] === 'csv') {
+        if ($type === 'csv') {
             $configuration['filename'] = $filename;
             return CsvWriter::createFromArray($configuration);
         }
-        if ($configuration['type'] === 'yml' || $configuration['type'] === 'yaml') {
+        if ($type === 'yml' || $type === 'yaml') {
             $configuration['filename'] = $filename;
             return new YamlWriter($configuration['filename']);
         }
 
-        if ($configuration['type'] === 'xlsx') {
+        if ($type === 'xlsx') {
             $configuration['filename'] = $filename;
             return new XlsxWriter($configuration);
         }

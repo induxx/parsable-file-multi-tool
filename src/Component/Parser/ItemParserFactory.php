@@ -8,6 +8,7 @@ use Misery\Component\Common\Cursor\CursorInterface;
 use Misery\Component\Common\Cursor\FunctionalCursor;
 use Misery\Component\Common\Cursor\OldCachedZoneFetcher;
 use Misery\Component\Common\FileManager\InMemoryFileManager;
+use Misery\Component\Common\Redis\RedisItemBufferFactory;
 use Misery\Component\Common\Registry\RegisteredByNameInterface;
 use Misery\Component\Filter\ColumnReducer;
 use Misery\Component\Reader\ItemCollection;
@@ -22,7 +23,7 @@ class ItemParserFactory implements RegisteredByNameInterface
         Assert::that(
             $type,
             'type must be filled in.'
-        )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed', 'yaml', 'buffer', 'json', 'jsonl', 'json-file']);
+        )->notEmpty()->string()->inArray(['xml', 'csv', 'xlsx', 'list', 'feed', 'yaml', 'buffer', 'json', 'jsonl', 'json-file', 'redis']);
 
         $fetchers = [
             'continuous' => ContinuousBufferFetcher::class,
@@ -56,6 +57,12 @@ class ItemParserFactory implements RegisteredByNameInterface
             }
 
             return $mainParser;
+        }
+
+        if ($type === 'redis') {
+            return RedisParser::create(
+                RedisItemBufferFactory::create($configuration)
+            );
         }
 
         // TODO json and json-file are the same, we should merge them
