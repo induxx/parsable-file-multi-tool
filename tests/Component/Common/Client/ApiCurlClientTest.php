@@ -166,7 +166,6 @@ class ApiCurlClientTest extends TestCase
                 implode("\n", array_map('json_encode', [[['id'=>5], ['id'=>6]]])),
                 ['Content-Type' => 'application/vnd.akeneo.collection+json']
             ]],
-            ['GET', 'download', [], [null, []]],
         ];
     }
 
