@@ -170,7 +170,9 @@ class GuzzleApiClient implements ApiClientInterface
 
     private function buildHeaders(array $h = []): array
     {
-        $h['Accept'] = 'application/json';
+        if (!isset($h['Accept'])) {
+            $h['Accept'] = 'application/json';
+        }
 
         // let the authenticatedAccount inject its auth header
         if (isset($this->authenticatedAccount) && !$this->authenticatedAccount->isInvalidated()) {
@@ -236,7 +238,38 @@ class GuzzleApiClient implements ApiClientInterface
      */
     public function download(string $endpoint): ApiResponse
     {
-        return $this->request('GET', $endpoint);
+        $headers = $this->buildHeaders(['Accept' => 'application/json']);
+
+        try {
+            $response = $this->http->request('GET', $endpoint, [
+                'headers' => $headers,
+            ]);
+        } catch (TransferException $e) {
+            throw new \RuntimeException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+
+        $status = $response->getStatusCode();
+        $body   = (string) $response->getBody();
+
+        if ($status >= 200 && $status < 300) {
+            return new ApiResponse(
+                $response->getStatusCode(),
+                null,
+                (string) $response->getBody(),
+                $headers
+            );
+        }
+
+        if ($status === 404) {
+            $content = @json_decode($body, true) ?: [];
+            throw new PageNotFoundException($content['message'] ?? 'Page Not Found 404');
+        }
+        if ($status === 401) {
+            $content = @json_decode($body, true) ?: [];
+            throw new UnauthorizedException($content['message'] ?? 'Unauthorized');
+        }
+
+        throw new \RuntimeException(sprintf('Download failed: HTTP %d - %s', $status, $body), $status);
     }
 
     public function close(): void

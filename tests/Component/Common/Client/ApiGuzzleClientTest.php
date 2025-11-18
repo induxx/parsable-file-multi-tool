@@ -244,14 +244,34 @@ final class ApiGuzzleClientTest extends TestCase
         $this->client->get('https://api.example.com/down');
     }
 
-    public function testDownloadDelegatesToGet(): void
+    public function testDownloadReturnsRawBody(): void
+    {
+        $payload = 'binary-image';
+
+        $this->http->expects($this->once())
+            ->method('request')
+            ->with(
+                'GET',
+                'https://api.example.com/raw',
+                $this->callback(function ($opts) {
+                    $this->assertSame('application/json', $opts['headers']['Accept']);
+                    return true;
+                })
+            )
+            ->willReturn(new Response(200, [], $payload));
+
+        $resp = $this->client->download('https://api.example.com/raw')->getContent();
+        $this->assertSame($payload, $resp);
+    }
+
+    public function testDownloadReturnsNullForEmptyBody(): void
     {
         $this->http->expects($this->once())
             ->method('request')
             ->with('GET', 'https://api.example.com/raw', $this->anything())
-            ->willReturn(new Response(200, [], json_encode(['raw' => 'data'])));
+            ->willReturn(new Response(200, [], ''));
 
-        $resp = $this->client->download('https://api.example.com/raw');
-        $this->assertSame(['raw' => 'data'], $resp->getContent());
+        $resp = $this->client->download('https://api.example.com/raw')->getContent();
+        $this->assertEmpty($resp);
     }
 }
