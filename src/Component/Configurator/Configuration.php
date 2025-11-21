@@ -246,7 +246,7 @@ class Configuration
 
     public function addList(string $listName, array $list): void
     {
-        $this->lists[$listName] = new ArrayCollection($list);
+        $this->lists[$listName] = ArrayCollection::create($list);
     }
 
     public function updateList(string $listName, array $list): void
