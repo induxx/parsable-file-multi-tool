@@ -1,22 +1,44 @@
+context:
+  extract_list: extract_list_localized # extract_list_global,extract_list_localized
+
+list:
+  - name: extract_list_localized
+    values:
+      SUPPLIER_PID: ''
+      PRODUCT_DETAILS|INTERNATIONAL_PID: ''
+      PRODUCT_DETAILS|SUPPLIER_ALT_PID: ''
+      PRODUCT_DETAILS|MANUFACTURER_PID: ''
+      PRODUCT_DETAILS|MANUFACTURER_NAME: ''
+      PRODUCT_DETAILS:
+        k: '@attributes.lang'
+        v: '@value'
+      PRODUCT_FEATURES|FEATURE: { k: 'FNAME', v: 'FVALUE' }
+      PRODUCT_FEATURES|REFERENCE_FEATURE_GROUP_ID: ''
+      PRODUCT_ORDER_DETAILS: ''
+      PRODUCT_PRICE_DETAILS: ''
+      PRODUCT_LOGISTIC_DETAILS: ''
+      USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME: { k: 'UDX.EDXF.MIME_CODE', v: 'UDX.EDXF.MIME_FILENAME' }
+
+  - name: extract_list_global
+    values:
+      SUPPLIER_PID: ''
+      PRODUCT_DETAILS|INTERNATIONAL_PID: ''
+      PRODUCT_DETAILS|SUPPLIER_ALT_PID: ''
+      PRODUCT_DETAILS|MANUFACTURER_PID: ''
+      PRODUCT_DETAILS|MANUFACTURER_NAME: ''
+      PRODUCT_DETAILS: ''
+      PRODUCT_FEATURES|FEATURE: { k: 'FNAME', v: 'FVALUE' }
+      PRODUCT_FEATURES|REFERENCE_FEATURE_GROUP_ID: ''
+      PRODUCT_ORDER_DETAILS: ''
+      PRODUCT_PRICE_DETAILS: ''
+      PRODUCT_LOGISTIC_DETAILS: ''
+      USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME: { k: 'UDX.EDXF.MIME_CODE', v: 'UDX.EDXF.MIME_FILENAME' }
+
 converter:
   - name: flatten/xml/v1
     options:
       separator: '|'
-      extract:
-        SUPPLIER_PID: ''
-        PRODUCT_DETAILS|INTERNATIONAL_PID: ''
-        PRODUCT_DETAILS|SUPPLIER_ALT_PID: ''
-        PRODUCT_DETAILS|MANUFACTURER_PID: ''
-        PRODUCT_DETAILS|MANUFACTURER_NAME: ''
-        PRODUCT_DETAILS:
-          k: '@attributes.lang'
-          v: '@value'
-        PRODUCT_FEATURES|FEATURE: {k: 'FNAME', v: 'FVALUE' }
-        PRODUCT_FEATURES|REFERENCE_FEATURE_GROUP_ID: ''
-        PRODUCT_ORDER_DETAILS: ''
-        PRODUCT_PRICE_DETAILS: ''
-        PRODUCT_LOGISTIC_DETAILS: ''
-        USER_DEFINED_EXTENSIONS|UDX.EDXF.MIME_INFO|UDX.EDXF.MIME: {k: 'UDX.EDXF.MIME_CODE', v: 'UDX.EDXF.MIME_FILENAME' }
+      extract:list: '%extract_list%'
 
 pipeline:
   input:

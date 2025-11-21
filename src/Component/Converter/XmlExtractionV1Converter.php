@@ -37,7 +37,7 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
 
     private array $options = [
         'separator' => '|',
-        'extract'   => [],
+        'extract:list'   => [],
         'parse' => [
             'flatten' => [
                 'separator' => '|',
@@ -73,7 +73,7 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
      */
     public function convert(array $item): array
     {
-        $rules = $this->getOption('extract', []);
+        $rules = $this->getOption('extract:list', []);
         $item = $this->applyExtractionRules($item, $rules);
 
         $item = $this->encoder->encode($item);
