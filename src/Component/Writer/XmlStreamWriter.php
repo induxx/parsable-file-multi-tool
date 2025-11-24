@@ -7,6 +7,7 @@ use XMLWriter;
 class XmlStreamWriter implements ItemWriterInterface
 {
     private ?XMLWriter $writer = null;
+    private bool $documentStarted = false;
     private string $uri;
     private string $rootName;
     private ?string $containerName = null;
@@ -57,7 +58,9 @@ class XmlStreamWriter implements ItemWriterInterface
         if (@$writer->openUri($uri) !== true) {
             throw new \RuntimeException("Unable to open URI for writing: $uri");
         }
-        $writer->startDocument($version, $encoding);
+        if ($writer->startDocument($version, $encoding) === false) {
+            throw new \RuntimeException('Unable to start XML document.');
+        }
         $writer->setIndent(true);
         $writer->setIndentString($indentString);
 
@@ -69,6 +72,7 @@ class XmlStreamWriter implements ItemWriterInterface
         }
 
         $this->writer = $writer;
+        $this->documentStarted = true;
         unset($writer);
 
         if ($headerContainer !== []) {
@@ -213,10 +217,18 @@ class XmlStreamWriter implements ItemWriterInterface
      */
     public function closeDocument(): void
     {
-        if (isset($this->writer) && $this->writer instanceof \XMLWriter) {
+        if (!isset($this->writer) || !$this->writer instanceof \XMLWriter || $this->documentStarted === false) {
+            return;
+        }
+
+        try {
             $this->writer->endDocument();
             $this->writer->flush();
+        } catch (\Error) {
+            // Writer was not properly initialised; ignore to avoid fatal errors on shutdown.
+        } finally {
             $this->writer = null;
+            $this->documentStarted = false;
         }
     }
 
