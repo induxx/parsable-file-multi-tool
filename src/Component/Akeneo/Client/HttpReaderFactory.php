@@ -69,7 +69,6 @@ class HttpReaderFactory implements RegisteredByNameInterface
                 // create query string
                 $context['limiters']['query_array'] = $configContext['akeneo_filters'][$akeneoFilter]['search'];
             }
-            dd($context);
 
             $accountCode = (isset($configuration['account'])) ? $configuration['account'] : 'source_resource';
             $account = $config->getAccount($accountCode);

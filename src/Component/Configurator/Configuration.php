@@ -111,6 +111,11 @@ class Configuration
         $this->context = $this->context + $context;
     }
 
+    public function setContextValues(array $context): void
+    {
+        $this->context = $context;
+    }
+
     public function setContext(string $key, $value): void
     {
         $this->context[$key] = $value;

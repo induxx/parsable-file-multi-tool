@@ -143,6 +143,7 @@ class ConfigurationManager
         /** @var ProjectDirectories $projectDirectories */
         $projectDirectories = $this->factory->getFactory('project_directories');
         $dirName = pathinfo($this->config->getContext('transformation_file'))['dirname'] ?? null;
+        $baseContext = $this->config->getContext();
 
         unset($masterConfiguration['transformation_steps']);
 
@@ -180,7 +181,17 @@ class ConfigurationManager
                 return $value !== null;
             });
             $configuration = array_replace_recursive($transformationContent, $masterConfiguration);
-            $configuration['context'] = $configuration['context'] + $context + ($transformationContent['context'] ?? []);
+
+            $transformationContext = $transformationContent['context'] ?? [];
+            $transformationContext = is_array($transformationContext) ? $transformationContext : [];
+            // Build a fresh step context to prevent bleed-over between transformation runs.
+            $configuration['context'] = array_replace(
+                $baseContext,
+                $transformationContext,
+                $context
+            );
+
+            $this->config->setContextValues($configuration['context']);
             $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
             // Start the process if the transformation file has a pipeline or shell
@@ -197,6 +208,8 @@ class ConfigurationManager
                 $configuration->clearShellCommands();
             }
         }
+
+        $this->config->setContextValues($baseContext);
     }
 
     // Helper function to compute Cartesian of arrays
