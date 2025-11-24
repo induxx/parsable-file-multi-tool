@@ -187,6 +187,12 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
                     if (!is_array($entries)) {
                         continue;
                     }
+
+                    // ⭐ Normalize: if it's a single entry, wrap it into an array
+                    if (isset($entries['@attributes'])) {
+                        $entries = [$entries];
+                    }
+
                     foreach ($entries as $entry) {
                         if (
                             !is_array($entry)
