@@ -79,9 +79,13 @@ class ConfigurationTest extends TestCase
         $context = ['key1' => 'value1', 'key2' => 'value2'];
 
         $configuration->addContext($context);
+        // Duplicate keys should be preserved, new ones added.
+        $configuration->addContext(['key2' => 'overwritten', 'key3' => 'value3']);
 
-        $this->assertEquals($context, $configuration->getContext());
+        $this->assertEquals(['key1' => 'value1', 'key2' => 'value2', 'key3' => 'value3'], $configuration->getContext());
         $this->assertEquals('value1', $configuration->getContext('key1'));
+        $this->assertEquals('value2', $configuration->getContext('key2'));
+        $this->assertEquals('value3', $configuration->getContext('key3'));
         $this->assertNull($configuration->getContext('nonexistent_key'));
     }
 

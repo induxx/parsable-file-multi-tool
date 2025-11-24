@@ -125,7 +125,8 @@ class ConfigurationManager
 
     public function addContextEntry(string $key, string $value): void
     {
-        $this->config->addContext([$key => $value]);
+        // Explicitly allow overriding single entries.
+        $this->config->setContext($key, $value);
     }
 
     public function addContext(array $configuration): void
@@ -179,7 +180,7 @@ class ConfigurationManager
                 return $value !== null;
             });
             $configuration = array_replace_recursive($transformationContent, $masterConfiguration);
-            $configuration['context'] = array_merge($configuration['context'], $context, $transformationContent['context'] ?? []);
+            $configuration['context'] = $configuration['context'] + $context + ($transformationContent['context'] ?? []);
             $configuration = $this->factory->parseDirectivesFromConfiguration($configuration);
 
             // Start the process if the transformation file has a pipeline or shell
