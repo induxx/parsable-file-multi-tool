@@ -212,6 +212,24 @@ class XmlStreamWriterTest extends TestCase
         $this->assertTrue(true);
     }
 
+    public function test_close_handles_uninitialized_writer_gracefully(): void
+    {
+        $filename = tempnam(sys_get_temp_dir(), 'xmltest');
+        $writer = new XmlStreamWriter($filename, [
+            'root_container' => ['ROOT' => []],
+            'xpath' => 'ROOT|ITEM',
+        ]);
+
+        // Simulate an uninitialized XMLWriter instance to mirror production error conditions.
+        $writerProperty = new \ReflectionProperty(XmlStreamWriter::class, 'writer');
+        $writerProperty->setAccessible(true);
+        $writerProperty->setValue($writer, new \XMLWriter());
+
+        $writer->close();
+        unlink($filename);
+        $this->assertTrue(true);
+    }
+
     public function test_invalid_path_throws(): void
     {
         $this->expectException(\RuntimeException::class);

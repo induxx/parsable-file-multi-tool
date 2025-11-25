@@ -14,6 +14,16 @@ class ArrayCollection
         }
     }
 
+    public static function create(array $items = []): self
+    {
+        $collection = new self();
+        foreach ($items as $key => $item) {
+            $collection->set($key, $item);
+        }
+
+        return $collection;
+    }
+
     public function add($item): void
     {
         $this->items[] = $item;

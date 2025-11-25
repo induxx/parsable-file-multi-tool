@@ -107,7 +107,13 @@ class Configuration
 
     public function addContext(array $context): void
     {
-        $this->context = array_merge($this->context, $context);
+        // Preserve already known context values; only add new keys.
+        $this->context = $this->context + $context;
+    }
+
+    public function setContextValues(array $context): void
+    {
+        $this->context = $context;
     }
 
     public function setContext(string $key, $value): void
@@ -246,7 +252,7 @@ class Configuration
 
     public function addList(string $listName, array $list): void
     {
-        $this->lists[$listName] = new ArrayCollection($list);
+        $this->lists[$listName] = ArrayCollection::create($list);
     }
 
     public function updateList(string $listName, array $list): void

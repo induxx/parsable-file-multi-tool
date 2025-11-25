@@ -37,7 +37,8 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
 
     private array $options = [
         'separator' => '|',
-        'extract'   => [],
+        'extract:list'   => [],
+        'extract'   => null,
         'parse' => [
             'flatten' => [
                 'separator' => '|',
@@ -73,7 +74,7 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
      */
     public function convert(array $item): array
     {
-        $rules = $this->getOption('extract', []);
+        $rules = $this->getOption('extract', $this->getOption('extract:list', []));
         $item = $this->applyExtractionRules($item, $rules);
 
         $item = $this->encoder->encode($item);
@@ -84,7 +85,7 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
     /** {@inheritdoc} */
     public function revert(array $item): array
     {
-        $rules = $this->getOption('extract', []);
+        $rules = $this->getOption('extract',  $this->getOption('extract:list', []));
         $sep = $this->getOption('separator');
         $result = [];
 
@@ -186,6 +187,12 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
                     if (!is_array($entries)) {
                         continue;
                     }
+
+                    // ⭐ Normalize: if it's a single entry, wrap it into an array
+                    if (isset($entries['@attributes'])) {
+                        $entries = [$entries];
+                    }
+
                     foreach ($entries as $entry) {
                         if (
                             !is_array($entry)

@@ -48,13 +48,12 @@ class ConfigurationManagerTest extends TestCase
 
     public function testAddContextEntryAndAddContext(): void
     {
-        $this->config->expects($this->exactly(2))
+        $this->config->expects($this->once())
+            ->method('setContext')
+            ->with('foo', 'bar');
+        $this->config->expects($this->once())
             ->method('addContext')
-            ->withConsecutive([
-                ['foo' => 'bar'],
-            ], [
-                ['baz' => 'qux'],
-            ]);
+            ->with(['baz' => 'qux']);
         $manager = new ConfigurationManager($this->config, $this->factory, $this->workFiles);
         $manager->addContextEntry('foo', 'bar');
         $manager->addContext(['baz' => 'qux']);
