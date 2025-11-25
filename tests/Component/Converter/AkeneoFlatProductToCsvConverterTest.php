@@ -143,4 +143,29 @@ class AkeneoFlatProductToCsvConverterTest extends TestCase
         $this->assertEquals('boven', $output['values|exhaust_location']['data'][0]);
         $this->assertEquals('rechts', $output['values|exhaust_location']['data'][1]);
     }
+
+    public function testScopableAttributeWithoutLocaleUsesScope()
+    {
+        $codes = [
+            'barcode' => 'pim_catalog_text',
+        ];
+        $converter = new AkeneoFlatProductToCsvConverter();
+        $converter->setOptions([
+            'attributes:list' => array_keys($codes),
+            'attribute_types:list' => $codes,
+            'scopable_attribute_codes:list' => ['barcode'],
+            'default_scope' => 'print',
+        ]);
+
+        $input = [
+            'barcode-ecommerce' => '12345',
+        ];
+
+        $output = $converter->convert($input);
+
+        $this->assertArrayHasKey('values|barcode|ecommerce', $output);
+        $this->assertNull($output['values|barcode|ecommerce']['locale']);
+        $this->assertSame('ecommerce', $output['values|barcode|ecommerce']['scope']);
+        $this->assertSame('12345', $output['values|barcode|ecommerce']['data']);
+    }
 }

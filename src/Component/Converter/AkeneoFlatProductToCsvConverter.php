@@ -102,10 +102,45 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
     private function createScopes(string $key, $separator = '-'): array
     {
         $explodedKeys = explode($separator, $key);
+        $masterKey = array_shift($explodedKeys);
 
-        return [$explodedKeys[0], [
-            'locale' => $explodedKeys[1] ?? null,
-            'scope' => $explodedKeys[2] ?? null,
+        $isLocalizable = in_array(
+            $masterKey,
+            $this->getOption('localizable_attribute_codes:list') ?? [],
+            true
+        );
+        $isScopable = in_array(
+            $masterKey,
+            $this->getOption('scopable_attribute_codes:list') ?? [],
+            true
+        );
+
+        // When attribute metadata is available we can accurately map locale/scope.
+        if ($isLocalizable && $isScopable) {
+            return [$masterKey, [
+                'locale' => $explodedKeys[0] ?? null,
+                'scope' => $explodedKeys[1] ?? null,
+            ]];
+        }
+
+        if ($isLocalizable) {
+            return [$masterKey, [
+                'locale' => $explodedKeys[0] ?? null,
+                'scope' => null,
+            ]];
+        }
+
+        if ($isScopable) {
+            return [$masterKey, [
+                'locale' => null,
+                'scope' => $explodedKeys[0] ?? null,
+            ]];
+        }
+
+        // Legacy fallback: assume locale first, scope second when no metadata provided.
+        return [$masterKey, [
+            'locale' => $explodedKeys[0] ?? null,
+            'scope' => $explodedKeys[1] ?? null,
         ]];
     }
 
