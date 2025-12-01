@@ -6,11 +6,16 @@
 ## Build, Test, and Development Commands
 - `bin/docker/composer install` — install dependencies inside the project Docker image (preferred so extensions match production).
 - `bin/docker/console transformation --file examples/transformation.yaml --source data/in --workpath var/out` — run a sample pipeline; swap paths when validating new directives.
-- `composer test` — run the default pipeline: PHPUnit, then PHPStan on `src/` and `tests/`.
-- `composer unit-test` / `composer sa-test` — run only PHPUnit or only static analysis when iterating quickly.
+- `bin/docker/php` — general PHP entrypoint via Docker (`docker-compose run -u 1000:1000 --rm fpm php ...`); use this wrapper to execute ad-hoc PHP commands safely.
+- `bin/docker/phpunit` — run PHPUnit inside the Docker image (`bin/docker/php vendor/bin/phpunit ...`).
+- `bin/docker/composer` — composer wrapper pinned to the container PHP (`bin/docker/php -d memory_limit=4G /usr/bin/composer ...`).
+- `bin/docker/python` — Python wrapper inside the container (`docker-compose run -u 1000:1000 --rm fpm /opt/venv/bin/python3 ...`), using the venv interpreter from `docker/fpm/Dockerfile`.
+- `bin/docker/run_example.sh` — scaffolds example folders and runs `bin/docker/console` for a given project (`PROJECT` env var).
+- `bin/docker/composer test` — run the default pipeline: PHPUnit, then PHPStan on `src/` and `tests/`.
+- `bin/docker/composer unit-test` / `composer sa-test` — run only PHPUnit or only static analysis when iterating quickly.
 
 ## Coding Style & Naming Conventions
-Follow PSR-12: 4-space indentation, trailing commas in multi-line arrays, and one class per file. Class names are StudlyCase, services end with their concern (e.g., `*Converter`, `*Action`), and configuration DTOs end in `Config`. Interfaces live beside implementations and use `Interface` suffix. Prefer constructor promotion and typed properties (PHP ≥8.1). Run `vendor/bin/phpstan analyse` before pushing; the level 5 baseline is non-negotiable.
+Follow PSR-12: 4-space indentation, trailing commas in multi-line arrays, and one class per file. Class names are StudlyCase, services end with their concern (e.g., `*Converter`, `*Action`), and configuration DTOs end in `Config`. Interfaces live beside implementations and use `Interface` suffix. Prefer constructor promotion and typed properties (PHP ≥8.1).
 
 ## Testing Guidelines
 Add PHPUnit specs mirroring the production namespace (`tests/Misery/Foo/BarTest.php`). Name tests for intent (`testTransformsFileWithCustomAction`). For pipelines, provide representative fixtures under `tests/fixtures/` or `examples/` to keep cases reproducible. Every bug fix needs a regression test plus a static-analysis-safe path. Use `composer github-test` when preparing CI submissions; it excludes heavy performance groups so results match GitHub Actions.

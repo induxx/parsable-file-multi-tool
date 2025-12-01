@@ -209,6 +209,46 @@ class XmlExtractionV1ConverterTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+    public function testConvertFeaturesWithWildcardPath()
+    {
+        $converter = new XmlExtractionV1Converter();
+        $converter->setOptions([
+            'separator' => '|',
+            'extract' => [
+                'PRODUCT_FEATURES|*|FEATURE' => [
+                    'k' => 'FNAME',
+                    'v' => 'FVALUE',
+                ],
+            ],
+        ]);
+
+        $input = [
+            'PRODUCT_FEATURES' => [
+                [
+                    'REFERENCE_FEATURE_SYSTEM_NAME' => 'ETIM-10.0',
+                    'REFERENCE_FEATURE_GROUP_ID' => 'EC010592',
+                    'FEATURE' => [
+                        ['FNAME' => 'EF002169', 'FVALUE' => '-'],
+                    ],
+                ],
+                [
+                    'REFERENCE_FEATURE_SYSTEM_NAME' => 'UNSPSC',
+                    'REFERENCE_FEATURE_GROUP_ID' => '40142500',
+                    'FEATURE' => [
+                        ['FNAME' => 'EF001257', 'FVALUE' => '-'],
+                    ],
+                ],
+            ],
+        ];
+
+        $expected = [
+            "PRODUCT_FEATURES|FEATURE|EF002169" => '-',
+            "PRODUCT_FEATURES|FEATURE|EF001257" => '-',
+        ];
+
+        $this->assertEquals($expected, $converter->convert($input));
+    }
+
     public function testRevertFeatures()
     {
         $converter = new XmlExtractionV1Converter();

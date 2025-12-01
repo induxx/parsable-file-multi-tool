@@ -172,6 +172,7 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
         $output = [];
 
         foreach ($rules as $path => $rule) {
+            $targetPath = $this->stripWildcards($path);
             $sub = $this->getNestedValue($data, explode($sep, $path));
             if ($sub === null) {
                 continue;
@@ -205,7 +206,7 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
                             $entry,
                             explode('.', ltrim($valuePath, '.'))
                         );
-                        $output["{$path}{$sep}{$childTag}{$sep}{$lang}"] = $value;
+                        $output["{$targetPath}{$sep}{$childTag}{$sep}{$lang}"] = $value;
                     }
                 }
                 continue;
@@ -219,14 +220,14 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
                     }
                     $key = (string)$entry[$rule['k']];
                     $value = $this->extractByKvRule($entry, $rule);
-                    $output[$path][$key] = $value;
+                    $output[$targetPath][$key] = $value;
                 }
                 continue;
             }
 
             // 3) No rule ⇒ full subtree flatten
             $flattened = $this->flattenRecursive((array)$sub);
-            $output[$path] = count($flattened) === 1
+            $output[$targetPath] = count($flattened) === 1
                 ? reset($flattened)
                 : $flattened;
         }
@@ -298,16 +299,47 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
      */
     private function getNestedValue($data, array $keys): mixed
     {
-        foreach ($keys as $k) {
-            if (
-                !is_array($data)
-                || !array_key_exists($k, $data)
-            ) {
-                return null;
-            }
-            $data = $data[$k];
+        if ($keys === []) {
+            return $data;
         }
-        return $data;
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        $key = array_shift($keys);
+
+        // Wildcard: merge matches over all children
+        if ($key === '*') {
+            $matches = [];
+            foreach ($data as $value) {
+                $match = $this->getNestedValue($value, $keys);
+                if ($match !== null) {
+                    $matches[] = $match;
+                }
+            }
+
+            return $this->combineMatches($matches);
+        }
+
+        if (array_key_exists($key, $data)) {
+            return $this->getNestedValue($data[$key], $keys);
+        }
+
+        // If we are inside a numeric list, scan entries for the requested path
+        if ($this->isList($data)) {
+            $matches = [];
+            foreach ($data as $item) {
+                $value = $this->getNestedValue($item, array_merge([$key], $keys));
+                if ($value !== null) {
+                    $matches[] = $value;
+                }
+            }
+
+            return $this->combineMatches($matches);
+        }
+
+        return null;
     }
 
     /** Check if an array has string keys anywhere. */
@@ -325,6 +357,62 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
             }
         }
         return true;
+    }
+
+    /** Check if an array is a numeric, zero-based list. */
+    private function isList(array $arr): bool
+    {
+        return array_keys($arr) === range(0, count($arr) - 1);
+    }
+
+    /** Check if every element in the array is itself a list. */
+    private function allLists(array $values): bool
+    {
+        foreach ($values as $value) {
+            if (!is_array($value) || !$this->isList($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Merge a set of matches while keeping the legacy semantics:
+     * - no match => null
+     * - single match => scalar/array as-is
+     * - all matches are lists => merged list
+     * - mixed matches => list of matches
+     *
+     * @param array<int, mixed> $matches
+     */
+    private function combineMatches(array $matches): mixed
+    {
+        if ($matches === []) {
+            return null;
+        }
+
+        if (count($matches) === 1) {
+            return $matches[0];
+        }
+
+        if ($this->allLists($matches)) {
+            return array_merge(...$matches);
+        }
+
+        return $matches;
+    }
+
+    /** Remove wildcard segments from an extraction path for output keys. */
+    private function stripWildcards(string $path): string
+    {
+        $sep = $this->getOption('separator');
+        $parts = array_values(array_filter(
+            explode($sep, $path),
+            static fn (string $part): bool => $part !== '*'
+        ));
+
+        return implode($sep, $parts);
     }
 
     /** {@inheritdoc} */
