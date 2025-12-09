@@ -108,7 +108,7 @@ class RetainAction implements OptionsInterface
     {
         $valuesToKeep = [];
         foreach ($fieldsToKeep as $value) {
-            if (strpos($value, '-') === false) {
+            if (!str_contains($value, '-')) {
                 continue;
             }
 

@@ -38,7 +38,8 @@ class ApiClientFactory implements RegisteredByNameInterface
                     $account['client_secret'],
                     $account['tenant_id'],
                     $account['scope'],
-                    $account['environment']
+                    $account['environment'],
+                    $account['root_uri'] ?? null
                 );
                 $client->authorize($account);
 

@@ -21,19 +21,22 @@ class MicrosoftDynamicsOauthAccount implements ApiClientAccountInterface
     private string $scope;
     private string $tenantId;
     private string $environment;
+    private string $rootUri;
 
     public function __construct(
         string $clientId,
         string $secret,
         string $tenantId,
         string $scope,
-        string $environment
+        string $environment,
+        ?string $rootUri = null
     ) {
         $this->clientId = $clientId;
         $this->secret = $secret;
         $this->scope = $scope;
         $this->tenantId = $tenantId;
         $this->environment = $environment;
+        $this->rootUri = $rootUri ?? self::ROOT_URI;
     }
 
     public function authorize(ApiClientInterface $client): AuthenticatedAccount
@@ -60,7 +63,7 @@ class MicrosoftDynamicsOauthAccount implements ApiClientAccountInterface
             throw new \RuntimeException($response->getMessage());
         }
 
-        $client->getUrlGenerator()->append(ValueFormatter::format(self::ROOT_URI, [
+        $client->getUrlGenerator()->append(ValueFormatter::format($this->rootUri, [
             'environment' => $this->environment,
             'TenantID' => $this->tenantId,
         ]));
@@ -76,6 +79,8 @@ class MicrosoftDynamicsOauthAccount implements ApiClientAccountInterface
 
     public function refresh(ApiClientInterface $client, AuthenticatedAccount $account): AuthenticatedAccount
     {
+        // Not implemented yet. Returning the provided account as a placeholder.
+        return $account;
     }
 
     public function getSupporterEndPoints(): ApiEndPointsInterface
