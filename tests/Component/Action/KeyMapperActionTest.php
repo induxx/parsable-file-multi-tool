@@ -1,8 +1,10 @@
 <?php
 
 namespace Tests\Misery\Component\Action;
+
 use Misery\Component\Action\KeyMapperAction;
 use Misery\Component\Converter\Matcher;
+use Misery\Model\DataStructure\Item;
 use PHPUnit\Framework\TestCase;
 
 class KeyMapperActionTest extends TestCase
@@ -211,5 +213,33 @@ class KeyMapperActionTest extends TestCase
         $result = $action->apply($item);
 
         $this->assertSame($item, $result);
+    }
+
+    public function testApplyAsItemCopiesValuesWhenUsingReverseMode(): void
+    {
+        $action = new KeyMapperAction();
+        $action->setOptions([
+            'list' => [
+                'values|short_description|en_US|ecommerce' => 'values|description|en_US|ecommerce',
+            ],
+            'reverse' => true,
+        ]);
+
+        $item = new Item('product');
+        $matcher = Matcher::create('values|description', 'en_US', 'ecommerce');
+        $value = [
+            'data' => 'Long description',
+            'matcher' => $matcher,
+            'type' => 'text',
+        ];
+        $item->addItem($matcher->getMainKey(), $value, ['locale' => 'en_US', 'scope' => 'ecommerce']);
+
+        $action->applyAsItem($item);
+
+        $this->assertNull($item->getItem('values|description|en_US|ecommerce'));
+
+        $copied = $item->getItem('values|short_description|en_US|ecommerce');
+        $this->assertSame('Long description', $copied->getDataValue());
+        $this->assertSame('text', $copied->getType());
     }
 }
