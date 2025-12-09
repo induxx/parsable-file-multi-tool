@@ -1,7 +1,10 @@
 <?php
 
 namespace Tests\Misery\Component\Action;
+
 use Misery\Component\Action\ListMapperAction;
+use Misery\Component\Converter\Matcher;
+use Misery\Model\DataStructure\Item;
 use PHPUnit\Framework\TestCase;
 
 class ListMapperActionTest extends TestCase
@@ -82,5 +85,30 @@ class ListMapperActionTest extends TestCase
         ]);
         $result = $action->apply($item);
         $this->assertEquals(['field' => ''], $result);
+    }
+
+    public function testApplyAsItemCopiesMappedValuesToNewKeys(): void
+    {
+        $item = new Item('product');
+        $matcher = Matcher::create('values|color', 'en_US', 'ecommerce');
+        $value = [
+            'data' => 'red',
+            'matcher' => $matcher,
+            'type' => 'text',
+        ];
+        $item->addItem($matcher->getMainKey(), $value, ['locale' => 'en_US', 'scope' => 'ecommerce']);
+
+        $action = new ListMapperAction();
+        $action->setOptions([
+            'field' => 'values|color|en_US|ecommerce',
+            'store_field' => 'values|color|en_US|ecommerce',
+            'list' => ['red' => 'values|shade|en_US|ecommerce'],
+        ]);
+
+        $action->applyAsItem($item);
+
+        $copied = $item->getItem('values|shade|en_US|ecommerce');
+        $this->assertSame('red', $copied->getDataValue());
+        $this->assertSame('text', $copied->getType());
     }
 }

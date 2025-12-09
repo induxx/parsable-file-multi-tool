@@ -3,6 +3,7 @@
 namespace Misery\Model\DataStructure;
 
 use Assert\Assert;
+use Misery\Component\Converter\Matcher;
 
 /**
  * This Item is part of the Matcher Family
@@ -45,7 +46,18 @@ class Item implements ItemInterface
             return;
         }
 
-        $matcher = $item->getMatcher()->duplicateWithNewKey($toCode);
+        $sourceMatcher = $item->getMatcher();
+        $targetLooksLikeValue = str_contains($toCode, '|');
+        if (!$targetLooksLikeValue) {
+            $matcher = Matcher::create($toCode);
+            $itemValue['type'] = 'property';
+            $itemValue['matcher'] = $matcher;
+
+            $this->addItem($matcher->getPrimaryKey(), $itemValue, $item->getContext());
+            return;
+        }
+
+        $matcher = $sourceMatcher->duplicateWithNewKey($toCode);
 
         $itemValue['type'] = $item->getType();
         $itemValue['matcher'] = $matcher;
