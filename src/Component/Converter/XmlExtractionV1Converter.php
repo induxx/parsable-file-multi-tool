@@ -214,7 +214,8 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
 
             // 2) Standard list extraction: needs both k and v
             if (!empty($rule['k'])) {
-                foreach ((array)$sub as $entry) {
+                $entries = $this->normalizeEntries($sub, $rule['k']);
+                foreach ($entries as $entry) {
                     if (!is_array($entry) || !isset($entry[$rule['k']])) {
                         continue;
                     }
@@ -346,6 +347,29 @@ class XmlExtractionV1Converter implements ConverterInterface, RegisteredByNameIn
     private function isAssoc(array $arr): bool
     {
         return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    /**
+     * Normalize arbitrarily structured XML fragments into a list of entries for k/v extraction.
+     *
+     * @param mixed $data
+     * @return array<int, array<mixed>>
+     */
+    private function normalizeEntries($data, string $keyField): array
+    {
+        if (!is_array($data) || $data === []) {
+            return [];
+        }
+
+        if ($this->isList($data)) {
+            return $data;
+        }
+
+        if (array_key_exists($keyField, $data)) {
+            return [$data];
+        }
+
+        return [];
     }
 
     /** Check if every element is non-array (a list of scalars). */

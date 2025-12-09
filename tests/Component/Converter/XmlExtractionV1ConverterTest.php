@@ -249,6 +249,35 @@ class XmlExtractionV1ConverterTest extends TestCase
         $this->assertEquals($expected, $converter->convert($input));
     }
 
+    public function testConvertFeaturesWithSingleNode()
+    {
+        $converter = new XmlExtractionV1Converter();
+        $converter->setOptions([
+            'separator' => '|',
+            'extract' => [
+                'PRODUCT_FEATURES|FEATURE' => [
+                    'k' => 'FNAME',
+                    'v' => 'FVALUE',
+                ],
+            ],
+        ]);
+
+        $input = [
+            'PRODUCT_FEATURES' => [
+                'FEATURE' => [
+                    'FNAME' => 'EF001257',
+                    'FVALUE' => '-',
+                ],
+            ],
+        ];
+
+        $expected = [
+            "PRODUCT_FEATURES|FEATURE|EF001257" => '-',
+        ];
+
+        $this->assertEquals($expected, $converter->convert($input));
+    }
+
     public function testRevertFeatures()
     {
         $converter = new XmlExtractionV1Converter();
