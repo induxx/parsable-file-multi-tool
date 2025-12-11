@@ -67,6 +67,10 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
             if (in_array($masterKey, ['sku', 'family', 'parent'])) {
                 continue;
             }
+            if ($masterKey === 'categories' && is_string($item[$masterKey])) {
+                $item[$masterKey] = explode(',', $item[$masterKey]);
+                continue;
+            }
 
             $context['item'] = $item; # pass the item to the context, for [metrics, price-collections, etc]
 
