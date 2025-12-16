@@ -266,9 +266,15 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
                 break;
             case AkeneoHeaderTypes::REFDATA_MULTISELECT:
                 $value = $this->separateValue($value, $valueSeparators);
+                if ($this->getOption('filter_option_codes')) {
+                    $value = $this->filterOptionCodes($value, $attributeCode, $referenceCode, $lowerCased);
+                }
                 break;
             case AkeneoHeaderTypes::REFDATA_SELECT:
                 // no changes
+                if (is_string($value) && $this->getOption('filter_option_codes')) {
+                    $value = $this->filterOptionCode($value, $attributeCode, $referenceCode, $lowerCased);
+                }
                 break;
         }
 
