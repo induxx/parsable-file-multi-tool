@@ -4,8 +4,9 @@ namespace Misery\Component\Action;
 
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
+use Misery\Model\DataStructure\ItemInterface;
 
-class FormatAction implements OptionsInterface
+class FormatAction implements OptionsInterface, ActionItemInterface
 {
     use OptionsTrait;
 
@@ -52,6 +53,36 @@ class FormatAction implements OptionsInterface
         $item[$field] = $this->doApply($item[$field]);
 
         return $item;
+    }
+
+    public function applyAsItem(ItemInterface $item): void
+    {
+        $field = $this->getOption('field', $this->getOption('list'));
+
+        if (is_array($field)) {
+            foreach ($field as $fieldValue) {
+                $this->setOption('field', $fieldValue);
+                $this->applyAsItem($item);
+            }
+            $this->setOption('field', $field);
+
+            return;
+        }
+
+        $itemNode = $item->getItem($field);
+        if (!$itemNode) {
+            return;
+        }
+
+        $dataValue = $itemNode->getDataValue();
+        if (is_array($dataValue) && $this->getOption('multi_value')) {
+            $item->editItemValue($itemNode->getCode(), array_map(function ($value) {
+                return $this->doApply($value);
+            }, $dataValue));
+            return;
+        }
+
+        $item->editItemValue($itemNode->getCode(), $this->doApply($dataValue));
     }
 
     private function doApply($value)

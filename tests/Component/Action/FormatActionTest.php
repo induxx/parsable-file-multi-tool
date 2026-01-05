@@ -3,6 +3,7 @@
 namespace Tests\Misery\Component\Action;
 
 use Misery\Component\Action\FormatAction;
+use Misery\Model\DataStructure\Item;
 use PHPUnit\Framework\TestCase;
 
 class FormatActionTest extends TestCase
@@ -198,5 +199,29 @@ class FormatActionTest extends TestCase
         $result = $action->apply($item);
 
         $this->assertEquals(['field' => 'A'], $result);
+    }
+
+    public function testApplyAsItemSelectIndexFunction(): void
+    {
+        $item = new Item('product');
+        $item->addItem('colour-nl_BE', [
+            'data' => [
+                'nl_BE' => 'Rood',
+                'fr_BE' => 'Rouge',
+            ],
+        ]);
+
+        $action = new FormatAction();
+        $action->setOptions([
+            'field' => 'colour-nl_BE',
+            'functions' => ['select_index'],
+            'index' => 'nl_BE',
+            'multi_value' => false,
+        ]);
+
+        $action->applyAsItem($item);
+
+        $updated = $item->getItem('colour-nl_BE');
+        $this->assertSame('Rood', $updated->getDataValue());
     }
 }
