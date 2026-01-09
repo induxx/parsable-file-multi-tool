@@ -22,6 +22,6 @@ class BasicApiEndpoint implements ApiEndpointInterface
 
     public function getSingleEndPoint(): string
     {
-        // TODO
+        return $this->endpoint;
     }
 }
