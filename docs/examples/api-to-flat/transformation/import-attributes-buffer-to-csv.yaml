@@ -1,0 +1,15 @@
+sources:
+  - '%workpath%/attributes.buffer'
+
+pipeline:
+  input:
+    reader:
+      type: buffer
+      converter: 'akeneo/attribute/api'
+      filename: 'attributes.buffer'
+  actions: []
+  output:
+    writer:
+      type: buffer_csv
+      converter: 'akeneo/attribute/csv'
+      filename: 'attributes.csv'

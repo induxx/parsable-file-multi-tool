@@ -1,0 +1,15 @@
+context:
+  workpath:
+  sources:
+
+pipeline:
+  input:
+    reader:
+      type: xlsx
+      filename: 'PartMainData.xlsx'
+
+  #  actions:
+  output:
+    writer:
+      type: csv
+      filename: 'klium_products_step_2.csv'

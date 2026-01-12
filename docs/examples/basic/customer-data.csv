@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,email,phone,registration_date,status
+CUST001,John,Doe,john.doe@email.com,+1-555-0123,2024-01-10,active
+CUST002,Jane,,jane.smith@email.com,(555) 456-7890,2024/01/11,ACTIVE
+CUST003,,Johnson,invalid-email,555.789.0123,01-12-2024,inactive
+CUST004,Mike,Wilson,mike.wilson@email.com,+1 555 234 5678,2024-01-13,Active
+CUST005,Sarah,Brown,sarah@email.com,,2024-01-14,pending

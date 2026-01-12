@@ -1,0 +1,63 @@
+account:
+  - name: ak7-ee
+    domain: 'https://ak7-ee.cloud.induxx.be'
+    client_id: 5_5m9ze7pkioowc08s8cok8s4ggkwkg84sogs0kgc000kc4ow0gk
+    secret: 50vpfshsk084wg4oksgckco8sosk0soos8s0k04w84gs084ogk
+    username: induxx_app_4338
+    password: ee3a6c496
+
+sources:
+  - '%workpath%/attributes.buffer'
+
+#list:
+#  - name: attribute_codes
+#    source: attributes.buffer
+#    source_command: filter
+#    options:
+#      return_value: code
+#  - name: attribute_types
+#    source: attributes.buffer
+#    source_command: key_value_pair
+#    options:
+#      key: code
+#      value: type
+#  - name: 'localizable_attribute_codes'
+#    source: attributes.buffer
+#    source_command: filter
+#    options:
+#      criteria:
+#        localizable: true
+#      return_value: code
+#  - name: 'scopable_attribute_codes'
+#    source: attributes.buffer
+#    source_command: filter
+#    options:
+#      criteria:
+#        scopable: true
+#      return_value: code
+
+#  options:
+#    attribute_codes:list: attribute_codes
+#    attribute_types:list: attribute_types
+#    localizable_attribute_codes:list: localizable_attribute_codes
+#    scopable_attribute_codes:list: scopable_attribute_codes
+#    locales:
+#      - de_DE
+#      - en_US
+#      - fr_FR
+#      - nl_BE
+
+pipeline:
+  i_convert: akeneo/product/api
+  input:
+    http:
+      type: rest_api
+      account: ak7-ee
+      endpoint: products
+      method: GET
+  actions: []
+  o_convert: akeneo/product/csv
+  output:
+    writer:
+      type: csv
+      filename: 'new_product.csv'

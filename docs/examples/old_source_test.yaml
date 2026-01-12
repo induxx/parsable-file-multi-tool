@@ -1,0 +1,21 @@
+source:
+  - '%workpath%/family_a.csv'
+
+list:
+  - name: family_codes
+    source: family_a.csv
+    source_command: filter
+    options:
+      criteria:
+        code: UNIQUE
+      return_values: [code]
+
+pipeline:
+  input:
+    reader:
+      type: list
+      list: family_codes
+  output:
+    writer:
+      type: csv
+      filename: family_codes_old.csv

@@ -198,6 +198,7 @@ PROJECT=project_name bin/docker/run_example.sh transformation_file.yaml [additio
 
 - Automatically creates required directory structure
 - Sets up proper paths for sources, workpath, and extensions
+- Creates a minimal template transformation file if it does not exist (exits after creation)
 - Forwards additional arguments to the transformation command
 - Simplifies project-based workflow management
 

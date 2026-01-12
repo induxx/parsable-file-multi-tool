@@ -576,8 +576,8 @@ pipeline:
 Create the examples directory structure:
 
 ```bash
-mkdir -p examples/basic-examples
-mkdir -p examples/basic-examples/output
+mkdir -p examples/basic
+mkdir -p examples/basic/output
 ```
 
 ### Execute Transformations
@@ -587,27 +587,27 @@ Run each example using Docker:
 ```bash
 # Example 1: Product Standardization
 bin/docker/console transformation \
-  --file examples/basic-examples/standardize-products.yaml \
-  --source examples/basic-examples \
-  --workpath examples/basic-examples/output
+  --file examples/basic/standardize-products.yaml \
+  --source examples/basic \
+  --workpath examples/basic/output
 
 # Example 2: Data Validation
 bin/docker/console transformation \
-  --file examples/basic-examples/validate-customers.yaml \
-  --source examples/basic-examples \
-  --workpath examples/basic-examples/output
+  --file examples/basic/validate-customers.yaml \
+  --source examples/basic \
+  --workpath examples/basic/output
 
 # Example 3: Data Enrichment
 bin/docker/console transformation \
-  --file examples/basic-examples/enrich-sales.yaml \
-  --source examples/basic-examples \
-  --workpath examples/basic-examples/output
+  --file examples/basic/enrich-sales.yaml \
+  --source examples/basic \
+  --workpath examples/basic/output
 
 # Example 4: Multi-format Processing
 bin/docker/console transformation \
-  --file examples/basic-examples/xml-to-json.yaml \
-  --source examples/basic-examples \
-  --workpath examples/basic-examples/output
+  --file examples/basic/xml-to-json.yaml \
+  --source examples/basic \
+  --workpath examples/basic/output
 ```
 
 ### Debug Mode
@@ -616,9 +616,9 @@ Run with debug information to understand processing steps:
 
 ```bash
 bin/docker/console transformation \
-  --file examples/basic-examples/standardize-products.yaml \
-  --source examples/basic-examples \
-  --workpath examples/basic-examples/output \
+  --file examples/basic/standardize-products.yaml \
+  --source examples/basic \
+  --workpath examples/basic/output \
   --debug
 ```
 
@@ -628,9 +628,9 @@ Process only the first few records for testing:
 
 ```bash
 bin/docker/console transformation \
-  --file examples/basic-examples/standardize-products.yaml \
-  --source examples/basic-examples \
-  --workpath examples/basic-examples/output \
+  --file examples/basic/standardize-products.yaml \
+  --source examples/basic \
+  --workpath examples/basic/output \
   --try 3
 ```
 

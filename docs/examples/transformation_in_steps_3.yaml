@@ -1,0 +1,11 @@
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: 'family_2'
+
+  #  actions:
+  output:
+    writer:
+      type: csv
+      filename: 'family_3'

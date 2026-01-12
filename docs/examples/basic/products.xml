@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products>
+    <product>
+        <id>PROD001</id>
+        <n>Wireless Mouse</n>
+        <price>29.99</price>
+        <category>Electronics</category>
+        <specifications>
+            <connectivity>Wireless</connectivity>
+            <battery_life>12 months</battery_life>
+            <dpi>1600</dpi>
+        </specifications>
+    </product>
+    <product>
+        <id>PROD002</id>
+        <n>USB Keyboard</n>
+        <price>49.99</price>
+        <category>Electronics</category>
+        <specifications>
+            <connectivity>USB</connectivity>
+            <layout>QWERTY</layout>
+            <backlight>true</backlight>
+        </specifications>
+    </product>
+    <product>
+        <id>PROD003</id>
+        <n>Gaming Headset</n>
+        <price>89.99</price>
+        <category>Electronics</category>
+        <specifications>
+            <connectivity>USB</connectivity>
+            <microphone>true</microphone>
+            <surround_sound>7.1</surround_sound>
+        </specifications>
+    </product>
+</products>

@@ -1,0 +1,19 @@
+account:
+  - name: ak7-ee
+    domain: 'https://ak7-ee.cloud.induxx.be'
+    client_id: 5_5m9ze7pkioowc08s8cok8s4ggkwkg84sogs0kgc000kc4ow0gk
+    secret: 50vpfshsk084wg4oksgckco8sosk0soos8s0k04w84gs084ogk
+    username: induxx_app_4338
+    password: ee3a6c496
+
+pipeline:
+  input:
+    http:
+      type: rest_api
+      account: ak7-ee
+      endpoint: products
+      method: GET
+  output:
+    writer:
+      type: json
+      filename: 'products.buffer'
