@@ -1,9 +1,10 @@
-FROM php:8.1-fpm
+FROM php:8.1-fpm-trixie
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 RUN apt-get update && \
     apt-get install -y ca-certificates openssl && \
+    update-ca-certificates && \
     apt-get install -y zip libzip-dev && \
     docker-php-ext-configure zip && \
     docker-php-ext-install zip && \
@@ -11,6 +12,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
            /usr/share/doc/* /usr/share/groff/* /usr/share/info/* /usr/share/linda/* \
            /usr/share/lintian/* /usr/share/locale/* /usr/share/man/*
+
+# we are injecting an SSL cert becaue of the following issue: cURL error 60: SSL certificate problem: unable to get local issuer certificate
+COPY ca-certificates/*.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
 
 RUN pecl install redis && docker-php-ext-enable redis
 
