@@ -1,0 +1,26 @@
+sources:
+  - '%workpath%/read/akeneo_families.jsonl'
+
+list:
+  - name: akeneo_families
+    source: akeneo_families.jsonl
+    source_command: filter
+    options:
+      criteria:
+        code: UNIQUE
+      return_value: code
+
+pipeline:
+  input:
+    http:
+      type: rest_api
+      account: '%akeneo_read_connection%'
+      endpoint: '%endpoint%'
+      method: GET
+      identifier_filter_list: akeneo_families
+
+  output:
+    writer:
+      type: jsonl
+      filename: 'read/akeneo_%endpoint%.jsonl'
+      skip_if_exists: true

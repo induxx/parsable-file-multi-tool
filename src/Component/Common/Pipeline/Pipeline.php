@@ -82,6 +82,14 @@ class Pipeline
             'item' => json_encode($exception->getInvalidItemData()),
         ]);
 
+        if (!empty($exception->getMessage())) {
+            $this->logger->warning($exception->getMessage(), [
+                'line' => $lineNumber,
+                'identityClass' => $exception->getInvalidIdentityClass(),
+                'identifier' => $exception->getInvalidIdentifier(),
+            ]);
+        }
+
         // WE need a silent LOGGER here
         //$this->logger->error($exception->getMessage());
         //$this->logger->error($exception->getMessage(), $exception->getInvalidItem());
@@ -106,7 +114,9 @@ class Pipeline
                 }
             } catch (SkipPipeLineException $exception) {
                 if (!empty($exception->getMessage())) {
-                    $this->logger->info(sprintf('Skipped: %s', $exception->getMessage()));
+                    $this->logger->warning(sprintf('Skipped: %s', $exception->getMessage()), [
+                        'line' => $i,
+                    ]);
                 }
                 continue;
             } catch (InvalidItemException $exception) {
