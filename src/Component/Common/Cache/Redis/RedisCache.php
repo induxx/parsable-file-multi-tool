@@ -5,7 +5,7 @@ namespace Misery\Component\Common\Cache\Redis;
 use Misery\Component\Common\Cache\SimpleCacheInterface;
 use Redis;
 
-class RedisCache implements SimpleCacheInterface
+class  RedisCache implements SimpleCacheInterface
 {
     /** @var Redis */
     private $client;

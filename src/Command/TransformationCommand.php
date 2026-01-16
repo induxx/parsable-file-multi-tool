@@ -10,6 +10,7 @@ use App\Infra\Redis\RedisIdentityScope;
 use Assert\Assertion;
 use Misery\Component\Common\FileManager\LocalFileManager;
 use Misery\Component\Common\Functions\ArrayFunctions;
+use Misery\Component\Common\Cursor\RedisCachedCursor;
 use Misery\Component\Logger\OutputLogger;
 use Misery\Component\Process\ProcessManager;
 use Symfony\Component\Yaml\Yaml;
@@ -121,7 +122,11 @@ class TransformationCommand extends Command
         );
 
         if (false === $configuration->isMultiStep()) {
-            (new ProcessManager($configuration))->startProcess();
+            try {
+                (new ProcessManager($configuration))->startProcess();
+            } finally {
+                RedisCachedCursor::clearRegisteredCaches();
+            }
 
             // TODO connect the outputs here
             if ($shellCommands = $configuration->getShellCommands()) {

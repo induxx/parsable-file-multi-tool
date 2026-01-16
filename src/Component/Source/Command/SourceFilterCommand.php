@@ -51,10 +51,18 @@ class SourceFilterCommand implements ExecuteSourceCommandInterface, SourceAwareI
         }
 
         if (!empty($this->getOption('return_value'))) {
-            $items = array_map(function (array $item) {
-                $item = $this->source->encode($item);
-                return $item[$this->getOption('return_value')] ?? null;
-            }, $items->getItems());
+            try {
+                $items = array_map(function (array $item) {
+                    $item = $this->source->encode($item);
+                    return $item[$this->getOption('return_value')] ?? null;
+                }, $items->getItems());
+            } catch (\Error $e) {
+                dd(
+                    $this,
+                    $items->getItems()
+                );
+            }
+
 
             if ($this->getOption('mode') === 'merge_return_values') {
                 $items = array_unique(array_merge_recursive(...$items));

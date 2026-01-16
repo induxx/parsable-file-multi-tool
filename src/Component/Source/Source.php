@@ -2,8 +2,11 @@
 
 namespace Misery\Component\Source;
 
+use Misery\Component\Common\Cache\Redis\RedisAccount;
+use Misery\Component\Common\Cache\Redis\RedisCacheFactory;
 use Misery\Component\Common\Cursor\CachedCursor;
 use Misery\Component\Common\Cursor\CursorInterface;
+use Misery\Component\Common\Cursor\RedisCachedCursor;
 use Misery\Component\Item\Processor\NullProcessor;
 use Misery\Component\Item\Processor\ProcessorInterface;
 use Misery\Component\Reader\ItemReader;
@@ -67,6 +70,24 @@ class Source
             $this->cache = new ItemReader(new CachedCursor(
                 clone $this->cursor,
                 $options
+            ));
+        }
+
+        return $this->cache;
+    }
+
+    public function getRedisCachedReader(array $options = []): ItemReaderInterface
+    {
+        if (null === $this->cache) {
+            $options = array_merge(['cache_size' => CachedCursor::MEDIUM_CACHE_SIZE], $options);
+
+            $cache = (new RedisCacheFactory())->create(new RedisAccount('127.0.0.1'));
+
+            $this->cache = new ItemReader(RedisCachedCursor::create(
+                clone $this->cursor,
+                $cache,
+                $this->alias,
+                $options,
             ));
         }
 
