@@ -8,8 +8,9 @@ use Misery\Component\Common\Modifier\RowModifier;
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
 use Misery\Component\Common\Registry\Registry;
+use Misery\Model\DataStructure\ItemInterface;
 
-class ModifierAction implements OptionsInterface
+class ModifierAction implements OptionsInterface, ActionItemInterface
 {
     use OptionsTrait;
 
@@ -37,7 +38,7 @@ class ModifierAction implements OptionsInterface
         $this->formatRegistry = $formatRegistry;
     }
 
-    public function apply($item)
+    public function apply($item): array
     {
         // this should be part of the prepare state
         // when we set the options
@@ -69,6 +70,39 @@ class ModifierAction implements OptionsInterface
         }
 
         return $item;
+    }
+
+    public function applyAsItem(ItemInterface $item): void
+    {
+        $keys = $this->getOption('list') ?? explode(',', $this->getOption('keys'));
+
+        foreach ($keys as $key) {
+            $itemNode = $item->getItem($key);
+            if ($itemNode === null) {
+                continue;
+            }
+
+            $dataValue = $itemNode->getDataValue();
+            if (null !== $dataValue && $this->options['modifier'] && $modifier = $this->getModifier($this->options['modifier'])) {
+                if (is_array($dataValue)) {
+                    $item->editItemValue($itemNode->getCode(), array_map(function ($itemValue) use ($modifier) {
+                        return is_string($itemValue) ? $modifier->modify($itemValue) : null;
+                    }, $dataValue));
+                } else {
+                    $item->editItemValue($itemNode->getCode(), $modifier->modify($dataValue));
+                }
+            }
+
+            if (null !== $dataValue && $this->options['formatter'] && $formatter = $this->getFormatter($this->options['formatter'])) {
+                if (is_array($dataValue)) {
+                    $item->editItemValue($itemNode->getCode(), array_map(function ($itemValue) use ($formatter) {
+                        return is_string($itemValue) ? $formatter->format($itemValue) : $formatter->reverseFormat($itemValue);
+                    }, $dataValue));
+                } else {
+                    $item->editItemValue($itemNode->getCode(), is_string($dataValue) ? $formatter->format($dataValue) : $formatter->reverseFormat($dataValue));
+                }
+            }
+        }
     }
 
     private function getModifier(string $modifierName)

@@ -123,7 +123,9 @@ class BasicAuthApiClient implements ApiClientInterface
 
     public function patch(string $endpoint, array $patchData): ApiResponse
     {
-        // TODO: Implement patch() method.
+        $this->sendRequest('PATCH', $endpoint, $patchData);
+
+        return $this->getResponse();
     }
 
     public function log(string $message, int $statusCode = null, $content): void
