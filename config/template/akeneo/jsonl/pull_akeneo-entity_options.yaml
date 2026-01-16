@@ -6,7 +6,7 @@ pipeline:
       endpoint: '%endpoint%'
       method: GET
       multiple: true
-      attribute_list: '%attribute_options%'
+      identifier_filter_list: '%attribute_options%'
   output:
     writer:
       type: jsonl
