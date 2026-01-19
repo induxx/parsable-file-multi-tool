@@ -74,6 +74,7 @@ $converterRegistry->registerAllByName(
     new Misery\Component\Converter\ObelinkPurchaseLoop(),
     new Misery\Component\Converter\Akeneo\AkeneoOptionExtractor(),
     new Misery\Component\Converter\XmlExtractionV1Converter(),
+    new Misery\Component\Converter\Akeneo\Api\AttributeOptions(),
 );
 
 $feedRegistry = new Misery\Component\Common\Registry\Registry('feed');

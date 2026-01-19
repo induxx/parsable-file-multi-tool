@@ -203,12 +203,14 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
                     $value = $this->numberize($value);
                 }
                 break;
+            case AkeneoHeaderTypes::REFENT:
             case AkeneoHeaderTypes::SELECT:
                 // TODO implement attributes reader
                 if (is_string($value) && $this->getOption('filter_option_codes')) {
                     $value = $this->filterOptionCode($value, $attributeCode, $referenceCode, $lowerCased);
                 }
                 break;
+            case AkeneoHeaderTypes::REFENT_COLLECTION:
             case AkeneoHeaderTypes::MULTISELECT:
                 // TODO implement attributes reader
                 if (empty($value)) {

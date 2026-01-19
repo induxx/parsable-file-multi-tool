@@ -13,4 +13,6 @@ class AkeneoHeaderTypes implements HeaderTypes
     public const NUMBER = 'pim_catalog_number';
     public const REFDATA_SELECT = 'pim_reference_data_simpleselect';
     public const REFDATA_MULTISELECT = 'pim_reference_data_multiselect';
+    public const REFENT_COLLECTION = 'akeneo_reference_entity_collection';
+    public const REFENT = 'akeneo_reference_entity';
 }
