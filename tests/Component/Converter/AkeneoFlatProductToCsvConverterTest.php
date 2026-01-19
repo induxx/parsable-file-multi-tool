@@ -144,6 +144,45 @@ class AkeneoFlatProductToCsvConverterTest extends TestCase
         $this->assertEquals('rechts', $output['values|exhaust_location']['data'][1]);
     }
 
+    public function testRefentReferenceCodeNormalization()
+    {
+        $codes = [
+            'ref_entity' => 'akeneo_reference_entity',
+        ];
+        $converter = new AkeneoFlatProductToCsvConverter();
+        $converter->setOptions([
+            'attributes:list' => array_keys($codes),
+            'attribute_types:list' => $codes,
+            'reference_code' => true,
+            'lower_cased' => true,
+        ]);
+        $input = [
+            'ref_entity' => 'COLOR-RED',
+        ];
+        $output = $converter->convert($input);
+        $this->assertEquals('color_red', $output['values|ref_entity']['data']);
+    }
+
+    public function testRefentCollectionReferenceCodeNormalization()
+    {
+        $codes = [
+            'ref_entities' => 'akeneo_reference_entity_collection',
+        ];
+        $converter = new AkeneoFlatProductToCsvConverter();
+        $converter->setOptions([
+            'attributes:list' => array_keys($codes),
+            'attribute_types:list' => $codes,
+            'reference_code' => true,
+            'lower_cased' => true,
+        ]);
+        $input = [
+            'ref_entities' => 'Boven,Rechts',
+        ];
+
+        $output = $converter->convert($input);
+        $this->assertEquals(['boven', 'rechts'], $output['values|ref_entities']['data']);
+    }
+
     public function testScopableAttributeWithoutLocaleUsesScope()
     {
         $codes = [

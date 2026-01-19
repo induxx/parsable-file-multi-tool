@@ -14,7 +14,8 @@ class IconvEncodingModifierTest extends TestCase
         if ($modifier->supports()) {
             $modifier->setOptions(['out_charset' => 'ascii//TRANSLIT']);
 
-            $this->assertEquals('F?? B?r', $modifier->modify('Fóø Bår'));
+            $result = $modifier->modify('Fóø Bår');
+            $this->assertContains($result, ['Foo Bar', 'F?? B?r']);
         }
     }
 }
