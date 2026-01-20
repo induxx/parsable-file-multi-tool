@@ -1,0 +1,18 @@
+sources:
+  - '%workpath%/filtered_products.buffer'
+
+pipeline:
+  input:
+    reader:
+      type: buffer
+      filename: 'filtered_products.buffer'
+  i_convert: 'akeneo/product/api'
+  actions:
+    remove_metadata:
+      action: remove
+      keys: [metadata, created, updated, quantified_associations, values|picture, values|variation_image, values|image]
+  o_convert: 'akeneo/product/csv'
+  output:
+    writer:
+      type: buffer_csv
+      filename: 'smart_product.csv'

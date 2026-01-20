@@ -1,0 +1,19 @@
+account:
+  - name: ak7-ee
+    domain: 'https://'
+    client_id:
+    secret:
+    username:
+    password:
+
+pipeline:
+  input:
+    http:
+      type: rest_api
+      account: ak7-ee
+      endpoint: products
+      method: GET
+  output:
+    writer:
+      type: json
+      filename: 'products.buffer'

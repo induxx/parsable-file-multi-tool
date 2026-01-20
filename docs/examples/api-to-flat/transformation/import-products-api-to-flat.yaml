@@ -1,0 +1,55 @@
+sources:
+  - '%workpath%/attributes.buffer'
+  - '%workpath%/products.buffer'
+
+list:
+  # these 3 lists are required to create a correct header
+  - name: attribute_types # the types we need to correctly interpret the data
+    source: attributes.buffer
+    source_command: key_value_pair
+    options:
+      key: code
+      value: type
+  - name: localizable_attribute_codes # what attributes are localizable
+    source: attributes.buffer
+    source_command: filter
+    options:
+      criteria:
+        localizable: true
+      return_value: code
+  - name: scopable_attribute_codes # what attributes are scopable
+    source: attributes.buffer
+    source_command: filter
+    options:
+      criteria:
+        scopable: true
+      return_value: code
+
+converter:
+  - name: 'akeneo/product/csv'
+    options:
+      # all list are passed as options so the headers can be created
+      attribute_types:list: attribute_types
+      localizable_attribute_codes:list: localizable_attribute_codes
+      scopable_attribute_codes:list: scopable_attribute_codes
+      locales:
+        - de_DE
+        - en_US
+        - fr_FR
+        - nl_BE
+
+pipeline:
+  input:
+    reader:
+      type: json
+      filename: 'products.buffer'
+  i_convert: 'akeneo/product/api'
+  actions:
+    remove_metadata:
+      action: remove
+      keys: [metadata]
+  o_convert: 'akeneo/product/csv'
+  output:
+    writer:
+      type: csv
+      filename: 'new_product.csv'

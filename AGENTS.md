@@ -25,3 +25,6 @@ Commit subjects follow `verb: context` (see `git log`, e.g., `fix: refresh token
 
 ## Security & Configuration Tips
 Never commit real credentials; store sample accounts in `config/*.dist`. Secrets for Akeneo or other APIs belong in `.env.local` or your orchestration layer. When sharing configs, scrub `account` blocks and redact JWT payloads. Validate new converters with sanitized fixtures before touching production data.
+
+## LLM Reference
+- `docs/llm-transformation-rag.md` — single RAG guide for authoring YAML transformation files.

@@ -1,0 +1,119 @@
+# Customer Data Validation and Cleansing Example
+# This transformation validates and cleans customer data
+
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: 'customer-data.csv'
+      options:
+        delimiter: ','
+        enclosure: '"'
+        header: true
+
+  actions:
+    # Step 1: Validate required fields
+    validate_customer_id:
+      action: statement
+      conditions:
+        - field: customer_id
+          operator: 'NOT_EMPTY'
+          message: 'Customer ID is required'
+
+    validate_email:
+      action: statement
+      conditions:
+        - field: email
+          operator: 'REGEX'
+          value: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+          message: 'Invalid email format'
+
+    # Step 2: Clean and standardize names
+    clean_first_name:
+      action: format
+      field: first_name
+      template: '%s'
+      filters:
+        - trim
+        - proper_case
+
+    clean_last_name:
+      action: format
+      field: last_name
+      template: '%s'
+      filters:
+        - trim
+        - proper_case
+
+    # Step 3: Create full name field
+    create_full_name:
+      action: format
+      field: full_name
+      template: '%s %s'
+      fields: [first_name, last_name]
+
+    # Step 4: Standardize phone numbers
+    clean_phone:
+      action: format
+      field: phone
+      template: '%s'
+      filters:
+        - remove_non_numeric
+        - phone_format
+
+    # Step 5: Standardize date format
+    standardize_date:
+      action: format
+      field: registration_date
+      template: '%s'
+      filters:
+        - date_normalize
+        - date_format: 'Y-m-d'
+
+    # Step 6: Standardize status values
+    standardize_status:
+      action: value_mapping
+      field: status
+      mapping:
+        'active': 'active'
+        'ACTIVE': 'active'
+        'Active': 'active'
+        'inactive': 'inactive'
+        'INACTIVE': 'inactive'
+        'Inactive': 'inactive'
+        'pending': 'pending'
+        'PENDING': 'pending'
+        'Pending': 'pending'
+      default: 'unknown'
+
+    # Step 7: Add data quality flags
+    flag_missing_names:
+      action: calculate
+      field: has_complete_name
+      expression: |
+        return (first_name && first_name.trim() !== '') && 
+               (last_name && last_name.trim() !== '');
+
+    flag_missing_phone:
+      action: calculate
+      field: has_phone
+      expression: |
+        return phone && phone.trim() !== '';
+
+    # Step 8: Remove invalid records (optional)
+    # Uncomment to filter out records with invalid emails
+    # filter_valid_emails:
+    #   action: statement
+    #   conditions:
+    #     - field: email
+    #       operator: 'REGEX'
+    #       value: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+  output:
+    writer:
+      type: csv
+      filename: 'cleaned-customers.csv'
+      options:
+        delimiter: ','
+        enclosure: '"'
+        header: true

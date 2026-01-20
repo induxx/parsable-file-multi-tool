@@ -1,0 +1,62 @@
+# Multi-format Processing Example
+# This transformation converts XML to JSON with data enrichment
+
+pipeline:
+  input:
+    reader:
+      type: xml
+      filename: 'products.xml'
+      xpath: '//product'  # Extract each product element
+
+  actions:
+    # Step 1: Flatten nested XML structure
+    flatten_specifications:
+      action: expand
+      source: specifications
+      prefix: 'spec_'
+
+    # Step 2: Clean up field names
+    standardize_fields:
+      action: key_mapping
+      mapping:
+        id: product_id
+        n: product_name
+        price: unit_price
+        category: product_category
+
+    # Step 3: Convert price to number and add currency
+    format_price:
+      action: calculate
+      field: price_numeric
+      expression: |
+        return parseFloat(unit_price);
+
+    add_currency:
+      action: copy
+      from: product_id
+      to: currency
+      value: 'USD'
+
+    # Step 4: Create product metadata
+    create_metadata:
+      action: format
+      field: metadata
+      template: |
+        {
+          "import_date": "2024-01-15",
+          "source": "xml_import",
+          "processed": true
+        }
+
+    # Step 5: Remove original price field
+    cleanup_fields:
+      action: remove
+      keys: [unit_price]
+
+  output:
+    writer:
+      type: json
+      filename: 'products.json'
+      options:
+        pretty_print: true
+        array_wrapper: 'products'

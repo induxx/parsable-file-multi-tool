@@ -1,0 +1,126 @@
+# Sales Data Enrichment Example
+# This transformation enriches sales data with calculations and lookups
+
+aliases:
+  tax_lookup: 'tax-rates.csv'
+
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: 'sales-data.csv'
+      options:
+        delimiter: ','
+        enclosure: '"'
+        header: true
+
+  actions:
+    # Step 1: Calculate line totals
+    calculate_line_total:
+      action: calculate
+      field: line_total
+      expression: |
+        return parseFloat(quantity) * parseFloat(unit_price);
+
+    # Step 2: Apply customer discounts
+    apply_customer_discount:
+      action: calculate
+      field: discount_rate
+      expression: |
+        if (customer_type === 'premium') {
+          return 0.10;  // 10% discount for premium customers
+        } else if (customer_type === 'standard') {
+          return 0.05;  // 5% discount for standard customers
+        } else {
+          return 0.00;  // No discount for others
+        }
+
+    calculate_discount_amount:
+      action: calculate
+      field: discount_amount
+      expression: |
+        return parseFloat(line_total) * parseFloat(discount_rate);
+
+    calculate_discounted_total:
+      action: calculate
+      field: discounted_total
+      expression: |
+        return parseFloat(line_total) - parseFloat(discount_amount);
+
+    # Step 3: Lookup tax rates by country
+    lookup_tax_info:
+      action: expand
+      source:
+        reader:
+          type: csv
+          filename: 'tax_lookup'
+          options:
+            delimiter: ','
+            header: true
+      key: shipping_country
+      lookup_key: country
+      fields: [tax_rate, currency]
+
+    # Step 4: Calculate taxes
+    calculate_tax_amount:
+      action: calculate
+      field: tax_amount
+      expression: |
+        return parseFloat(discounted_total) * parseFloat(tax_rate);
+
+    calculate_final_total:
+      action: calculate
+      field: final_total
+      expression: |
+        return parseFloat(discounted_total) + parseFloat(tax_amount);
+
+    # Step 5: Format monetary values
+    format_line_total:
+      action: format
+      field: line_total
+      template: '%.2f'
+
+    format_discount_amount:
+      action: format
+      field: discount_amount
+      template: '%.2f'
+
+    format_tax_amount:
+      action: format
+      field: tax_amount
+      template: '%.2f'
+
+    format_final_total:
+      action: format
+      field: final_total
+      template: '%.2f'
+
+    # Step 6: Create order summary
+    create_order_summary:
+      action: format
+      field: order_summary
+      template: 'Order %s: %s x %s = %s %s (incl. tax)'
+      fields: [order_id, quantity, product_sku, final_total, currency]
+
+    # Step 7: Categorize order size
+    categorize_order_size:
+      action: calculate
+      field: order_size_category
+      expression: |
+        var total = parseFloat(final_total);
+        if (total > 200) {
+          return 'Large';
+        } else if (total > 50) {
+          return 'Medium';
+        } else {
+          return 'Small';
+        }
+
+  output:
+    writer:
+      type: csv
+      filename: 'enriched-sales.csv'
+      options:
+        delimiter: ','
+        enclosure: '"'
+        header: true

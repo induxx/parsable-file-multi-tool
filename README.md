@@ -25,36 +25,31 @@ Transform a file using a transformation configuration:
 
 ```bash
 bin/docker/console transformation --file examples/transformation.yaml --source data/input --workpath data/output
+PROJECT=project_name bin/docker/run_example.sh transformation.yaml
 ```
 
-For detailed installation and setup instructions, see the [Getting Started Guide](docs/getting-started/).
+For detailed installation and setup instructions, see the [Quick Start Guide](docs/getting-started/quick-start.md).
 
 ## Documentation
 
 ### 📚 Getting Started
-- [Installation Guide](docs/getting-started/) - Step-by-step setup instructions
-- [Quick Start Tutorial](docs/getting-started/) - Your first transformation
-- [Configuration Guide](docs/getting-started/) - Setting up accounts and contexts
+- [Quick Start Guide](docs/getting-started/quick-start.md) - Your first transformation
+- [Configuration Guide](docs/getting-started/configuration.md) - Setting up accounts and contexts
 
 ### 👥 User Guide  
-- [Running Transformations](docs/running_transformations.md) - Complete workflow guide
-- [Debugging & Troubleshooting](docs/user-guide/) - Solve common issues
-- [CLI Commands](docs/user-guide/) - Command-line reference
+- [Running Transformations](docs/examples/running_transformations.md) - Complete workflow guide
+- [Debug Action](docs/reference/actions/debug_action.md) - Debugging utilities
+- [CLI Commands](docs/reference/cli-commands.md) - Command-line reference
 
 ### 📖 Reference Documentation
-- [Actions](docs/actions/) - All available transformation actions
-- [Directives](docs/directives/) - Configuration directives and options
-- [Converters](docs/converters/) - Data format converters
-- [Tools](docs/tools/) - Utility tools and helpers
-
-### 🔧 Developer Guide
-- [Architecture Overview](docs/developer-guide/) - System design and components
-- [Creating Extensions](docs/developer-guide/) - Build custom actions
-- [Contributing](docs/developer-guide/) - Development guidelines
+- [Actions](docs/reference/actions/index.md) - All available transformation actions
+- [Directives](docs/reference/directives/index.md) - Configuration directives and options
+- [Converters](docs/reference/converters/index.md) - Data format converters
+- [Tools](docs/reference/tools/index.md) - Utility tools and helpers
 
 ### 💡 Examples
-- [Basic Transformations](docs/examples/) - Common use cases
-- [Advanced Workflows](docs/examples/) - Complex transformation patterns
+- [Basic Transformations](docs/examples/basic-transformation.md) - Common use cases
+- [Advanced Workflows](docs/examples/running_transformations.md) - Complex transformation patterns
 
 ## Configuration
 
@@ -63,6 +58,7 @@ For detailed installation and setup instructions, see the [Getting Started Guide
 Add API credentials and account information to your transformation files:
 
 ```yaml
+# secrets.yaml
 account:
    name: "my-account"
    username: "my-username"
@@ -87,26 +83,32 @@ context:
 ### Basic Transformation
 ```bash
 bin/docker/console transformation --file path/to/config.yaml --source input/dir --workpath output/dir
+PROJECT=project_name bin/docker/run_example.sh config.yaml
 ```
 
 ### Debugging Options
 ```bash
 # Debug first item
 bin/docker/console transformation --file config.yaml --source input --workpath output --debug
+PROJECT=project_name bin/docker/run_example.sh config.yaml --debug
 
 # Test first 100 items
 bin/docker/console transformation --file config.yaml --source input --workpath output --try 100
+PROJECT=project_name bin/docker/run_example.sh config.yaml --try 100
 
 # Show dynamic mappings
 bin/docker/console transformation --file config.yaml --source input --workpath output --showMappings
+PROJECT=project_name bin/docker/run_example.sh config.yaml --showMappings
 
 # Process specific line
 bin/docker/console transformation --file config.yaml --source input --workpath output --line 100
+PROJECT=project_name bin/docker/run_example.sh config.yaml --line 100
 ```
 
 ### Help and Options
 ```bash
 bin/docker/console transformation --help
+PROJECT=project_name bin/docker/run_example.sh config.yaml --help
 ```
 
 ## Project Structure
@@ -114,9 +116,7 @@ bin/docker/console transformation --help
 ```
 ├── docs/                    # Documentation
 │   ├── getting-started/     # Installation and setup guides
-│   ├── user-guide/         # User documentation
 │   ├── reference/          # API and component reference
-│   ├── developer-guide/    # Technical documentation
 │   └── examples/           # Tutorials and examples
 ├── src/                    # Source code
 ├── examples/               # Sample projects and data

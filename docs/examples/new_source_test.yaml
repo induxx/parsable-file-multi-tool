@@ -1,0 +1,18 @@
+list:
+  - name: family_codes
+    source: family_1
+    source_command: filter
+    options:
+      criteria:
+        code: UNIQUE
+      return_values: [code]
+
+pipeline:
+  input:
+    reader:
+      type: list
+      list: family_codes
+  output:
+    writer:
+      type: csv
+      filename: family_codes_new

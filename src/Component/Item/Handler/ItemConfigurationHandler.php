@@ -43,7 +43,7 @@ class ItemConfigurationHandler
             // TODO validate configuration here
 
             if (null === $sources) {
-                // if no Sources are given as a Collection, we expect that we are dealing with Akeneo\Pim sources.
+                // if no sources are given as a Collection, we expect that we are dealing with Akeneo\Pim sources.
                 $sourcePaths = CreateSourcePaths::create(
                     $configuration['sources'],
                     $configuration['source_path'] . '/%s.csv',

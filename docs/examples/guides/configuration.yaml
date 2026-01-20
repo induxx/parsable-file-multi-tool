@@ -1,0 +1,122 @@
+context:
+  workpath:
+  sources:
+    mappings.yaml:
+      type: yaml
+    attribute.csv:
+      type: csv
+
+blueprint:
+  - name: product/xml
+    converter:
+      name: induxx/product/xml
+      options:
+        container: Product
+
+# key/value arrays
+# mapping can be done from different points
+mapping:
+  # mapping file included with the sources
+  - name: measurements
+    source: mappings.yaml # file inside your sources/work_path directory
+    options:
+      - flip
+
+  # mapping file included with the sources where key/value is unclear
+  - name: from_attributes
+    source: attribute.csv
+    options:
+      key: code
+      value: type
+
+  # mapping file available as blueprints (akeneo or client specific blueprints)
+  - name: akeneo/measurements
+
+  # mappings defined inside and only to the transformation
+  - name: local_measurements
+    map:
+      # simple key/value 
+      mm: MILLIMETER
+
+  # app-example of value mapping
+  - name: value_mapping
+    map:
+      ROOD: red
+
+  # app-example for column mapping
+  - name: column_mapping
+    map:
+      ID: code
+
+  # combine mapping sets
+  - name: combined_mapping
+    sets: [local_measurements, akeneo/measurements] # overrides when combined
+    map:
+      mm: MEGAMETER # overrides the sets
+
+# single arrays
+list:
+  - name: 'attributes_with_codes'
+    source: attribute.csv
+    source_command: filter
+    options:
+      return_value: code
+      criteria:
+        type:
+          - pim_catalog_simpleselect
+          - pim_catalog_multiselect
+
+  - name: 'attributes_with_booleans'
+    source: attribute.csv
+    source_command: filter
+    options:
+      return_value: code
+      criteria:
+        type:
+          - pim_catalog_boolean
+
+filter:
+  - name: 'attribute_get_labels'
+    source: attribute.csv
+    filter:
+      code: '$code'
+      return: labels
+  - name: 'get_attribute_by_code'
+    source: attribute.csv
+    filter:
+      code: '$code'
+      #return: label-en_US
+
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: product.csv
+  encoder:
+    blueprint: akeneo/csv/product
+  actions:
+    remove_unwanted:
+      action: remove
+      keys: [parent]
+    bind_attribute_options:
+      action: bind
+      list: ['camera_type']
+      filter: 'get_attribute_by_code'
+#    replace_labels:
+#      action: replace
+#      list: 'attributes_with_codes'
+#      filter: 'attribute_get_labels'
+#      method: getLabels
+#      locales: [nl_BE, fr_BE]
+
+  output:
+    writer:
+      type: xml
+      filename: product.xml
+      options:
+        start:
+          PutRequest:
+            '@attributes':
+              xmlns: urn:xmlns:nedfox-retail3000api-com:putrequest
+              version: '6.0'
+        xpath: Products

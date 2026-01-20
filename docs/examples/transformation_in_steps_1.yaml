@@ -1,0 +1,11 @@
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: 'family_wildcard'
+
+  #  actions:
+  output:
+    writer:
+      type: csv
+      filename: 'family_1'

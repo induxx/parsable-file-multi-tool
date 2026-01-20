@@ -1,0 +1,82 @@
+# Product Data Standardization Example
+# This transformation standardizes supplier product data into a consistent format
+
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: 'supplier-products.csv'
+      options:
+        delimiter: ','
+        enclosure: '"'
+        header: true
+
+  actions:
+    # Step 1: Standardize field names using key mapping
+    standardize_field_names:
+      action: key_mapping
+      mapping:
+        item_code: sku
+        product_title: name
+        cost: price
+        product_type: category
+        manufacturer: brand
+        item_description: description
+        stock_qty: inventory_count
+
+    # Step 2: Format price to include currency and proper decimal places
+    format_price:
+      action: format
+      field: price
+      template: '$%.2f'
+
+    # Step 3: Create a URL-friendly slug from the product name
+    create_url_slug:
+      action: format
+      field: name
+      template: '%s'
+      to: url_slug
+      filters:
+        - lowercase
+        - slug
+
+    # Step 4: Categorize inventory levels
+    categorize_inventory:
+      action: calculate
+      field: inventory_status
+      expression: |
+        if (inventory_count > 20) {
+          return 'In Stock';
+        } else if (inventory_count > 5) {
+          return 'Low Stock';
+        } else {
+          return 'Limited Stock';
+        }
+
+    # Step 5: Create a short description for listings
+    create_short_description:
+      action: format
+      field: description
+      template: '%.80s...'
+      to: short_description
+
+    # Step 6: Add metadata fields
+    add_import_metadata:
+      action: copy
+      from: sku
+      to: import_source
+      value: 'supplier_import'
+
+    add_import_date:
+      action: format
+      field: import_date
+      template: '2024-01-15'  # In real scenarios, use current date
+
+  output:
+    writer:
+      type: csv
+      filename: 'standardized-products.csv'
+      options:
+        delimiter: ','
+        enclosure: '"'
+        header: true

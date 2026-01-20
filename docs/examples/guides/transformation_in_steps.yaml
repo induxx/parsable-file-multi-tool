@@ -1,0 +1,10 @@
+context:
+  workpath:
+  sources:
+
+# do these steps before you start with the actual pipeline if set
+# limited to the same source_path
+transformation_steps:
+  - transformation_in_steps_1.yaml
+  - transformation_in_steps_2.yaml
+  - transformation_in_steps_3.yaml

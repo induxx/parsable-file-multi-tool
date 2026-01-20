@@ -1,0 +1,20 @@
+account:
+  - name: ak7-ee
+    domain: 'https://'
+    client_id:
+    secret:
+    username:
+    password:
+
+pipeline:
+  input:
+    http:
+      type: rest_api
+      account: ak7-ee
+      endpoint: attributes
+      method: GET
+  actions: []
+  output:
+    writer:
+      type: json
+      filename: 'attributes.buffer'

@@ -1,0 +1,79 @@
+code;type;group;unique;useable_as_grid_filter;allowed_extensions;metric_family;default_metric_unit;reference_data_name;available_locales;max_characters;validation_rule;validation_regexp;wysiwyg_enabled;number_min;number_max;decimals_allowed;negative_allowed;date_min;date_max;max_file_size;minimum_input_length;sort_order;localizable;scopable;labels-de_DE;labels-en_US;labels-fr_FR;labels-nl_BE;guidelines;auto_option_sorting;default_value;is_read_only;group_labels-en_US;group_labels-fr_FR;group_labels-de_DE
+auto_exposure;pim_catalog_boolean;technical;0;1;;;;;;;;;;;;;;;;;;39;0;0;"Auto exposure";"Auto exposure";"Auto exposure";"Automatische belichting";;;;0;Technical;Technique;Technische
+auto_focus_assist_beam;pim_catalog_boolean;technical;0;1;;;;;;;;;;;;;;;;;;34;0;0;"Auto focus beam";"Auto focus beam";"Auto focus beam";;;;;0;Technical;Technique;Technische
+auto_focus_lock;pim_catalog_boolean;technical;0;1;;;;;;;;;;;;;;;;;;33;0;0;"Auto focus lock";"Auto focus lock";"Auto focus lock";;;;;0;Technical;Technique;Technische
+auto_focus_modes;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;31;1;0;"Auto focus modes";"Auto focus modes";"Auto focus modes";;;;;0;Technical;Technique;Technische
+auto_focus_points;pim_catalog_number;technical;0;1;;;;;;;;;;;;;;;;;;32;0;0;"Auto focus points";"Auto focus points";"Auto focus points";;;;;0;Technical;Technique;Technische
+brand;pim_catalog_simpleselect;marketing;0;0;;;;;;;;;;;;;;;;;;3;0;0;Brand;Brand;Marque;;;;;0;Marketing;Marketing;Marketing
+camera_brand;pim_catalog_simpleselect;technical;0;1;;;;;;;;;;;;;;;;;;21;0;0;Hersteller;Brand;Marque;;;;;0;Technical;Technique;Technische
+camera_model_name;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;22;0;0;Modelname;"Model name";Modèle;;;;;0;Technical;Technique;Technische
+camera_type;pim_catalog_simpleselect;technical;0;1;;;;;;;;;;;;;;;;;;10;0;0;Kamera-Typ;"Camera type";"Type d'appareil photo";;;;;0;Technical;Technique;Technische
+care_instructions;pim_catalog_textarea;product;0;1;;;;;;;;;;;;;;;;;;7;0;0;"Care instructions";"Care instructions";"Instructions d'entretien";;;;;0;Product;Produit;Product
+clothing_size;pim_catalog_simpleselect;size;0;1;;;;;;;;;;;;;;;;;;1;0;0;"Größe Kleidung";"Clothing size";"Taille du vêtement";;;;;0;Size;Taille;Größe
+collection;pim_catalog_multiselect;marketing;0;1;;;;;;;;;;;;;;;;;;2;0;0;Collection;Collection;Collection;;;;;0;Marketing;Marketing;Marketing
+color;pim_catalog_simpleselect;product;0;1;;;;;;;;;;;;;;;;;;1;0;0;Color;Color;Couleur;;;;;0;Product;Produit;Product
+color_scanning;pim_catalog_boolean;technical;0;1;;;;;;;;;;;;;;;;;;3;0;0;Farbscannen;"Color scanning";"Numérisation couleur";;;;;0;Technical;Technique;Technische
+composition;pim_catalog_textarea;product;0;1;;;;;;;;;;;;;;;;;;5;0;0;Composition;Composition;Composition;;;;;0;Product;Produit;Product
+container_material;pim_catalog_simpleselect;manufacturing;0;1;;;;;;;;;;;;;;;;;;1;0;0;Behältermaterial;"Container material";"Matériau du récipient";;;;;0;Manufacturing;Fabrication;Herstellung
+description;pim_catalog_textarea;marketing;0;1;;;;;;;;;1;;;;;;;;;3;1;1;Beschreibung;Description;Description;;;;;0;Marketing;Marketing;Marketing
+display_color;pim_catalog_boolean;technical;0;1;;;;;;;;;;;;;;;;;;18;0;0;"Display Color";"Display Color";"Couleur d'affichage";;;;;0;Technical;Technique;Technische
+display_diagonal;pim_catalog_metric;technical;0;1;;Length;INCH;;;;;;;;;;;;;;;19;0;0;Bildschirmdiagonale;"Display diagonal";"Taille de l'écran";;;;;0;Technical;Technique;Technische
+display_srgb;pim_catalog_boolean;technical;0;1;;;;;;;;;;;;;;;;;;17;0;0;sRGB;"Display sRGB";sRGB;;;;;0;Technical;Technique;Technische
+ean;pim_catalog_text;erp;1;1;;;;;;;;;;;;;;;;;;0;0;0;EAN;EAN;EAN;;;;;0;ERP;ERP;ERP
+erp_name;pim_catalog_text;erp;0;1;;;;;;;;;;;;;;;;;;10;1;0;ERP-Produktname;"ERP name";"Nom ERP";;;;;0;ERP;ERP;ERP
+eu_shoes_size;pim_catalog_simpleselect;product;0;1;;;;;;;;;;;;;;;;;;3;0;0;"EU Shoes Size";"EU Shoes Size";"Taille chaussures EU";;;;;0;Product;Produit;Product
+focus;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;29;0;0;Fokus;Focus;"Mise au point";;;;;0;Technical;Technique;Technische
+focus_adjustement;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;30;1;0;Fokus-Apassung;"Focus adjustment";"Ajustement mise au point";;;;;0;Technical;Technique;Technische
+headphone_connectivity;pim_catalog_simpleselect;technical;0;1;;;;;;;;;;;;;;;;;;13;0;0;Kopfhörerausgang;"Headphone connectivity";Casque;;;;;0;Technical;Technique;Technische
+hotfolder_assetcollection;pim_catalog_asset_collection;medias;0;1;;;;packshot;;;;;;;;;;;;;;0;0;0;;;;hotfolder_assetcollection;;;;;Media;Media;Media
+image;pim_catalog_image;medias;0;1;png,jpeg,jpg;;;;;;;;;;;;;;;;;11;0;0;"Model bild";"Model picture";"Image du modèle";;;;;0;Media;Media;Media
+image_resolutions;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;25;0;0;"Festbild Auflösung(en)";"Still image resolution(s)";"Résolution de la capture Photo";;;;;0;Technical;Technique;Technische
+image_stabilizer;pim_catalog_boolean;technical;0;1;;;;;;;;;;;;;;;;;;9;0;0;Bildstabilisator;"Image stabilizer";"Stabilisateur d'image";;;;;0;Technical;Technique;Technische
+iso_sensitivity;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;35;0;0;"Iso sensitivity";"Iso sensitivity";"Iso sensitivity";;;;;0;Technical;Technique;Technische
+iso_sensitivity_max;pim_catalog_number;technical;0;1;;;;;;;;;;;;;;;;;;40;0;0;"ISO sensitivity (max)";"ISO sensitivity (max)";"ISO sensitivity (max)";;;;;0;Technical;Technique;Technische
+iso_sensitivity_min;pim_catalog_number;technical;0;1;;;;;;;;;;;;;;;;;;41;0;0;"ISO sensitivity (min)";"ISO sensitivity (min)";"ISO sensitivity (min)";;;;;0;Technical;Technique;Technische
+keywords;pim_catalog_textarea;ecommerce;0;1;;;;;;;;;;;;;;;;;;20;1;0;Keywords;Keywords;"Mots clés";;;;;0;Ecommerce;Ecommerce;Ecommerce
+lens_mount_interface;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;28;0;0;"Linsen Montageanschluss";"Lens mount interface";"Monture d'objectif d'interface";;;;;0;Technical;Technique;Technische
+light_exposure_corrections;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;37;0;0;"Light exposure corrections";"Light exposure corrections";"Light exposure corrections";;;;;0;Technical;Technique;Technische
+light_exposure_modes;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;36;1;0;"Light exposure modes";"Light exposure modes";"Light exposure modes";;;;;0;Technical;Technique;Technische
+light_metering;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;38;1;0;"Light metering";"Light metering";"Light metering";;;;;0;Technical;Technique;Technische
+main_color;pim_catalog_simpleselect;color;0;1;;;;;;;;;;;;;;;;;;1;0;0;Hauptfarbe;"Main color";"Couleur principale";;;;;0;Color;Couleur;Farbe
+material;pim_catalog_simpleselect;product;0;1;;;;;;;;;;;;;;;;;;22;0;0;Material;Material;Matière;;;;;0;Product;Produit;Product
+max_image_resolution;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;24;0;0;"Maximale Bildauflösung";"Maximum image resolution";"Résolution maximum";;;;;0;Technical;Technique;Technische
+maximum_frame_rate;pim_catalog_number;technical;0;1;;;;;;;;;;;;;;;;;;15;0;0;"Maximale Bildfrequenz";"Maximum frame rate";"Cadence maximale";;;;;0;Technical;Technique;Technische
+maximum_print_size;pim_catalog_simpleselect;technical;0;1;;;;;;;;;;;;;;;;;;5;0;0;"Maximale Druckgröße";"Maximum print size";"Format d’impression maximale";;;;;0;Technical;Technique;Technische
+maximum_scan_size;pim_catalog_metric;technical;0;1;;Length;MILLIMETER;;;;;;;;;;;;;;;2;0;0;"Maximale Scan-Abmessung";"Maximum scan size";"Surface maximal de numérisation";;;;;0;Technical;Technique;Technische
+maximum_video_resolution;pim_catalog_simpleselect;technical;0;1;;;;;;;;;;;;;;;;;;14;0;0;"Maximale Video-Auflösung";"Maximum video resolution";"Résolution vidéo maximale";;;;;0;Technical;Technique;Technische
+meta_description;pim_catalog_textarea;ecommerce;0;1;;;;;;;;;;;;;;;;;;10;1;0;"Meta description";"Meta description";"Meta description";;;;;0;Ecommerce;Ecommerce;Ecommerce
+meta_title;pim_catalog_text;ecommerce;0;1;;;;;;;;;;;;;;;;;;10;1;0;"Meta title";"Meta title";"Meta titre";;;;;0;Ecommerce;Ecommerce;Ecommerce
+multifunctional_functions;pim_catalog_multiselect;technical;0;1;;;;;;;;;;;;;;;;;;16;0;0;"Functies all-in-one";"All-in-one functions";"Fonctions tout-en-un";;;;;0;Technical;Technique;Technische
+name;pim_catalog_text;marketing;0;1;;;;;;;;;;;;;;;;;;2;0;0;Name;Name;Nom;;;;;0;Marketing;Marketing;Marketing
+notice;pim_catalog_file;medias;0;1;pdf;;;;;;;;;;;;;;;;;15;0;0;Notice;Notice;Notice;;;;;0;Media;Media;Media
+optical_zoom;pim_catalog_number;technical;0;1;;;;;;;;;;;;;;;;;;8;0;0;"Optischer Zoom";"Optical zoom";"Zoom optique";;;;;0;Technical;Technique;Technische
+pdf_description;pim_catalog_file;medias;0;1;pdf;;;;;;;;;;;;;;;;;2;0;0;"PDF Bezeichnung";"PDF description";"Description PDF";;;;;0;Media;Media;Media
+picture;pim_catalog_image;medias;0;1;jpg,jpeg,gif,png;;;;;;;;;;;;;;;;;1;0;0;Photography;Picture;Photographie;;;;;0;Media;Media;Media
+power_requirements;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;4;0;0;Energiebedarf;"Power requirements";"Exigences d'alimentation";;;;;0;Technical;Technique;Technische
+price;pim_catalog_price_collection;erp;0;1;;;;;;;;;;;;1;;;;;;6;0;0;Preis;Price;Prix;;;;;0;ERP;ERP;ERP
+release_date;pim_catalog_date;marketing;0;1;;;;;;;;;;;;;;;;;;5;0;1;Erscheinungstermin;"Release date";"Date de sortie";;;;;0;Marketing;Marketing;Marketing
+response_time;pim_catalog_number;marketing;0;1;;;;;;;;;;;;;;;;;;4;0;0;Erscheinungstermin;"Response time (ms)";"Temps de réponse (ms)";;;;;0;Marketing;Marketing;Marketing
+secondary_color;pim_catalog_simpleselect;color;0;1;;;;;;;;;;;;;;;;;;2;0;0;Sekundärfarbe;"Secondary color";"Couleur secondaire";;;;;0;Color;Couleur;Farbe
+sensor_type;pim_catalog_simpleselect;technical;0;1;;;;;;;;;;;;;;;;;;6;0;0;CCD-Bildsensor;"Sensor type";"Type de capteur";;;;;0;Technical;Technique;Technische
+short_description;pim_catalog_textarea;technical;0;1;;;;;;;;;;;;;;;;;;23;1;1;"Kurze Beschreibung";"Short description";"Description courte";;;;;0;Technical;Technique;Technische
+size;pim_catalog_simpleselect;product;0;1;;;;;;;;;;;;;;;;;;2;0;0;Size;Size;Taille;;;;;0;Product;Produit;Product
+sku;pim_catalog_identifier;erp;1;1;;;;;;;;;;;;;;;;;;1;0;0;SKU;SKU;SKU;;;;;0;ERP;ERP;ERP
+snr;pim_catalog_number;technical;0;1;;;;;;;;;;;;;;;;;;12;0;0;"Signal-zu-Geräusche Verhältnis (SNR)";"Signal-to-Noise Ratio (SNR)";"Rapport de signal-à-bruit";;;;;0;Technical;Technique;Technische
+sole_composition;pim_catalog_text;product;0;1;;;;;;;;;;;;;;;;;;4;0;0;"Sole composition";"Sole composition";"Composition semelle";;;;;0;Product;Produit;Product
+supplier;pim_catalog_simpleselect;erp;0;1;;;;;;;;;;;;;;;;;;2;0;0;Lieferant;Supplier;Fournisseur;;;;;0;ERP;ERP;ERP
+supported_aspect_ratios;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;26;0;0;"Unterstützte Seitenverhältnisse";"Supported aspect ratios";"Rapports d'aspect pris en charge";;;;;0;Technical;Technique;Technische
+supported_image_format;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;27;0;0;"Unterstützte Bildformate";"Supported image format";"Format d'image supportée";;;;;0;Technical;Technique;Technische
+thd;pim_catalog_number;technical;0;1;;;;;;;;;;;;;;;;;;11;0;0;"THD, totalklirren";"Total Harmonic Distortion (THD)";"DHT, distorsion harmonique totale";;;;;0;Technical;Technique;Technische
+top_composition;pim_catalog_text;product;0;1;;;;;;;;;;;;;;;;;;8;0;0;"Top composition";"Top composition";"Composition dessus";;;;;0;Product;Produit;Product
+total_megapixels;pim_catalog_text;technical;0;1;;;;;;;;;;;;;;;;;;7;0;0;"Total megapixels";"Total megapixels";"Total des megapixels";;;;;0;Technical;Technique;Technische
+tshirt_materials;pim_catalog_simpleselect;manufacturing;0;1;;;;;;;;;;;;;;;;;;2;0;0;"T-Shirt gewebe";"T-Shirt material";"Matière T-Shirt";;;;;0;Manufacturing;Fabrication;Herstellung
+tshirt_style;pim_catalog_multiselect;design;0;1;;;;;;;;;;;;;;;;;;1;0;0;"T-Shirt stil";"T-Shirt style";"Style du T-Shirt";;;;;0;Design;Style;Stil
+variation_description;pim_catalog_textarea;marketing;0;1;;;;;;;;;;;;;;;;;;5;1;0;"Variant beschreibung";"Variant description";"Description de la variante";;;;;0;Marketing;Marketing;Marketing
+variation_image;pim_catalog_image;medias;0;1;png,jpeg,jpg;;;;;;;;;;;;;;;;;20;0;0;"Variant bild";"Variant picture";"Image de la variante";;;;;0;Media;Media;Media
+variation_name;pim_catalog_text;marketing;0;1;;;;;;;;;;;;;;;;;;4;1;0;"Variant Name";"Variant Name";"Nom de la variante";;;;;0;Marketing;Marketing;Marketing
+viewing_area;pim_catalog_metric;technical;0;1;;Length;MILLIMETER;;;;;;;;;;;;;;;20;0;0;"Effektive Bildfläche";"Effective viewing area";"Zone d'affichage active";;;;;0;Technical;Technique;Technische
+wash_temperature;pim_catalog_simpleselect;product;0;1;;;;;;;;;;;;;;;;;;6;0;0;"Wash temperature";"Wash temperature";"Température de lavage";;;;;0;Product;Produit;Product
+weight;pim_catalog_metric;technical;0;1;;Weight;KILOGRAM;;;;;;;;;1;;;;;;1;0;0;Gewicht;Weight;Poids;;;;;0;Technical;Technique;Technische

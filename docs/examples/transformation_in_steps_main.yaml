@@ -1,0 +1,25 @@
+aliases:
+  family_wildcard: 'dimensions_*.CSV'
+  family_1: 'family_a.csv'
+  family_2: 'family_b.csv'
+  family_3: 'family_c.csv'
+  family_codes_old: 'family_codes_old.csv'
+  family_codes_new: 'family_codes_new.csv'
+
+account:
+  - name: test
+    domain: https://
+    client_id:
+    secret:
+    username:
+    password:
+
+# do these steps before you start with the actual pipeline if set
+# limited to the same source_path
+transformation_steps:
+  - transformation_in_steps_1.yaml
+  - transformation_in_steps_2.yaml
+  - transformation_in_steps_3.yaml
+  - old_source_test.yaml
+  - new_source_test.yaml
+  - api-step.yaml

@@ -1,0 +1,6 @@
+item_code,product_title,cost,product_type,manufacturer,item_description,stock_qty
+SUP001,Bluetooth Wireless Headphones,89.99,Audio,TechSound,Premium wireless headphones with active noise cancellation,25
+SUP002,Athletic Running Sneakers,129.99,Footwear,RunFast,Lightweight running shoes with advanced cushioning technology,15
+SUP003,Stainless Steel Water Bottle,24.99,Drinkware,HydroMax,Double-wall insulated bottle keeps beverages cold for 24 hours,50
+SUP004,Ergonomic Office Chair,299.99,Furniture,ComfortDesk,Adjustable office chair with lumbar support and breathable mesh,8
+SUP005,Wireless Charging Pad,39.99,Electronics,PowerTech,Fast wireless charging pad compatible with Qi-enabled devices,30

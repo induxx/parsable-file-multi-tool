@@ -1,0 +1,27 @@
+sources:
+  - '%workpath%/products.buffer'
+
+pipeline:
+  input:
+    reader:
+      type: json
+      filename: 'products.buffer'
+      converter: 'akeneo/product/api'
+  actions:
+    remove_some_stuff:
+      action: remove
+      fields: [metadata, created, updated, quantified_associations, values|picture, values|variation_image, values|image]
+    filter_exact_category_oki:
+      action: filter
+      key: categories
+      equals: oki
+    add_category_dingdong:
+      action: merge
+      field: categories
+      values: ['dingdong']
+
+  output:
+    writer:
+      type: buffer
+      filename: 'filtered_products.buffer'
+      converter: 'akeneo/product/api'

@@ -1,0 +1,14 @@
+aliases:
+  family_4: '%workpath%/family_c.csv'
+
+pipeline:
+  input:
+    reader:
+      type: csv
+      filename: family_4
+  output:
+    http:
+      type: rest_api
+      account: akeneo
+      endpoint: products
+      method: MULTI_PATCH
