@@ -6,6 +6,8 @@ use Misery\Component\Logger\ItemLoggerAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Misery\Component\Common\Pipeline\Exception\InvalidItemException;
 use Misery\Component\Common\Pipeline\Exception\SkipPipeLineException;
+use Misery\Component\Common\Pipeline\Exception\SkipPipeLineReasonException;
+use Misery\Component\Common\Pipeline\Exception\SkipPipeLineWarningException;
 use Misery\Component\Debugger\ItemDebugger;
 use Misery\Component\Debugger\NullItemDebugger;
 
@@ -112,9 +114,16 @@ class Pipeline
                 foreach ($this->outputs as $output) {
                     $output->write($item);
                 }
-            } catch (SkipPipeLineException $exception) {
+            } catch (SkipPipeLineWarningException $exception) {
                 if (!empty($exception->getMessage())) {
                     $this->logger->warning(sprintf('Skipped: %s', $exception->getMessage()), [
+                        'line' => $i,
+                    ]);
+                }
+                continue;
+            } catch (SkipPipeLineReasonException|SkipPipeLineException $exception) {
+                if (!empty($exception->getMessage())) {
+                    $this->logger->info(sprintf('Skipped: %s', $exception->getMessage()), [
                         'line' => $i,
                     ]);
                 }

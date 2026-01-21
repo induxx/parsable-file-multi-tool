@@ -4,7 +4,7 @@ namespace Misery\Component\Action;
 
 use Misery\Component\Common\Options\OptionsInterface;
 use Misery\Component\Common\Options\OptionsTrait;
-use Misery\Component\Common\Pipeline\Exception\SkipPipeLineException;
+use Misery\Component\Common\Pipeline\Exception\SkipPipeLineReasonException;
 use Misery\Model\DataStructure\ItemInterface;
 
 class SkipAction implements OptionsInterface, ActionItemInterface
@@ -39,7 +39,7 @@ class SkipAction implements OptionsInterface, ActionItemInterface
         $forceSkip = $this->getOption('force_skip', false);
 
         if ($forceSkip) {
-            throw new SkipPipeLineException($message);
+            throw new SkipPipeLineReasonException($message);
         }
 
         if (is_array($field) && isset($field['code']) && isset($field['index'])) {
@@ -50,19 +50,19 @@ class SkipAction implements OptionsInterface, ActionItemInterface
 
         foreach ($states as $state) {
             if ($state === 'EMPTY' && empty($value)) {
-                throw new SkipPipeLineException($message);
+                throw new SkipPipeLineReasonException($message);
             }
 
             if ($state === 'UNIQUE') {
                 if (isset($this->values[$value])) {
-                    throw new SkipPipeLineException($message);
+                    throw new SkipPipeLineReasonException($message);
                 }
                 $this->values[$value] = '';
                 continue;
             }
 
             if ($value === $state) {
-                throw new SkipPipeLineException($message);
+                throw new SkipPipeLineReasonException($message);
             }
         }
 
