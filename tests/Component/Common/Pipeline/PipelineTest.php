@@ -197,7 +197,7 @@ class PipelineTest extends TestCase
 
         $this->assertCount(0, $writer->written);
         $this->assertCount(1, $logger->records);
-        $this->assertSame('warning', $logger->records[0]['level']);
+        $this->assertSame('info', $logger->records[0]['level']);
         $this->assertSame('Skipped: Nope', $logger->records[0]['message']);
         $this->assertSame([
             'line' => 1,
