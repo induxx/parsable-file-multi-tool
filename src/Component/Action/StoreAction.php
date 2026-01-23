@@ -39,6 +39,8 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
         'identifier' => 'identifier',
         'entity' => 'product',
         'store_product' => true,
+        'persist_mode' => 'immediate',
+        'persist_field' => '__change_manager_identifier',
         'change_manager' => [
             'all_values' => true,
             'strict_value_matching' => true,
@@ -97,6 +99,7 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             $trueAction = $this->getOption('true_action');
             $falseAction = $this->getOption('false_action');
             $changeManagerData = $this->getOption('change_manager');
+            $persistField = $this->getOption('persist_field');
 
             // label maker process based on change_manager array
             $labels = (new ChangeSetLabelMaker($entity));
@@ -114,6 +117,7 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             $labels = $labels->build();
             $productHasChanges = $changeManager->hasChanges($identifier, $item, $labels);
 
+            $persistIdentifier = null;
             if ($productHasChanges) {
                 // start true_action
                 // make changes list
@@ -126,8 +130,15 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
                 $this->configuration->updateList('product_changes_fields_updated', $changes['updated']);
                 $this->configuration->updateList('product_changes_fields_all', $changes['all']);
 
-                $this->storeProduct($identifier);
-            };
+                if ($this->getOption('store_product')) {
+                    $persistMode = $this->getOption('persist_mode');
+                    if ($persistMode === 'deferred') {
+                        $persistIdentifier = $identifier;
+                    } else {
+                        $this->storeProduct($identifier);
+                    }
+                }
+            }
 
             // see GroupAction, get ActionProcessor, process your action(s)
             if ($productHasChanges && [] !== $trueAction) {
@@ -137,6 +148,13 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             // see GroupAction, get actionProcessor, process your action(s)
             if (!$productHasChanges && [] !== $falseAction) {
                 $item = $this->falseActionProcessor->process($item);
+            }
+
+            if ($persistIdentifier !== null) {
+                if ($persistField !== null && $persistField !== '') {
+                    $item[$persistField] = $persistIdentifier;
+                    $item['__change_manager_persist_field'] = $persistField;
+                }
             }
         }
 

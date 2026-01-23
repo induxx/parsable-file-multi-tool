@@ -91,7 +91,7 @@ interface ApiClientInterface
     /**
      * HTTP PATCH VERB
      */
-    public function patch(string $endpoint, array $patchData): ApiResponse;
+    public function patch(string $endpoint, array $patchData, array $headers = []): ApiResponse;
     /**
      * A DELETE HTTP VERB
      */

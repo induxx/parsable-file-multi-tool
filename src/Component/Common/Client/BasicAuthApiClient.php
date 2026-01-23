@@ -35,6 +35,8 @@ class BasicAuthApiClient implements ApiClientInterface
     {
         $endpoint = str_replace(' ', '%20', $endpoint); // TODO tmp fix replace spaces with url encoded value, fix for Coeck delta filter
 
+        $headers = $this->normalizeHeaders($headers);
+
         $curl = curl_init($endpoint);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -57,6 +59,24 @@ class BasicAuthApiClient implements ApiClientInterface
         }
 
         curl_close($curl);
+    }
+
+    private function normalizeHeaders(array $headers): array
+    {
+        if (array_is_list($headers)) {
+            return $headers;
+        }
+
+        $normalized = [];
+        foreach ($headers as $key => $value) {
+            if (is_string($key)) {
+                $normalized[] = $key . ': ' . $value;
+                continue;
+            }
+            $normalized[] = $value;
+        }
+
+        return $normalized;
     }
 
     public function getResponse(): ApiResponse
@@ -121,9 +141,9 @@ class BasicAuthApiClient implements ApiClientInterface
         // TODO: Implement multiPatch() method.
     }
 
-    public function patch(string $endpoint, array $patchData): ApiResponse
+    public function patch(string $endpoint, array $patchData, array $headers = []): ApiResponse
     {
-        $this->sendRequest('PATCH', $endpoint, $patchData);
+        $this->sendRequest('PATCH', $endpoint, $patchData, $headers);
 
         return $this->getResponse();
     }

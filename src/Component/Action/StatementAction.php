@@ -8,8 +8,9 @@ use Misery\Component\Common\Utils\ValueFormatter;
 use Misery\Component\Configurator\ConfigurationAwareInterface;
 use Misery\Component\Configurator\ConfigurationTrait;
 use Misery\Component\Statement\StatementBuilder;
+use Misery\Model\DataStructure\ItemInterface;
 
-class StatementAction implements OptionsInterface, ConfigurationAwareInterface
+class StatementAction implements OptionsInterface, ConfigurationAwareInterface, ActionItemInterface
 {
     use ConfigurationTrait;
     use OptionsTrait;
@@ -67,6 +68,11 @@ class StatementAction implements OptionsInterface, ConfigurationAwareInterface
                 $action->setOptions($then);
             }
 
+            if ($then['action'] === 'concat') {
+                $action = new ConcatAction();
+                $action->setOptions($then);
+            }
+
             $statement->setAction($action);
         }
 
@@ -84,5 +90,34 @@ class StatementAction implements OptionsInterface, ConfigurationAwareInterface
         }
 
         return $statement->apply($item);
+    }
+
+    public function applyAsItem(ItemInterface $item): void
+    {
+        $original = $item->toArray();
+        $updated = $this->apply($original);
+
+        foreach ($updated as $key => $value) {
+            if ($key === 'values' || $key === 'labels') {
+                continue;
+            }
+
+            if ($item->hasItem($key)) {
+                $item->editItemValue($key, $value);
+                continue;
+            }
+
+            $item->addItem($key, $value);
+        }
+
+        foreach ($original as $key => $value) {
+            if ($key === 'values' || $key === 'labels') {
+                continue;
+            }
+
+            if (!array_key_exists($key, $updated)) {
+                $item->removeItem($key);
+            }
+        }
     }
 }

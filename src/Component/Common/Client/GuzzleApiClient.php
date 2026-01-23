@@ -116,7 +116,7 @@ class GuzzleApiClient implements ApiClientInterface
         return $this->request('POST', $endpoint, $data, $headers);
     }
 
-    public function patch(string $endpoint, array $patchData): ApiResponse
+    public function patch(string $endpoint, array $patchData, array $headers = []): ApiResponse
     {
         $headers['Content-Type'] = 'application/json';
         return $this->request('PATCH', $endpoint, $patchData, $headers);
