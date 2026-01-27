@@ -142,10 +142,10 @@ class LegacyApiClient implements ApiClientInterface
     /**
      * HTTP PATCH VERB
      */
-    public function patch(string $endpoint, array $patchData): ApiResponse
+    public function patch(string $endpoint, array $patchData, array $headers = []): ApiResponse
     {
         $this->setAuthenticationHeaders();
-        $this->setHeaders(['Content-Type' => 'application/json']);
+        $this->setHeaders(array_merge(['Content-Type' => 'application/json'], $headers));
 
         \curl_setopt($this->handle, CURLOPT_URL, $endpoint);
         \curl_setopt($this->handle, CURLOPT_CUSTOMREQUEST, "PATCH");

@@ -44,11 +44,18 @@ class HttpWriterFactory implements RegisteredByNameInterface
                 throw new \Exception(sprintf('Account "%s" not found.', $accountCode));
             }
 
+            $headers = [];
+            if (isset($configuration['headers']) && is_array($configuration['headers'])) {
+                $headers = $configuration['headers'];
+            }
+
             return new ApiWriter(
                 $account,
                 $account->getApiEndpoint($endpoint),
                 $method,
-                $config->getLogger()
+                $config->getLogger(),
+                $config->changeManager,
+                $headers
             );
         }
 

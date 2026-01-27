@@ -2,6 +2,7 @@
 
 namespace Misery\Component\Akeneo\Client;
 
+use App\Component\ChangeManager\ChangeManager;
 use Misery\Component\Akeneo\Client\Errors\AkeneoErrorFactory;
 use Misery\Component\Common\Client\ApiClientInterface;
 use Misery\Component\Common\Client\ApiEndpointInterface;
@@ -23,17 +24,29 @@ class ApiWriter implements ItemWriterInterface
     private $batch;
     /** @var LoggerInterface */
     private $logger;
+    private ?ChangeManager $changeManager;
+    private const PERSIST_FIELD_HINT = '__change_manager_persist_field';
+    private array $headers;
 
     // TODO: add support for batching
     private $pack = [];
 
-    public function __construct(ApiClientInterface $client, ApiEndpointInterface $endpoint, string $method = null, LoggerInterface $logger = null)
+    public function __construct(
+        ApiClientInterface $client,
+        ApiEndpointInterface $endpoint,
+        string $method = null,
+        LoggerInterface $logger = null,
+        ChangeManager $changeManager = null,
+        array $headers = []
+    )
     {
         $this->client = $client;
         $this->endpoint = $endpoint;
         $this->method = $method;
         $this->batch = new BatchSizeProcessor(10);
         $this->logger = $logger;
+        $this->changeManager = $changeManager;
+        $this->headers = $headers;
     }
 
     public function write(array $data): void
@@ -74,6 +87,7 @@ class ApiWriter implements ItemWriterInterface
 
     private function doWrite(array $data)
     {
+        $persistIdentifiers = $this->collectPersistIdentifiers($data);
         try {
             $response = $this->execute($data);
         } catch (\RuntimeException $e) {
@@ -100,6 +114,12 @@ class ApiWriter implements ItemWriterInterface
 
         if ($this->method === 'DELETE') {
             $this->client->log($data['identifier'], $response->getCode(), $response->getContent());
+        }
+
+        if ($this->changeManager !== null && $persistIdentifiers !== []) {
+            foreach ($persistIdentifiers as $identifier) {
+                $this->changeManager->persistChange($identifier);
+            }
         }
     }
 
@@ -131,7 +151,11 @@ class ApiWriter implements ItemWriterInterface
             case 'PATCH':
             case 'patch':
                 return $this->client
-                    ->patch($this->client->getUrlGenerator()->format($this->endpoint->getSingleEndPoint(), $context), $data);
+                    ->patch(
+                        $this->client->getUrlGenerator()->format($this->endpoint->getSingleEndPoint(), $context),
+                        $data,
+                        $this->headers
+                    );
             case 'MULTI_PATCH':
             case 'multi_patch':
                 return $this->client
@@ -143,5 +167,72 @@ class ApiWriter implements ItemWriterInterface
             default:
                 throw new \InvalidArgumentException(sprintf('Method %s is not supported', $this->method));
         }
+    }
+
+    private function collectPersistIdentifiers(array &$data): array
+    {
+        if ($this->changeManager === null) {
+            return [];
+        }
+
+        $identifiers = [];
+
+        if (array_is_list($data)) {
+            foreach ($data as $index => $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+
+                $rowPersistField = $row[self::PERSIST_FIELD_HINT] ?? null;
+                if (is_string($rowPersistField) && $rowPersistField !== '' && array_key_exists($rowPersistField, $row)) {
+                    if ($row[$rowPersistField] !== null && $row[$rowPersistField] !== '') {
+                        $identifiers[] = $row[$rowPersistField];
+                    }
+                    unset($row[$rowPersistField]);
+                }
+
+                foreach (array_keys($row) as $key) {
+                    if (!str_starts_with($key, '__change_manager_')) {
+                        continue;
+                    }
+                    if ($key === self::PERSIST_FIELD_HINT) {
+                        unset($row[$key]);
+                        continue;
+                    }
+                    if ($row[$key] !== null && $row[$key] !== '') {
+                        $identifiers[] = $row[$key];
+                    }
+                    unset($row[$key]);
+                }
+
+                $data[$index] = $row;
+            }
+
+            return $identifiers;
+        }
+
+        $rowPersistField = $data[self::PERSIST_FIELD_HINT] ?? null;
+        if (is_string($rowPersistField) && $rowPersistField !== '' && array_key_exists($rowPersistField, $data)) {
+            if ($data[$rowPersistField] !== null && $data[$rowPersistField] !== '') {
+                $identifiers[] = $data[$rowPersistField];
+            }
+            unset($data[$rowPersistField]);
+        }
+
+        foreach (array_keys($data) as $key) {
+            if (!str_starts_with($key, '__change_manager_')) {
+                continue;
+            }
+            if ($key === self::PERSIST_FIELD_HINT) {
+                unset($data[$key]);
+                continue;
+            }
+            if ($data[$key] !== null && $data[$key] !== '') {
+                $identifiers[] = $data[$key];
+            }
+            unset($data[$key]);
+        }
+
+        return $identifiers;
     }
 }
