@@ -21,6 +21,8 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
     use OptionsTrait;
     use ConfigurationTrait;
 
+    private const NUMBER_PRECISION = 4;
+
     private $options = [
         'attributes:list' => [],
         'attribute_types:list' => [],
@@ -347,14 +349,18 @@ class AkeneoFlatProductToCsvConverter implements ConverterInterface, Configurati
     private function numberize($value)
     {
         if (is_float($value)) {
-            return $value;
+            return round($value, self::NUMBER_PRECISION);
         }
         if (is_integer($value)) {
             return $value;
         }
         if (is_string($value)) {
             $posNum = str_replace(',', '.', $value);
-            return is_numeric($posNum) ? $posNum: $value;
+            if (!is_numeric($posNum)) {
+                return $value;
+            }
+
+            return round((float) $posNum, self::NUMBER_PRECISION);
         }
     }
 

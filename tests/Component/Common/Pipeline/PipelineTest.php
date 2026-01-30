@@ -181,7 +181,7 @@ class PipelineTest extends TestCase
         ], $logger->records[0]['context']);
     }
 
-    public function test_pipeline_logs_warning_for_skipped_items(): void
+    public function test_pipeline_logs_info_for_skipped_items(): void
     {
         $reader = new DummyReader([
             ['id' => 1],
