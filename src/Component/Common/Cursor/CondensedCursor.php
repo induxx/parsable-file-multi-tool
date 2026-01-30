@@ -16,7 +16,7 @@ class CondensedCursor implements CursorInterface
     private $count;
     /** @var array */
     private $context;
-    private $collection;
+    private $collection = [];
     /**
      * @var mixed|null
      */
@@ -89,7 +89,7 @@ class CondensedCursor implements CursorInterface
 
     private function releaseLastCollection(): array
     {
-        $collection = $this->collection;
+        $collection = $this->collection ?? [];
 
         // reset
         $this->collection = [];
@@ -163,7 +163,7 @@ class CondensedCursor implements CursorInterface
     public function clear(): void
     {
         $this->count = null;
-        $this->collection = null;
+        $this->collection = [];
         $this->currentId = null;
 
         $this->cursor->clear();

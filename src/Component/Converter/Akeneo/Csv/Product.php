@@ -35,6 +35,8 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
         'associations:keys' => [],
         'quantified_associations' => [],
         'quantified_associations:keys' => [],
+        'export_associations' => false,
+        'export_quantified_associations' => false,
         'properties' => [
             'sku' => [
                 'text' => null,
@@ -323,6 +325,37 @@ class Product implements ConverterInterface, RegisteredByNameInterface, OptionsI
             $output['parent'] = $item['parent'];
         }
         $output = $this->decoder->decode($output);
+
+        if ($this->getOption('export_quantified_associations') && !empty($item['quantified_associations'])) {
+            foreach ($item['quantified_associations'] as $associationCode => $associationData) {
+                if (isset($associationData['products']) && is_array($associationData['products'])) {
+                    $output[$associationCode.'-products'] = implode(',', array_column($associationData['products'], 'identifier'));
+                    $output[$associationCode.'-products-quantity'] = implode(',', array_column($associationData['products'], 'quantity'));
+                }
+                if (isset($associationData['product-models']) && is_array($associationData['product-models'])) {
+                    $output[$associationCode.'-product-models'] = implode(',', array_column($associationData['product-models'], 'identifier'));
+                    $output[$associationCode.'-product-models-quantity'] = implode(',', array_column($associationData['product-models'], 'quantity'));
+                }
+            }
+            unset($item['quantified_associations']);
+        }
+
+        if ($this->getOption('export_associations') && !empty($item['associations'])) {
+            foreach ($item['associations'] as $associationCode => $associationData) {
+                if (isset($associationData['products']) && is_array($associationData['products'])) {
+                    $output[$associationCode.'-products'] = implode(',', $associationData['products']);
+                }
+
+                if (isset($associationData['product_models']) && is_array($associationData['product_models'])) {
+                    $output[$associationCode.'-product_models'] = implode(',', $associationData['product_models']);
+                }
+
+                if (isset($associationData['groups']) && is_array($associationData['groups'])) {
+                    $output[$associationCode.'-groups'] = implode(',', $associationData['groups']);
+                }
+            }
+            unset($item['associations']);
+        }
 
         # now iterate over the item and match the remaining values
         foreach ($item as $key => $itemValue) {
