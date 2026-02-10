@@ -108,12 +108,19 @@ class StoreAction implements ActionInterface, OptionsInterface, ConfigurationAwa
             } elseif (true === $changeManagerData['all_values'] && isset($item['values'])) {
                 $labels->addSubDomainProperties('values', array_keys($item['values']));
             }
+
             if (!empty($changeManagerData['context']['scope'])) {
                 $labels->addScope($changeManagerData['context']['scope']);
             }
+
             if (!empty($changeManagerData['context']['locales'])) {
                 $labels->addLocales($changeManagerData['context']['locales']);
             }
+
+            if (!empty($changeManagerData['properties'])) {
+                $labels->addProperties($changeManagerData['properties']);
+            }
+
             $labels = $labels->build();
             $productHasChanges = $changeManager->hasChanges($identifier, $item, $labels);
 
