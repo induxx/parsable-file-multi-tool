@@ -64,7 +64,12 @@ class RedisNameSpacedCache implements SimpleCacheInterface
 
     public function deleteMultiple($keys): bool
     {
-        return $this->cache->deleteMultiple(...$keys);
+        $namespacedKeys = [];
+        foreach ($keys as $key) {
+            $namespacedKeys[] = $this->getNameSpaceKey($key);
+        }
+
+        return $this->cache->deleteMultiple($namespacedKeys);
     }
 
     public function has($key): bool

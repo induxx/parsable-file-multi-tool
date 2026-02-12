@@ -2,54 +2,69 @@
 
 namespace Misery\Component\Common\Cursor;
 
-class CachedCursor implements CursorInterface
+use Misery\Component\Common\Cache\SimpleCacheInterface;
+
+class RedisCachedCursor implements CursorInterface
 {
-    # larger caches might break the memory limit so be alert
-    const SMALL_CACHE_SIZE = 1000;
-    const MEDIUM_CACHE_SIZE = 5000;
-    const LARGE_CACHE_SIZE = 10000;
-    const EXTRA_LARGE_CACHE_SIZE = 50000;
+    public const SMALL_CACHE_SIZE = 1000;
+    public const MEDIUM_CACHE_SIZE = 5000;
+    public const LARGE_CACHE_SIZE = 10000;
+    public const EXTRA_LARGE_CACHE_SIZE = 50000;
 
     /** @var int|mixed */
     private $position = 0;
     /** @var CursorInterface */
     private $cursor;
+    /** @var SimpleCacheInterface */
+    private $cache;
+    /** @var string */
+    private $identifier;
+    /** @var string */
+    private $buildId;
     /** @var array */
     private $items = [];
-
     /** @var array */
     private $options = [
         'cache_size' => self::MEDIUM_CACHE_SIZE,
+        'ttl' => null,
     ];
     /** @var int|null */
     private $rangeStart = null;
     /** @var int|null */
     private $rangeEnd = null;
+    /** @var array<string, bool> */
+    private $cacheKeys = [];
+    /** @var array<int, self> */
+    private static $instances = [];
 
-    public function __construct(CursorInterface $cursor, array $options = [])
+    public function __construct(CursorInterface $cursor, SimpleCacheInterface $cache, string $identifier, array $options = [], ?string $buildId = null)
     {
         $this->cursor = $cursor;
+        $this->cache = $cache;
+        $this->identifier = $identifier;
         $this->options = array_merge($this->options, $options);
+        $this->buildId = $buildId ?? self::generateBuildId();
         $this->position = $cursor->key();
+        self::$instances[spl_object_id($this)] = $this;
     }
 
-    public static function create(CursorInterface $cursor, array $options = []): self
+    public static function create(CursorInterface $cursor, SimpleCacheInterface $cache, string $identifier, array $options = [], ?string $buildId = null): self
     {
-        return new self($cursor, $options);
+        return new self($cursor, $cache, $identifier, $options, $buildId);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    private static function generateBuildId(): string
+    {
+        return 'todo-' . bin2hex(random_bytes(8));
+    }
+
     public function loop(callable $callable): void
     {
         foreach ($this->getIterator() as $row) {
             $callable($row);
         }
     }
-    /**
-     * {@inheritDoc}
-     */
+
     public function getIterator(): \Generator
     {
         while ($this->valid()) {
@@ -59,9 +74,6 @@ class CachedCursor implements CursorInterface
         $this->rewind();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function current(): mixed
     {
         $this->prefetch($this->position);
@@ -69,11 +81,6 @@ class CachedCursor implements CursorInterface
         return array_key_exists($this->position, $this->items) ? $this->items[$this->position] : false;
     }
 
-    /**
-     * Cursor is not rewind
-     * so it could keep fetches in chunks without reset
-     * @param int $i position
-     */
     private function prefetch(int $i): void
     {
         if ($this->rangeStart !== null && $i >= $this->rangeStart && $i <= $this->rangeEnd) {
@@ -85,8 +92,18 @@ class CachedCursor implements CursorInterface
             $cacheSize = 1;
         }
 
-        $this->rangeStart = $i;
-        $this->rangeEnd = $i + $cacheSize - 1;
+        $chunkIndex = intdiv($i, $cacheSize);
+        $cacheKey = $this->getCacheKey($chunkIndex);
+        if ($this->cache->has($cacheKey)) {
+            $this->items = $this->cache->get($cacheKey, []);
+            $this->rangeStart = $chunkIndex * $cacheSize;
+            $this->rangeEnd = $this->rangeStart + $cacheSize - 1;
+            $this->cacheKeys[$cacheKey] = true;
+            return;
+        }
+
+        $this->rangeStart = $chunkIndex * $cacheSize;
+        $this->rangeEnd = $this->rangeStart + $cacheSize - 1;
         $this->items = [];
         $collected = 0;
 
@@ -107,27 +124,21 @@ class CachedCursor implements CursorInterface
             }
             $this->cursor->next();
         }
+
+        $this->cache->set($cacheKey, $this->items, $this->options['ttl']);
+        $this->cacheKeys[$cacheKey] = true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function next(): void
     {
         ++$this->position;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function key(): mixed
     {
         return $this->position;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function valid(): bool
     {
         $this->prefetch($this->position);
@@ -135,18 +146,12 @@ class CachedCursor implements CursorInterface
         return array_key_exists($this->position, $this->items);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rewind(): void
     {
         $this->cursor->rewind();
         $this->position = $this->cursor->key();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function seek($pointer): void
     {
         $this->position = (int) $pointer;
@@ -155,9 +160,6 @@ class CachedCursor implements CursorInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function count(): int
     {
         return $this->cursor->count();
@@ -165,10 +167,35 @@ class CachedCursor implements CursorInterface
 
     public function clear(): void
     {
+        $this->clearCacheEntries();
         $this->items = [];
         $this->rangeStart = null;
         $this->rangeEnd = null;
         $this->rewind();
         $this->cursor->clear();
+    }
+
+    public function clearCacheEntries(): void
+    {
+        if ($this->cacheKeys !== []) {
+            $this->cache->deleteMultiple(array_keys($this->cacheKeys));
+            $this->cacheKeys = [];
+        }
+    }
+
+    public static function clearRegisteredCaches(): void
+    {
+        foreach (self::$instances as $instance) {
+            $instance->clearCacheEntries();
+        }
+        self::$instances = [];
+    }
+
+    private function getCacheKey(int $chunkIndex): string
+    {
+        $identifier = trim($this->identifier, '/');
+        $buildId = trim($this->buildId, '/');
+
+        return '/TRANSFORMATION/' . $buildId . '/' . $identifier . '/chunk:' . $chunkIndex;
     }
 }

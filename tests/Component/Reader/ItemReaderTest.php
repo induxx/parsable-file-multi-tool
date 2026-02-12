@@ -267,6 +267,25 @@ class ItemReaderTest extends TestCase
         $this->assertSame($result, $filteredReader->getItems());
     }
 
+    public function test_find_items_with_multiple_constraints_preserves_order(): void
+    {
+        $reader = new ItemReader(new ItemCollection($this->items));
+
+        $reader = $reader
+            ->find(['first_name' => ['Mieke', 'Frans'], 'last_name' => 'Paepe'])
+        ;
+        $filteredReader = ColumnReducer::reduce($reader, 'first_name', 'last_name');
+
+        $result = [
+            3 => [
+                'first_name' => 'Mieke',
+                'last_name' => 'Paepe',
+            ],
+        ];
+
+        $this->assertSame($result, $filteredReader->getItems());
+    }
+
     public function test_map_items(): void
     {
         $reader = new ItemReader(new ItemCollection([$this->items[0]]));
